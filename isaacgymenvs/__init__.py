@@ -3,12 +3,14 @@ from hydra import compose, initialize
 from hydra.core.hydra_config import HydraConfig
 from omegaconf import DictConfig, OmegaConf
 from isaacgymenvs.utils.reformat import omegaconf_to_dict
-
+import os
 
 OmegaConf.register_new_resolver('eq', lambda x, y: x.lower()==y.lower())
 OmegaConf.register_new_resolver('contains', lambda x, y: x.lower() in y.lower())
 OmegaConf.register_new_resolver('if', lambda pred, a, b: a if pred else b)
 OmegaConf.register_new_resolver('resolve_default', lambda default, arg: default if arg=='' else arg)
+
+ISAAC_GYM_ROOT_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
 def make(

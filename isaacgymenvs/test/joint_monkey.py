@@ -17,7 +17,7 @@ Joint Monkey
 import math
 import numpy as np
 from isaacgym import gymapi, gymutil
-from isaacgymenvs import ISAAC_GYM_ROOT_DIR
+from isaacgymenvs import LEGGED_GYM_ROOT_DIR
 import os
 
 def clamp(x, min_value, max_value):
