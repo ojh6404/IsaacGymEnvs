@@ -17,7 +17,7 @@ Joint Monkey
 import math
 import numpy as np
 from isaacgym import gymapi, gymutil
-from isaacgymenvs import LEGGED_GYM_ROOT_DIR
+from isaacgymenvs import ISAAC_GYM_ROOT_DIR
 import os
 
 def clamp(x, min_value, max_value):
@@ -33,14 +33,13 @@ class AssetDesc:
 
 
 asset_descriptors = [
-    AssetDesc("urdf/khr/khr.urdf", False)
-    # AssetDesc("mjcf/nv_humanoid.xml", False),
-    # AssetDesc("mjcf/nv_ant.xml", False),
-    # AssetDesc("urdf/cartpole.urdf", False),
-    # AssetDesc("urdf/sektion_cabinet_model/urdf/sektion_cabinet.urdf", False),
-    # AssetDesc("urdf/franka_description/robots/franka_panda.urdf", True),
-    # AssetDesc("urdf/kinova_description/urdf/kinova.urdf", False),
-    # AssetDesc("urdf/anymal_b_simple_description/urdf/anymal.urdf", True),
+    AssetDesc("urdf/khr/khr.urdf", False),
+    AssetDesc("mjcf/nv_humanoid.xml", False),
+    AssetDesc("mjcf/nv_ant.xml", False),
+    AssetDesc("urdf/cartpole.urdf", False),
+    AssetDesc("urdf/sektion_cabinet_model/urdf/sektion_cabinet.urdf", False),
+    AssetDesc("urdf/franka_description/robots/franka_panda.urdf", True),
+    AssetDesc("urdf/anymal_c/urdf/anymal.urdf", False),
 ]
 
 
@@ -92,7 +91,7 @@ if viewer is None:
     quit()
 
 # load asset
-asset_root = os.path.join(LEGGED_GYM_ROOT_DIR, "assets")
+asset_root = os.path.join(ISAAC_GYM_ROOT_DIR, "assets")
 asset_file = asset_descriptors[args.asset_id].file_name
 
 asset_options = gymapi.AssetOptions()
