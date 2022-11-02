@@ -50,7 +50,8 @@ class KHRWalk(VecTask):
         self.ang_vel_scale = self.cfg["env"]["learn"]["angularVelocityScale"]
         self.dof_pos_scale = self.cfg["env"]["learn"]["dofPositionScale"]
         self.dof_vel_scale = self.cfg["env"]["learn"]["dofVelocityScale"]
-        self.action_scale = self.cfg["env"]["control"]["actionScale"]
+        # self.action_scale = self.cfg["env"]["control"]["actionScale"]
+        self.action_scale = 16 * torch.pi / 180.0   # 0.279
 
         # reward scales
         self.rew_scales = {}
@@ -61,11 +62,6 @@ class KHRWalk(VecTask):
         # randomization
         self.randomization_params = self.cfg["task"]["randomization_params"]
         self.randomize = self.cfg["task"]["randomize"]
-
-        # command ranges
-        self.command_x_range = self.cfg["env"]["randomCommandVelocityRanges"]["linear_x"]
-        self.command_y_range = self.cfg["env"]["randomCommandVelocityRanges"]["linear_y"]
-        self.command_yaw_range = self.cfg["env"]["randomCommandVelocityRanges"]["yaw"]
 
         # plane params
         self.plane_static_friction = self.cfg["env"]["plane"]["staticFriction"]
@@ -84,8 +80,8 @@ class KHRWalk(VecTask):
         # default joint positions
         self.named_default_joint_angles = self.cfg["env"]["defaultJointAngles"]
 
-        self.cfg["env"]["numObservations"] = 65
-        self.cfg["env"]["numActions"] = 16
+        self.cfg["env"]["numObservations"] = 68 # [joint_pos (10), prev_joint_target_pos(10)] * 3 + roll-pitch(2) + ang_vel(3) + phase(3)
+        self.cfg["env"]["numActions"] = 10      # only leg
 
         super().__init__(config=self.cfg, rl_device=rl_device, sim_device=sim_device, graphics_device_id=graphics_device_id, headless=headless, virtual_screen_capture=virtual_screen_capture, force_render=force_render)
 
@@ -95,6 +91,7 @@ class KHRWalk(VecTask):
         self.max_episode_length = int(self.max_episode_length_s / self.dt + 0.5)
         self.Kp = self.cfg["env"]["control"]["stiffness"]
         self.Kd = self.cfg["env"]["control"]["damping"]
+        self.torque_limit = self.cfg["env"]["control"]["torqueLimit"]
 
         for key in self.rew_scales.keys():
             self.rew_scales[key] *= self.dt
@@ -125,10 +122,10 @@ class KHRWalk(VecTask):
         self.contact_forces = gymtorch.wrap_tensor(net_contact_forces).view(self.num_envs, -1, 3)  # shape: num_envs, num_bodies, xyz axis
         self.torques = gymtorch.wrap_tensor(torques).view(self.num_envs, self.num_dof)
 
-        self.commands = torch.zeros(self.num_envs, 3, dtype=torch.float, device=self.device, requires_grad=False)
-        self.commands_y = self.commands.view(self.num_envs, 3)[..., 1]
-        self.commands_x = self.commands.view(self.num_envs, 3)[..., 0]
-        self.commands_yaw = self.commands.view(self.num_envs, 3)[..., 2]
+        # self.commands = torch.zeros(self.num_envs, 3, dtype=torch.float, device=self.device, requires_grad=False)
+        # self.commands_y = self.commands.view(self.num_envs, 3)[..., 1]
+        # self.commands_x = self.commands.view(self.num_envs, 3)[..., 0]
+        # self.commands_yaw = self.commands.view(self.num_envs, 3)[..., 2]
         self.default_dof_pos = torch.zeros_like(self.dof_pos, dtype=torch.float, device=self.device, requires_grad=False)
 
         for i in range(self.cfg["env"]["numActions"]):
@@ -140,8 +137,8 @@ class KHRWalk(VecTask):
         self.extras = {}
         self.initial_root_states = self.root_states.clone()
         self.initial_root_states[:] = to_torch(self.base_init_state, device=self.device, requires_grad=False)
-        self.gravity_vec = to_torch(get_axis_params(-1., self.up_axis_idx), device=self.device).repeat((self.num_envs, 1))
         self.actions = torch.zeros(self.num_envs, self.num_actions, dtype=torch.float, device=self.device, requires_grad=False)
+        self.prev_actated_dof_pos_ref = torch.zeros(self.num_envs, self.num_actions, dtype=torch.float, device=self.device, requires_grad=False)
 
         self.reset_idx(torch.arange(self.num_envs, device=self.device))
 
@@ -190,12 +187,11 @@ class KHRWalk(VecTask):
         start_pose = gymapi.Transform()
         start_pose.p = gymapi.Vec3(*self.base_init_state[:3])
 
-        body_names = self.gym.get_asset_rigid_body_names(khr_asset)
+        body_names = self.gym.get_asset_rigid_body_names(khr_asset) # BODY, HEAD_LINK0, LARM_LINK0, ...
         self.dof_names = self.gym.get_asset_dof_names(khr_asset)
-        extremity_name = "SHANK" if asset_options.collapse_fixed_joints else "FOOT"
-        feet_names = [s for s in body_names if extremity_name in s]
+        feet_names = ["LLEG_LINK4", "RLEG_LINK4"]
         self.feet_indices = torch.zeros(len(feet_names), dtype=torch.long, device=self.device, requires_grad=False)
-        knee_names = [s for s in body_names if "THIGH" in s]
+        knee_names = ["LLEG_LINK2", "RLEG_LINK2"]
         self.knee_indices = torch.zeros(len(knee_names), dtype=torch.long, device=self.device, requires_grad=False)
         self.base_index = 0
 
@@ -228,8 +224,19 @@ class KHRWalk(VecTask):
 
     def pre_physics_step(self, actions):
         self.actions = actions.clone().to(self.device)
-        targets = self.action_scale * self.actions + self.default_dof_pos
-        self.gym.set_dof_position_target_tensor(self.sim, gymtorch.unwrap_tensor(targets))
+        self.actions = self.action_scale * torch.clamp(self.actions, min=-1.0, max=1.0) + self.prev_actuated_dof_pos_ref
+        self.actions = dof_limit_clip(self.actions, self.dof_limit)
+        # targets = self.action_scale * self.actions + self.default_dof_pos
+        force_tensor = set_pd_force_tensor_limit(
+            self.Kp,
+            self.Kd,
+            target_pos,
+            current_pos,
+            target_vel,
+            current_vel,
+            self.torque_limit)
+        self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(force_tensor))
+        # self.gym.set_dof_position_target_tensor(self.sim, gymtorch.unwrap_tensor(targets))
 
     def post_physics_step(self):
         self.progress_buf += 1
@@ -245,7 +252,7 @@ class KHRWalk(VecTask):
         self.rew_buf[:], self.reset_buf[:] = compute_khr_reward(
             # tensors
             self.root_states,
-            self.commands,
+            # self.commands,
             self.torques,
             self.contact_forces,
             self.knee_indices,
@@ -265,11 +272,11 @@ class KHRWalk(VecTask):
 
         self.obs_buf[:] = compute_khr_observations(  # tensors
                                                         self.root_states,
-                                                        self.commands,
+                                                        # self.commands,
                                                         self.dof_pos,
                                                         self.default_dof_pos,
                                                         self.dof_vel,
-                                                        self.gravity_vec,
+                                                        # self.gravity_vec,
                                                         self.actions,
                                                         # scales
                                                         self.lin_vel_scale,
@@ -299,9 +306,9 @@ class KHRWalk(VecTask):
                                               gymtorch.unwrap_tensor(self.dof_state),
                                               gymtorch.unwrap_tensor(env_ids_int32), len(env_ids_int32))
 
-        self.commands_x[env_ids] = torch_rand_float(self.command_x_range[0], self.command_x_range[1], (len(env_ids), 1), device=self.device).squeeze()
-        self.commands_y[env_ids] = torch_rand_float(self.command_y_range[0], self.command_y_range[1], (len(env_ids), 1), device=self.device).squeeze()
-        self.commands_yaw[env_ids] = torch_rand_float(self.command_yaw_range[0], self.command_yaw_range[1], (len(env_ids), 1), device=self.device).squeeze()
+        # self.commands_x[env_ids] = torch_rand_float(self.command_x_range[0], self.command_x_range[1], (len(env_ids), 1), device=self.device).squeeze()
+        # self.commands_y[env_ids] = torch_rand_float(self.command_y_range[0], self.command_y_range[1], (len(env_ids), 1), device=self.device).squeeze()
+        # self.commands_yaw[env_ids] = torch_rand_float(self.command_yaw_range[0], self.command_yaw_range[1], (len(env_ids), 1), device=self.device).squeeze()
 
         self.progress_buf[env_ids] = 0
         self.reset_buf[env_ids] = 1
@@ -309,6 +316,25 @@ class KHRWalk(VecTask):
 #####################################################################
 ###=========================jit functions=========================###
 #####################################################################
+
+def dof_limit_clip(dof_state, dof_limit):
+    # clipped_dof_state =
+    # return clipped_dof_state
+    pass
+
+# @torch.jit.script
+def set_pd_force_tensor_limit(
+    Kp,
+    Kd,
+    target_pos,
+    current_pos,
+    target_vel,
+    current_vel,
+    torque_limit
+):
+    force_tensor = Kp * (target_pos - current_pos) + Kd * (target_vel - current_vel)
+    force_tensor = torch.clamp(force_tensor, min=-torque_limit, max=torque_limit)
+    return force_tensor
 
 
 @torch.jit.script
@@ -335,8 +361,8 @@ def compute_khr_reward(
     base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13])
 
     # velocity tracking reward
-    lin_vel_error = torch.sum(torch.square(commands[:, :2] - base_lin_vel[:, :2]), dim=1)
-    ang_vel_error = torch.square(commands[:, 2] - base_ang_vel[:, 2])
+    # lin_vel_error = torch.sum(torch.square(commands[:, :2] - base_lin_vel[:, :2]), dim=1)
+    # ang_vel_error = torch.square(commands[:, 2] - base_ang_vel[:, 2])
     rew_lin_vel_xy = torch.exp(-lin_vel_error/0.25) * rew_scales["lin_vel_xy"]
     rew_ang_vel_z = torch.exp(-ang_vel_error/0.25) * rew_scales["ang_vel_z"]
 
@@ -356,11 +382,10 @@ def compute_khr_reward(
 
 @torch.jit.script
 def compute_khr_observations(root_states,
-                                commands,
+                                # commands,
                                 dof_pos,
                                 default_dof_pos,
                                 dof_vel,
-                                gravity_vec,
                                 actions,
                                 lin_vel_scale,
                                 ang_vel_scale,
@@ -372,15 +397,13 @@ def compute_khr_observations(root_states,
     base_quat = root_states[:, 3:7]
     base_lin_vel = quat_rotate_inverse(base_quat, root_states[:, 7:10]) * lin_vel_scale
     base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13]) * ang_vel_scale
-    projected_gravity = quat_rotate(base_quat, gravity_vec)
     dof_pos_scaled = (dof_pos - default_dof_pos) * dof_pos_scale
 
-    commands_scaled = commands*torch.tensor([lin_vel_scale, lin_vel_scale, ang_vel_scale], requires_grad=False, device=commands.device)
+    # commands_scaled = commands*torch.tensor([lin_vel_scale, lin_vel_scale, ang_vel_scale], requires_grad=False, device=commands.device)
 
     obs = torch.cat((base_lin_vel,
                      base_ang_vel,
-                     projected_gravity,
-                     commands_scaled,
+                     # commands_scaled,
                      dof_pos_scaled,
                      dof_vel*dof_vel_scale,
                      actions

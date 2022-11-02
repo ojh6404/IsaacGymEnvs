@@ -32,6 +32,7 @@ env:
     damping: 0.03     # [N*m*s/rad]
     actionScale: 0.5
     controlFrequencyInv: 1 # 60 Hz
+    torqueLimit: 2.5
 
   defaultJointAngles:  # = target angles when action = 0.0
     LF_HAA: 0.03    # [rad]
