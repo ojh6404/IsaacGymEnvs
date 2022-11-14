@@ -48,6 +48,7 @@ from .allegro_hand import AllegroHand
 from .trifinger import Trifinger
 from .khr import KHR
 # from .khr_walk import KHRWalk
+from .khr_recovery import KHRRecovery
 
 # Mappings from strings to environments
 isaacgym_task_map = {
@@ -72,4 +73,5 @@ isaacgym_task_map = {
     "Trifinger": Trifinger,
     "KHR": KHR,
     # "KHRWalk": KHRWalk,
+    "KHRRecovery": KHRRecovery,
 }
