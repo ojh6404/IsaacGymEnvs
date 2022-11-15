@@ -129,7 +129,6 @@ class KHRRecovery(VecTask):
             angle = self.named_default_joint_angles[name] / 180.0 * 3.14159 # deg to rad
             self.default_dof_pos[:, i] = angle
 
-        print(self.default_dof_pos[0])
         # initialize some data used later on
         self.extras = {}
         self.initial_root_states = self.root_states.clone()
@@ -162,15 +161,16 @@ class KHRRecovery(VecTask):
     def _create_envs(self, num_envs, spacing, num_per_row):
         asset_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../assets')
         asset_file = "urdf/khr/khr.urdf"
+
         #asset_path = os.path.join(asset_root, asset_file)
         #asset_root = os.path.dirname(asset_path)
         #asset_file = os.path.basename(asset_path)
 
         asset_options = gymapi.AssetOptions()
         asset_options.default_dof_drive_mode = gymapi.DOF_MODE_NONE
-        asset_options.collapse_fixed_joints = True
-        asset_options.replace_cylinder_with_capsule = True
-        asset_options.flip_visual_attachments = True
+        # asset_options.collapse_fixed_joints = True
+        # asset_options.replace_cylinder_with_capsule = True
+        # asset_options.flip_visual_attachments = True
         asset_options.fix_base_link = self.cfg["env"]["urdfAsset"]["fixBaseLink"]
         asset_options.density = 0.001
         asset_options.angular_damping = 0.0
@@ -208,7 +208,7 @@ class KHRRecovery(VecTask):
         for i in range(self.num_envs):
             # create env instance
             env_ptr = self.gym.create_env(self.sim, env_lower, env_upper, num_per_row)
-            khr_handle = self.gym.create_actor(env_ptr, khr_asset, start_pose, "khr", i, 1, 0)
+            khr_handle = self.gym.create_actor(env_ptr, khr_asset, start_pose, "khr", i, 0, 0) # self collision 1 to 0
             self.gym.set_actor_dof_properties(env_ptr, khr_handle, dof_props)
             self.gym.enable_actor_dof_force_sensors(env_ptr, khr_handle)
             self.envs.append(env_ptr)
@@ -234,10 +234,8 @@ class KHRRecovery(VecTask):
             self.target_vel,
             self.dof_vel,
             self.torque_limit)
-
-        self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(torch.zeros_like(force_tensor, dtype=torch.float, device=self.device, requires_grad=False)))
-
-        # self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(force_tensor)) # apply actuator force
+        # self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(torch.zeros_like(force_tensor, dtype=torch.float, device=self.device, requires_grad=False)))
+        self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(force_tensor)) # apply actuator force
         self.prev_ref_target_pos = target_pos  # set previous target position
         # self.gym.set_dof_position_target_tensor(self.sim, gymtorch.unwrap_tensor(targets))
 
@@ -360,7 +358,7 @@ def compute_khr_recovery_reward(
     # rew_ang_vel_z = torch.exp(-ang_vel_error/0.25) * rew_scales["ang_vel_z"]
 
     # torque penalty
-    rew_torque = torch.sum(torch.square(torques), dim=1)
+    rew_torque = torch.sum(torch.square(torques), dim=1) * -0.000025
 
     total_reward = rew_torque
     total_reward = torch.clip(total_reward, 0., None)
