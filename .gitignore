@@ -31,3 +31,4 @@ outputs/
 *.hydra*
 /isaacgymenvs/wandb
 /isaacgymenvs/test
+.python-version
