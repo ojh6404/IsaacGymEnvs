@@ -8,7 +8,7 @@ env:
   envSpacing: 4.  # [m]
 
   clipObservations: 5.0
-  clipActions: 1.0
+  # clipActions: 5.0
 
   plane:
     staticFriction: 1.0  # [-]

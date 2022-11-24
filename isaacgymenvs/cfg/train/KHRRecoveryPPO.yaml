@@ -1,4 +1,5 @@
 params:
+  # seed: ${...seed}
   seed: ${...seed}
 
   algo:
@@ -24,7 +25,7 @@ params:
 
     mlp:
       units: [256, 128, 64]
-      activation: elu
+      activation: tanh
       d2rl: False
 
       initializer:

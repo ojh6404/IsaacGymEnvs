@@ -46,7 +46,7 @@ from .quadcopter import Quadcopter
 from .shadow_hand import ShadowHand
 from .allegro_hand import AllegroHand
 from .trifinger import Trifinger
-from .khr import KHR
+# from .khr import KHR
 # from .khr_walk import KHRWalk
 from .khr_recovery import KHRRecovery
 
@@ -71,7 +71,7 @@ isaacgym_task_map = {
     "Quadcopter": Quadcopter,
     "ShadowHand": ShadowHand,
     "Trifinger": Trifinger,
-    "KHR": KHR,
+    # "KHR": KHR,
     # "KHRWalk": KHRWalk,
     "KHRRecovery": KHRRecovery,
 }

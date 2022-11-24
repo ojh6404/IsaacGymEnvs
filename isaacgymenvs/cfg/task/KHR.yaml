@@ -6,8 +6,8 @@ physics_engine: ${..physics_engine}
 # if given, will override the device setting in gym.
 env: 
   numEnvs: ${resolve_default:4096,${...num_envs}}
-  envSpacing: 5
-  episodeLength: 1000
+  envSpacing: 2
+  episodeLength: 100
   enableDebugVis: False
 
   clipActions: 1.0
@@ -31,6 +31,19 @@ env:
   asset:
     assetFileName: "urdf/khr/khr.urdf"
 
+  baseInitState:
+    pos: [0.0, 0.0, 0.303] # x,y,z [m]
+    rot: [0.0, 0.0, 0.0, 1.0] # x,y,z,w [quat]
+    vLinear: [0.0, 0.0, 0.0]  # x,y,z [m/s]
+    vAngular: [0.0, 0.0, 0.0]  # x,y,z [rad/s]
+
+  control:
+    # PD Drive parameters:
+    stiffness: 10.0  # [N*m/rad]
+    damping: 0.03     # [N*m*s/rad]
+    actionScale: 1.0
+    controlFrequencyInv: 1 # 60 Hz
+
   plane:
     staticFriction: 1.0
     dynamicFriction: 1.0
@@ -39,8 +52,33 @@ env:
   # set to True if you use camera sensors in the environment
   enableCameraSensors: False
 
+  # episode length in seconds
+  episodeLength_s: 50
+
+  defaultJointAngles:  # = target angles when action = 0.0
+    LARM_JOINT0: 0.0  # [deg]
+    LARM_JOINT1: 0.0  # [deg]
+    LARM_JOINT2: 0.0  # [deg]
+
+    LLEG_JOINT0: 0.0  # [deg]
+    LLEG_JOINT1: -25.0  # [deg]
+    LLEG_JOINT2: 50.0  # [deg]
+    LLEG_JOINT3: -25.0  # [deg]
+    LLEG_JOINT4: 0.0  # [deg]
+
+    RARM_JOINT0: 0.0  # [deg]
+    RARM_JOINT1: 0.0  # [deg]
+    RARM_JOINT2: 0.0  # [deg]
+
+    RLEG_JOINT0: 0.0  # [deg]
+    RLEG_JOINT1: -25.0  # [deg]
+    RLEG_JOINT2: 50.0  # [deg]
+    RLEG_JOINT3: -25.0  # [deg]
+    RLEG_JOINT4: 0.0  # [deg]
+
+
 sim:
-  dt: 0.0166 # 1/60 s
+  dt: 0.02 # 1/60 s
   substeps: 2
   up_axis: "z"
   use_gpu_pipeline: ${eq:${...pipeline},"gpu"}

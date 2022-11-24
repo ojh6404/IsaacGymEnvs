@@ -168,13 +168,14 @@ class KHRRecovery(VecTask):
 
         asset_options = gymapi.AssetOptions()
         asset_options.default_dof_drive_mode = gymapi.DOF_MODE_NONE
-        # asset_options.collapse_fixed_joints = True
+        asset_options.collapse_fixed_joints = True
         # asset_options.replace_cylinder_with_capsule = True
         # asset_options.flip_visual_attachments = True
         asset_options.fix_base_link = self.cfg["env"]["urdfAsset"]["fixBaseLink"]
-        asset_options.density = 0.001
+        # asset_options.density = 0.001
         asset_options.angular_damping = 0.0
         asset_options.linear_damping = 0.0
+        # asset_options.armature = 0.000000001
         asset_options.armature = 0.0
         asset_options.thickness = 0.01
         asset_options.disable_gravity = False
@@ -182,6 +183,7 @@ class KHRRecovery(VecTask):
         khr_asset = self.gym.load_asset(self.sim, asset_root, asset_file, asset_options)
         self.num_dof = self.gym.get_asset_dof_count(khr_asset)
         self.num_bodies = self.gym.get_asset_rigid_body_count(khr_asset)
+        self.num_shapes = self.gym.get_asset_rigid_shape_count(khr_asset)
 
         start_pose = gymapi.Transform()
         start_pose.p = gymapi.Vec3(*self.base_init_state[:3])
@@ -208,9 +210,15 @@ class KHRRecovery(VecTask):
         for i in range(self.num_envs):
             # create env instance
             env_ptr = self.gym.create_env(self.sim, env_lower, env_upper, num_per_row)
+
+            # self.gym.begin_aggregate(env_ptr, self.num_bodies, self.num_shapes, True)
+
             khr_handle = self.gym.create_actor(env_ptr, khr_asset, start_pose, "khr", i, 0, 0) # self collision 1 to 0
             self.gym.set_actor_dof_properties(env_ptr, khr_handle, dof_props)
             self.gym.enable_actor_dof_force_sensors(env_ptr, khr_handle)
+
+            # self.gym.end_aggregate(env_ptr)
+
             self.envs.append(env_ptr)
             self.khr_handles.append(khr_handle)
 
@@ -223,6 +231,9 @@ class KHRRecovery(VecTask):
 
     def pre_physics_step(self, actions):
         self.actions = actions.clone().to(self.device)  # actions size : (num_envs, num_actions)
+        # print('debug')
+        # print(torch.min(self.actions))
+        # print('debug end')
         self.actions = torch.clamp(self.actions, min=-1.0, max=1.0) # clipped by -1.0 to 1.0
         self.actions = self.action_scale * self.actions + self.prev_ref_target_pos    # action
         target_pos = dof_joint_limit_clip(self.actions, self.dof_lower_limit, self.dof_upper_limit)   # clipped by joiint limit

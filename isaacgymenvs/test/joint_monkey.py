@@ -104,20 +104,10 @@ asset = gym.load_asset(sim, asset_root, asset_file, asset_options)
 
 # get array of DOF names
 dof_names = gym.get_asset_dof_names(asset)
-print('dof_names')
 print(dof_names)
-print('')
 # get array of DOF properties
 dof_props = gym.get_asset_dof_properties(asset)
-print('dof_props')
 print(dof_props)
-print('')
-
-#get array of Link names
-body_names = gym.get_asset_rigid_body_names(asset)
-print('body_names')
-print(body_names)
-print('')
 # create an array of DOF states that will be used to update the actors
 num_dofs = gym.get_asset_dof_count(asset)
 dof_states = np.zeros(num_dofs, dtype=gymapi.DofState.dtype)
