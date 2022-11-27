@@ -21,11 +21,11 @@ class Shared(GaussianMixin, DeterministicMixin, Model):
         DeterministicMixin.__init__(self, clip_actions)
 
         self.net = nn.Sequential(nn.Linear(self.num_observations, 256),
-                                 nn.ELU(),
+                                 nn.Tanh(),
                                  nn.Linear(256, 128),
-                                 nn.ELU(),
+                                 nn.Tanh(),
                                  nn.Linear(128, 64),
-                                 nn.ELU())
+                                 nn.Tanh())
 
         self.mean_layer = nn.Linear(64, self.num_actions)
         self.log_std_parameter = nn.Parameter(torch.zeros(self.num_actions))
