@@ -5,13 +5,13 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/BODY_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/BODY_mesh.stl" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/BODY_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/BODY_mesh.stl" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -24,13 +24,13 @@
     <visual>
       <origin xyz="0 0 0.0644" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/HEAD_LINK0_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/HEAD_LINK0_mesh.stl" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0 0 0.0644" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/HEAD_LINK0_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/HEAD_LINK0_mesh.stl" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -43,13 +43,13 @@
     <visual>
       <origin xyz="0.0115 0.049 0.0474" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/LARM_LINK0_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/LARM_LINK0_mesh.stl" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0.0115 0.049 0.0474" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/LARM_LINK0_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/LARM_LINK0_mesh.stl" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -62,13 +62,13 @@
     <visual>
       <origin xyz="0.01975 0.0255 0" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/LARM_LINK1_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/LARM_LINK1_mesh.stl" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0.01975 0.0255 0" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/LARM_LINK1_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/LARM_LINK1_mesh.stl" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -81,13 +81,13 @@
     <visual>
       <origin xyz="-0.0153 -0.0197 -0.0875" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/LARM_LINK2_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/LARM_LINK2_mesh.stl" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="-0.0153 -0.0197 -0.0875" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/LARM_LINK2_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/LARM_LINK2_mesh.stl" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -100,13 +100,13 @@
     <visual>
       <origin xyz="0.018517 0.017 -0.06265" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/LLEG_LINK0_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/LLEG_LINK0_mesh.stl" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0.018517 0.017 -0.06265" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/LLEG_LINK0_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/LLEG_LINK0_mesh.stl" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -119,13 +119,13 @@
     <visual>
       <origin xyz="-0.0192 -0.00825 -0.0385" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/LLEG_LINK1_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/LLEG_LINK1_mesh.stl" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="-0.0192 -0.00825 -0.0385" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/LLEG_LINK1_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/LLEG_LINK1_mesh.stl" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -138,13 +138,13 @@
     <visual>
       <origin xyz="0 0 -0.065" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/LLEG_LINK2_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/LLEG_LINK2_mesh.stl" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0 0 -0.065" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/LLEG_LINK2_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/LLEG_LINK2_mesh.stl" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -157,13 +157,13 @@
     <visual>
       <origin xyz="0 0 -0.065" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/LLEG_LINK3_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/LLEG_LINK3_mesh.stl" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0 0 -0.065" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/LLEG_LINK3_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/LLEG_LINK3_mesh.stl" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -176,13 +176,13 @@
     <visual>
       <origin xyz="0.019683 0.00825 -0.0385" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/LLEG_LINK4_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/LLEG_LINK4_mesh.stl" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0.019683 0.00825 -0.0385" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/LLEG_LINK4_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/LLEG_LINK4_mesh.stl" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -195,13 +195,13 @@
     <visual>
       <origin xyz="0.0115 -0.049 0.0474" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/RARM_LINK0_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/RARM_LINK0_mesh.stl" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0.0115 -0.049 0.0474" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/RARM_LINK0_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/RARM_LINK0_mesh.stl" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -214,13 +214,13 @@
     <visual>
       <origin xyz="0.01975 -0.0255 0" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/RARM_LINK1_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/RARM_LINK1_mesh.stl" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0.01975 -0.0255 0" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/RARM_LINK1_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/RARM_LINK1_mesh.stl" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -233,13 +233,13 @@
     <visual>
       <origin xyz="-0.0153 0.0197 -0.0875" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/RARM_LINK2_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/RARM_LINK2_mesh.stl" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="-0.0153 0.0197 -0.0875" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/RARM_LINK2_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/RARM_LINK2_mesh.stl" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -252,13 +252,13 @@
     <visual>
       <origin xyz="0.018517 -0.017 -0.06265" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/RLEG_LINK0_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/RLEG_LINK0_mesh.stl" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0.018517 -0.017 -0.06265" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/RLEG_LINK0_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/RLEG_LINK0_mesh.stl" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -271,13 +271,13 @@
     <visual>
       <origin xyz="-0.0192 0.00825 -0.0385" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/RLEG_LINK1_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/RLEG_LINK1_mesh.stl" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="-0.0192 0.00825 -0.0385" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/RLEG_LINK1_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/RLEG_LINK1_mesh.stl" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -290,13 +290,13 @@
     <visual>
       <origin xyz="0 0 -0.065" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/RLEG_LINK2_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/RLEG_LINK2_mesh.stl" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0 0 -0.065" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/RLEG_LINK2_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/RLEG_LINK2_mesh.stl" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -309,13 +309,13 @@
     <visual>
       <origin xyz="0 0 -0.065" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/RLEG_LINK3_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/RLEG_LINK3_mesh.stl" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0 0 -0.065" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/RLEG_LINK3_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/RLEG_LINK3_mesh.stl" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -328,13 +328,13 @@
     <visual>
       <origin xyz="0.019683 -0.00825 -0.0385" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/RLEG_LINK4_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/RLEG_LINK4_mesh.stl" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0.019683 -0.00825 -0.0385" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr/mesh/RLEG_LINK4_mesh.obj" scale="1 1 1" />
+        <mesh filename="mesh/RLEG_LINK4_mesh.stl" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>

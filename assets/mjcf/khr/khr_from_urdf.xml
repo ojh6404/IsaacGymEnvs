@@ -1,0 +1,108 @@
+<mujoco model="khr">
+    <compiler angle="radian" />
+    <size njmax="500" nconmax="100" />
+    <asset>
+        <mesh name="BODY_mesh" file="mesh/BODY_mesh.stl" />
+        <mesh name="HEAD_LINK0_mesh" file="mesh/HEAD_LINK0_mesh.stl" />
+        <mesh name="LARM_LINK0_mesh" file="mesh/LARM_LINK0_mesh.stl" />
+        <mesh name="LARM_LINK1_mesh" file="mesh/LARM_LINK1_mesh.stl" />
+        <mesh name="LARM_LINK2_mesh" file="mesh/LARM_LINK2_mesh.stl" />
+        <mesh name="LLEG_LINK0_mesh" file="mesh/LLEG_LINK0_mesh.stl" />
+        <mesh name="LLEG_LINK1_mesh" file="mesh/LLEG_LINK1_mesh.stl" />
+        <mesh name="LLEG_LINK2_mesh" file="mesh/LLEG_LINK2_mesh.stl" />
+        <mesh name="LLEG_LINK3_mesh" file="mesh/LLEG_LINK3_mesh.stl" />
+        <mesh name="LLEG_LINK4_mesh" file="mesh/LLEG_LINK4_mesh.stl" />
+        <mesh name="RARM_LINK0_mesh" file="mesh/RARM_LINK0_mesh.stl" />
+        <mesh name="RARM_LINK1_mesh" file="mesh/RARM_LINK1_mesh.stl" />
+        <mesh name="RARM_LINK2_mesh" file="mesh/RARM_LINK2_mesh.stl" />
+        <mesh name="RLEG_LINK0_mesh" file="mesh/RLEG_LINK0_mesh.stl" />
+        <mesh name="RLEG_LINK1_mesh" file="mesh/RLEG_LINK1_mesh.stl" />
+        <mesh name="RLEG_LINK2_mesh" file="mesh/RLEG_LINK2_mesh.stl" />
+        <mesh name="RLEG_LINK3_mesh" file="mesh/RLEG_LINK3_mesh.stl" />
+        <mesh name="RLEG_LINK4_mesh" file="mesh/RLEG_LINK4_mesh.stl" />
+    </asset>
+    <worldbody>
+        <geom type="mesh" mesh="BODY_mesh" />
+        <geom pos="0 0 0.1288" type="mesh" mesh="HEAD_LINK0_mesh" />
+        <body name="LARM_LINK0" pos="0.0115 0.049 0.0474">
+            <inertial pos="0 0.014576 0" quat="-0.00503842 0.713846 -0.000205936 0.700285" mass="0.0153" diaginertia="2.75379e-06 2.26922e-06 1.64194e-06" />
+            <joint name="LARM_JOINT0" pos="0 0 0" axis="0 1 0" limited="true" range="-1.5708 1.5708" damping="0.2" />
+            <geom pos="0.0115 0.049 0.0474" type="mesh" mesh="LARM_LINK0_mesh" />
+            <body name="LARM_LINK1" pos="0.01975 0.0255 0">
+                <inertial pos="-0.02697 -0.000148 -0.050609" quat="0.707771 0.0169652 0.0207176 0.705934" mass="0.1091" diaginertia="0.000102002 8.97478e-05 2.48692e-05" />
+                <joint name="LARM_JOINT1" pos="0 0 0" axis="1 0 0" limited="true" range="-1.5708 1.5708" damping="0.2" />
+                <geom pos="0.01975 0.0255 0" type="mesh" mesh="LARM_LINK1_mesh" />
+                <body name="LARM_LINK2" pos="-0.0153 -0.0197 -0.0875">
+                    <inertial pos="0.000525 0.019115 -0.039067" quat="0.999573 -0.00581447 -0.00528218 0.0281457" mass="0.0315" diaginertia="2.06406e-05 1.94958e-05 3.50208e-06" />
+                    <joint name="LARM_JOINT2" pos="0 0 0" axis="0 1 0" limited="true" range="-1.5708 1.5708" damping="0.2" />
+                    <geom pos="-0.0153 -0.0197 -0.0875" type="mesh" mesh="LARM_LINK2_mesh" />
+                </body>
+            </body>
+        </body>
+        <body name="LLEG_LINK0" pos="0.018517 0.017 -0.06265">
+            <inertial pos="-0.021734 0.011506 -0.014091" quat="0.998036 -0.0451436 -0.000602909 -0.0434149" mass="0.0699" diaginertia="1.69265e-05 1.59391e-05 9.57681e-06" />
+            <joint name="LLEG_JOINT0" pos="0 0 0" axis="1 0 0" limited="true" range="-1.5708 1.5708" damping="0.2" />
+            <geom pos="0.018517 0.017 -0.06265" type="mesh" mesh="LLEG_LINK0_mesh" />
+            <body name="LLEG_LINK1" pos="-0.0192 -0.00825 -0.0385">
+                <inertial pos="0.002871 0.018978 -0.033258" quat="0.931198 0.00105428 -0.0016993 -0.364509" mass="0.1031" diaginertia="5.55685e-05 5.46998e-05 1.421e-05" />
+                <joint name="LLEG_JOINT1" pos="0 0 0" axis="0 1 0" limited="true" range="-1.5708 1.5708" damping="0.2" />
+                <geom pos="-0.0192 -0.00825 -0.0385" type="mesh" mesh="LLEG_LINK1_mesh" />
+                <body name="LLEG_LINK2" pos="0 0 -0.065">
+                    <inertial pos="0.003613 0.016674 -0.031461" quat="0.999461 -0.00375676 0.0181526 -0.0271114" mass="0.0694" diaginertia="3.67907e-05 3.37496e-05 1.28918e-05" />
+                    <joint name="LLEG_JOINT2" pos="0 0 0" axis="0 1 0" limited="true" range="-1.5708 1.5708" damping="0.2" />
+                    <geom pos="0 0 -0.065" type="mesh" mesh="LLEG_LINK2_mesh" />
+                    <body name="LLEG_LINK3" pos="0 0 -0.065">
+                        <inertial pos="-0.000386 0.016666 -0.024369" quat="0.999451 -0.00265556 0.0289586 -0.0158523" mass="0.0691" diaginertia="1.89967e-05 1.73679e-05 1.22695e-05" />
+                        <joint name="LLEG_JOINT3" pos="0 0 0" axis="0 1 0" limited="true" range="-1.5708 1.5708" damping="0.2" />
+                        <geom pos="0 0 -0.065" type="mesh" mesh="LLEG_LINK3_mesh" />
+                        <body name="LLEG_LINK4" pos="0.019683 0.00825 -0.0385">
+                            <inertial pos="-0.020862 0.020902 -0.013459" quat="0.013771 0.703916 0.0136518 0.710018" mass="0.0419" diaginertia="3.78666e-05 2.75474e-05 1.31421e-05" />
+                            <joint name="LLEG_JOINT4" pos="0 0 0" axis="1 0 0" limited="true" range="-1.5708 1.5708" damping="0.2" />
+                            <geom pos="0.019683 0.00825 -0.0385" type="mesh" mesh="LLEG_LINK4_mesh" />
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+        <body name="RARM_LINK0" pos="0.0115 -0.049 0.0474">
+            <inertial pos="0 -0.014576 0" quat="-0.00844837 0.703733 0.0116925 0.710318" mass="0.0153" diaginertia="2.74564e-06 2.26354e-06 1.67573e-06" />
+            <joint name="RARM_JOINT0" pos="0 0 0" axis="0 1 0" limited="true" range="-1.5708 1.5708" damping="0.2" />
+            <geom pos="0.0115 -0.049 0.0474" type="mesh" mesh="RARM_LINK0_mesh" />
+            <body name="RARM_LINK1" pos="0.01975 -0.0255 0">
+                <inertial pos="-0.02697 0.000148 -0.050609" quat="0.71092 0.021909 0.0118767 0.702831" mass="0.1091" diaginertia="9.30231e-05 8.21573e-05 2.30776e-05" />
+                <joint name="RARM_JOINT1" pos="0 0 0" axis="1 0 0" limited="true" range="-1.5708 1.5708" damping="0.2" />
+                <geom pos="0.01975 -0.0255 0" type="mesh" mesh="RARM_LINK1_mesh" />
+                <body name="RARM_LINK2" pos="-0.0153 0.0197 -0.0875">
+                    <inertial pos="0.000525 -0.019115 -0.039067" quat="0.99931 0.0177481 -0.00189212 -0.0325716" mass="0.0315" diaginertia="2.01666e-05 1.83753e-05 4.00926e-06" />
+                    <joint name="RARM_JOINT2" pos="0 0 0" axis="0 1 0" limited="true" range="-1.5708 1.5708" damping="0.2" />
+                    <geom pos="-0.0153 0.0197 -0.0875" type="mesh" mesh="RARM_LINK2_mesh" />
+                </body>
+            </body>
+        </body>
+        <body name="RLEG_LINK0" pos="0.018517 -0.017 -0.06265">
+            <inertial pos="-0.021734 -0.011506 -0.014091" quat="0.987031 -0.011963 0.00725075 0.159921" mass="0.0699" diaginertia="1.68751e-05 1.58364e-05 8.89564e-06" />
+            <joint name="RLEG_JOINT0" pos="0 0 0" axis="1 0 0" limited="true" range="-1.5708 1.5708" damping="0.2" />
+            <geom pos="0.018517 -0.017 -0.06265" type="mesh" mesh="RLEG_LINK0_mesh" />
+            <body name="RLEG_LINK1" pos="-0.0192 0.00825 -0.0385">
+                <inertial pos="0.002871 -0.018978 -0.033258" quat="0.983355 -0.00193715 -0.00157884 0.181676" mass="0.1031" diaginertia="5.54373e-05 5.49002e-05 1.5722e-05" />
+                <joint name="RLEG_JOINT1" pos="0 0 0" axis="0 1 0" limited="true" range="-1.5708 1.5708" damping="0.2" />
+                <geom pos="-0.0192 0.00825 -0.0385" type="mesh" mesh="RLEG_LINK1_mesh" />
+                <body name="RLEG_LINK2" pos="0 0 -0.065">
+                    <inertial pos="0.003613 -0.016674 -0.031461" quat="0.999847 -0.00198304 0.0173596 -0.000115066" mass="0.0694" diaginertia="3.88465e-05 3.51565e-05 1.38175e-05" />
+                    <joint name="RLEG_JOINT2" pos="0 0 0" axis="0 1 0" limited="true" range="-1.5708 1.5708" damping="0.2" />
+                    <geom pos="0 0 -0.065" type="mesh" mesh="RLEG_LINK2_mesh" />
+                    <body name="RLEG_LINK3" pos="0 0 -0.065">
+                        <inertial pos="-0.000386 -0.016666 -0.024369" quat="0.999279 0.00669384 -0.0053839 -0.0369715" mass="0.0691" diaginertia="2.08066e-05 1.81694e-05 1.18276e-05" />
+                        <joint name="RLEG_JOINT3" pos="0 0 0" axis="0 1 0" limited="true" range="-1.5708 1.5708" damping="0.2" />
+                        <geom pos="0 0 -0.065" type="mesh" mesh="RLEG_LINK3_mesh" />
+                        <body name="RLEG_LINK4" pos="0.019683 -0.00825 -0.0385">
+                            <inertial pos="-0.020862 -0.020902 -0.013459" quat="-0.0341099 0.708146 -0.0101234 0.705169" mass="0.0419" diaginertia="3.93111e-05 2.99861e-05 1.24209e-05" />
+                            <joint name="RLEG_JOINT4" pos="0 0 0" axis="1 0 0" limited="true" range="-1.5708 1.5708" damping="0.2" />
+                            <geom pos="0.019683 -0.00825 -0.0385" type="mesh" mesh="RLEG_LINK4_mesh" />
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+    </worldbody>
+</mujoco>
