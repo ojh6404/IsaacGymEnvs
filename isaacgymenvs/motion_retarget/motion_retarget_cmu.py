@@ -1,6 +1,5 @@
 import time
 import numpy as np
-import numpy.core.umath_tests as ut
 from utils import BVH, Animation
 from utils import pose3d
 
@@ -452,9 +451,12 @@ def retarget_pose(robot, ref_joint_pos):
         bvh_cfg.BVH_JOINT_NAMES.index('Neck')
     ]
 
-    target_hand_indices = [
+    target_elbow_indices = [
         bvh_cfg.BVH_JOINT_NAMES.index('LeftForeArm'),
         bvh_cfg.BVH_JOINT_NAMES.index('RightForeArm'),
+    ]
+
+    target_hand_indices = [
         bvh_cfg.BVH_JOINT_NAMES.index('LeftHand'),
         bvh_cfg.BVH_JOINT_NAMES.index('RightHand')
     ]
@@ -471,12 +473,18 @@ def retarget_pose(robot, ref_joint_pos):
     #     pybullet.resetJointState(
     #         robot, non_fixed_joint_indices[k], chest_joint_pose[k], 0.)
 
+    DEFAULT_JOINT_POS = np.array(
+        joint_lower_limit) + np.array(joint_upper_limit) / 2.
+
     target_neck_position = scaled_joint_pos[target_neck_indices]
+    target_elbow_position = scaled_joint_pos[target_elbow_indices]
     target_hand_position = scaled_joint_pos[target_hand_indices]
     target_foot_position = scaled_joint_pos[target_foot_indices]
 
+    target_elbow_position
     # target_joint_indices = target_foot_indices
-    target_joint_indices = target_hand_indices + target_foot_indices
+    target_joint_indices = target_elbow_indices + \
+        target_hand_indices + target_foot_indices
     # target_joint_indices = target_neck_indices + \
     #     target_hand_indices + target_foot_indices
 
@@ -484,7 +492,8 @@ def retarget_pose(robot, ref_joint_pos):
         # spine target
         # robot_joint_indices['HIP_VIRTUAL_JOINT'], robot_joint_indices['HEAD_JOINT0'],
         # arm target
-        robot_joint_indices['LARM_VIRTUAL_JOINT2'], robot_joint_indices['RARM_VIRTUAL_JOINT2'],
+        # robot_joint_indices['LARM_VIRTUAL_JOINT2'], robot_joint_indices['RARM_VIRTUAL_JOINT2'],
+        robot_joint_indices['LARM_JOINT2'], robot_joint_indices['RARM_JOINT2'],
         robot_joint_indices['LHAND_VIRTUAL_JOINT'], robot_joint_indices['RHAND_VIRTUAL_JOINT'],
         # leg target
         robot_joint_indices['LLEG_VIRTUAL_JOINT2'], robot_joint_indices['RLEG_VIRTUAL_JOINT2'],
@@ -494,6 +503,7 @@ def retarget_pose(robot, ref_joint_pos):
     target_joint_position = np.vstack(
         [
             # target_neck_position,
+            target_elbow_position,
             target_hand_position,
             target_foot_position
         ])
@@ -510,6 +520,141 @@ def retarget_pose(robot, ref_joint_pos):
                                                              jointRanges=joint_limit_range,
                                                              restPoses=DEFAULT_JOINT_POS
                                                              )
+
+    # target_joint_indices = target_neck_indices
+
+    # target_robot_joint_indices = [
+    #     # spine target
+    #     robot_joint_indices['HIP_VIRTUAL_JOINT'], robot_joint_indices['HEAD_JOINT0'],
+    #     # arm target
+    #     # robot_joint_indices['LARM_VIRTUAL_JOINT2'], robot_joint_indices['RARM_VIRTUAL_JOINT2'],
+    #     # robot_joint_indices['LHAND_VIRTUAL_JOINT'], robot_joint_indices['RHAND_VIRTUAL_JOINT'],
+    #     # leg target
+    #     # robot_joint_indices['LLEG_VIRTUAL_JOINT2'], robot_joint_indices['RLEG_VIRTUAL_JOINT2'],
+    #     # robot_joint_indices['LLEG_VIRTUAL_JOINT3'], robot_joint_indices['RLEG_VIRTUAL_JOINT3']
+    # ]
+
+    # target_joint_position = np.vstack(
+    #     [
+    #         target_neck_position,
+    #         # target_hand_position,
+    #         # target_foot_position
+    #     ])
+
+    # target_joint_pose = pybullet.calculateInverseKinematics2(robot,
+    #                                                          endEffectorLinkIndices=target_robot_joint_indices,
+    #                                                          targetPositions=target_joint_position,
+    #                                                          jointDamping=khr_cfg.JOINT_DAMPING*robot_num_joints,
+    #                                                          lowerLimits=joint_lower_limit,
+    #                                                          upperLimits=joint_upper_limit,
+    #                                                          jointRanges=joint_limit_range,
+    #                                                          restPoses=DEFAULT_JOINT_POS
+    #                                                          )
+    # for k in range(len(non_fixed_joint_indices)):
+    #     pybullet.resetJointState(
+    #         robot, non_fixed_joint_indices[k], target_joint_pose[k], 0.)
+
+    # target_joint_indices = target_elbow_indices
+
+    # target_robot_joint_indices = [
+    #     # spine target
+    #     # robot_joint_indices['HIP_VIRTUAL_JOINT'], robot_joint_indices['HEAD_JOINT0'],
+    #     # arm target
+    #     robot_joint_indices['LARM_VIRTUAL_JOINT2'], robot_joint_indices['RARM_VIRTUAL_JOINT2'],
+    #     # robot_joint_indices['LHAND_VIRTUAL_JOINT'], robot_joint_indices['RHAND_VIRTUAL_JOINT'],
+    #     # leg target
+    #     # robot_joint_indices['LLEG_VIRTUAL_JOINT2'], robot_joint_indices['RLEG_VIRTUAL_JOINT2'],
+    #     # robot_joint_indices['LLEG_VIRTUAL_JOINT3'], robot_joint_indices['RLEG_VIRTUAL_JOINT3']
+    # ]
+
+    # target_joint_position = np.vstack(
+    #     [
+    #         # target_neck_position,
+    #         target_elbow_position,
+    #         # target_hand_position,
+    #         # target_foot_position
+    #     ])
+
+    # target_joint_pose = pybullet.calculateInverseKinematics2(robot,
+    #                                                          endEffectorLinkIndices=target_robot_joint_indices,
+    #                                                          targetPositions=target_joint_position,
+    #                                                          jointDamping=khr_cfg.JOINT_DAMPING*robot_num_joints,
+    #                                                          lowerLimits=joint_lower_limit,
+    #                                                          upperLimits=joint_upper_limit,
+    #                                                          jointRanges=joint_limit_range,
+    #                                                          restPoses=DEFAULT_JOINT_POS
+    #                                                          )
+    # for k in range(len(non_fixed_joint_indices)):
+    #     pybullet.resetJointState(
+    #         robot, non_fixed_joint_indices[k], target_joint_pose[k], 0.)
+
+    # target_joint_indices = target_hand_indices
+
+    # target_robot_joint_indices = [
+    #     # spine target
+    #     # robot_joint_indices['HIP_VIRTUAL_JOINT'], robot_joint_indices['HEAD_JOINT0'],
+    #     # arm target
+    #     # robot_joint_indices['LARM_VIRTUAL_JOINT2'], robot_joint_indices['RARM_VIRTUAL_JOINT2'],
+    #     robot_joint_indices['LHAND_VIRTUAL_JOINT'], robot_joint_indices['RHAND_VIRTUAL_JOINT'],
+    #     # leg target
+    #     # robot_joint_indices['LLEG_VIRTUAL_JOINT2'], robot_joint_indices['RLEG_VIRTUAL_JOINT2'],
+    #     # robot_joint_indices['LLEG_VIRTUAL_JOINT3'], robot_joint_indices['RLEG_VIRTUAL_JOINT3']
+    # ]
+
+    # target_joint_position = np.vstack(
+    #     [
+    #         # target_neck_position,
+    #         # target_elbow_position,
+    #         target_hand_position,
+    #         # target_foot_position
+    #     ])
+
+    # target_joint_pose = pybullet.calculateInverseKinematics2(robot,
+    #                                                          endEffectorLinkIndices=target_robot_joint_indices,
+    #                                                          targetPositions=target_joint_position,
+    #                                                          jointDamping=khr_cfg.JOINT_DAMPING*robot_num_joints,
+    #                                                          lowerLimits=joint_lower_limit,
+    #                                                          upperLimits=joint_upper_limit,
+    #                                                          jointRanges=joint_limit_range,
+    #                                                          restPoses=DEFAULT_JOINT_POS
+    #                                                          )
+    # for k in range(len(non_fixed_joint_indices)):
+    #     pybullet.resetJointState(
+    #         robot, non_fixed_joint_indices[k], target_joint_pose[k], 0.)
+
+    # target_joint_indices = target_foot_indices
+
+    # target_robot_joint_indices = [
+    #     # spine target
+    #     # robot_joint_indices['HIP_VIRTUAL_JOINT'], robot_joint_indices['HEAD_JOINT0'],
+    #     # arm target
+    #     # robot_joint_indices['LARM_VIRTUAL_JOINT2'], robot_joint_indices['RARM_VIRTUAL_JOINT2'],
+    #     # robot_joint_indices['LHAND_VIRTUAL_JOINT'], robot_joint_indices['RHAND_VIRTUAL_JOINT'],
+    #     # leg target
+    #     robot_joint_indices['LLEG_VIRTUAL_JOINT2'], robot_joint_indices['RLEG_VIRTUAL_JOINT2'],
+    #     robot_joint_indices['LLEG_VIRTUAL_JOINT3'], robot_joint_indices['RLEG_VIRTUAL_JOINT3']
+    # ]
+
+    # target_joint_position = np.vstack(
+    #     [
+    #         # target_neck_position,
+    #         # target_elbow_position,
+    #         # target_hand_position,
+    #         target_foot_position
+    #     ])
+
+    # target_joint_pose = pybullet.calculateInverseKinematics2(robot,
+    #                                                          endEffectorLinkIndices=target_robot_joint_indices,
+    #                                                          targetPositions=target_joint_position,
+    #                                                          jointDamping=khr_cfg.JOINT_DAMPING*robot_num_joints,
+    #                                                          lowerLimits=joint_lower_limit,
+    #                                                          upperLimits=joint_upper_limit,
+    #                                                          jointRanges=joint_limit_range,
+    #                                                          restPoses=DEFAULT_JOINT_POS
+    #                                                          )
+    # for k in range(len(non_fixed_joint_indices)):
+    #     pybullet.resetJointState(
+    #         robot, non_fixed_joint_indices[k], target_joint_pose[k], 0.)
 
     # target_joint_pose = pybullet.calculateInverseKinematics2(robot,
     #                                                          endEffectorLinkIndices=[
@@ -602,6 +747,39 @@ def get_robot_joint_indices(robot):
     return robot_joint_indices
 
 
+def output_motion(frames, out_filename):
+    with open(out_filename, "w") as f:
+        f.write("{\n")
+        f.write("\"LoopMode\": \"Wrap\",\n")
+        f.write("\"FrameDuration\": " + str(bvh_cfg.FRAME_DURATION) + ",\n")
+        f.write("\"EnableCycleOffsetPosition\": true,\n")
+        f.write("\"EnableCycleOffsetRotation\": true,\n")
+        f.write("\n")
+
+        f.write("\"Frames\":\n")
+
+        f.write("[")
+        for i in range(frames.shape[0]):
+            curr_frame = frames[i]
+
+            if i != 0:
+                f.write(",")
+            f.write("\n  [")
+
+            for j in range(frames.shape[1]):
+                curr_val = curr_frame[j]
+                if j != 0:
+                    f.write(", ")
+                f.write("%.5f" % curr_val)
+
+            f.write("]")
+
+        f.write("\n]")
+        f.write("\n}")
+
+    return
+
+
 def main():
     # build world
     robot, ground = build_world()
@@ -647,6 +825,11 @@ def main():
         ref_joint_pos = np.array(ref_joint_pos)
         np.savez(save_path, retarget_frames=retarget_frames,
                  ref_joint_pos=ref_joint_pos)
+
+        output_file_name = bvh_cfg.OUT_FILE_DIR + \
+            bvh_file.split(".")[0] + '.txt'
+        output_motion(retarget_frames, output_file_name)
+
         print(retarget_frames.shape)
 
         while True:

@@ -2,10 +2,12 @@ import numpy as np
 
 # -----------------------------------------SFU Skeleton Configuration-----------------------
 # FILE_DIR = 'bvh_data/SFU_Motion_Capture_Database/walking/'
-FILE_DIR = 'bvh_data/CMU/111/'
+FILE_DIR = 'bvh_data/CMU/077/'
+# FILE_DIR = 'bvh_data/CMU/139/'
 # file names list which should be retargeted
 # FILE_LIST = ["0007_Walking001.bvh"]
-FILE_LIST = ["111_06.bvh"]
+FILE_LIST = ["77_17.bvh"]
+# FILE_LIST = ["139_16.bvh"]
 SAVE_TEMP_FILE = True
 TEMP_FILE_DIR = "result/temp/"
 OUT_FILE_DIR = "result/output/"

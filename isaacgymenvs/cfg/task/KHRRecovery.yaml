@@ -7,7 +7,7 @@ env:
   numEnvs: ${resolve_default:4096,${...num_envs}}
   envSpacing: 1.  # [m]
 
-  clipObservations: 5.0
+  # clipObservations: 5.0
   # clipActions: 5.0
 
   plane:
@@ -33,7 +33,7 @@ env:
     damping: 0.03     # [N*m*s/rad]
     actionScale: 0.279252  # 16 * pi / 180
     controlFrequencyInv: 1 # 60 Hz
-    torqueLimit: 0.1 # N*m
+    torqueLimit: 2.4525 # N*m, 25.0 kgf * cm
     prevActionBuffer: 2
 
   defaultJointAngles:  # = target angles when action = 0.0
@@ -57,47 +57,47 @@ env:
     RLEG_JOINT3: -25.0  # [rad]
     RLEG_JOINT4: 0.0  # [rad]
 
-  jointAnglesLowerLimit:
-    LARM_JOINT0: -1.0  # [rad]
-    LARM_JOINT1: -1.0  # [rad]
-    LARM_JOINT2: -1.0  # [rad]
+  # jointAnglesLowerLimit:
+  #   LARM_JOINT0: -1.0  # [rad]
+  #   LARM_JOINT1: -1.0  # [rad]
+  #   LARM_JOINT2: -1.0  # [rad]
 
-    LLEG_JOINT0: -0.15  # [rad]
-    LLEG_JOINT1: -1.2  # [rad]
-    LLEG_JOINT2: -1.0  # [rad]
-    LLEG_JOINT3: -1.2  # [rad]
-    LLEG_JOINT4: -0.5  # [rad]
+  #   LLEG_JOINT0: -0.15  # [rad]
+  #   LLEG_JOINT1: -1.2  # [rad]
+  #   LLEG_JOINT2: -1.0  # [rad]
+  #   LLEG_JOINT3: -1.2  # [rad]
+  #   LLEG_JOINT4: -0.5  # [rad]
 
-    RARM_JOINT0: -1.0  # [rad]
-    RARM_JOINT1: -1.0  # [rad]
-    RARM_JOINT2: -1.0  # [rad]
+  #   RARM_JOINT0: -1.0  # [rad]
+  #   RARM_JOINT1: -1.0  # [rad]
+  #   RARM_JOINT2: -1.0  # [rad]
 
-    RLEG_JOINT0: -0.5  # [rad]
-    RLEG_JOINT1: -1.2  # [rad]
-    RLEG_JOINT2: -1.0  # [rad]
-    RLEG_JOINT3: -1.2  # [rad]
-    RLEG_JOINT4: -0.5  # [rad]
+  #   RLEG_JOINT0: -0.5  # [rad]
+  #   RLEG_JOINT1: -1.2  # [rad]
+  #   RLEG_JOINT2: -1.0  # [rad]
+  #   RLEG_JOINT3: -1.2  # [rad]
+  #   RLEG_JOINT4: -0.5  # [rad]
 
-  jointAnglesUpperLimit:
-    LARM_JOINT0: 1.0  # [rad]
-    LARM_JOINT1: 1.0  # [rad]
-    LARM_JOINT2: 1.0  # [rad]
+  # jointAnglesUpperLimit:
+  #   LARM_JOINT0: 1.0  # [rad]
+  #   LARM_JOINT1: 1.0  # [rad]
+  #   LARM_JOINT2: 1.0  # [rad]
 
-    LLEG_JOINT0: 0.5  # [rad]
-    LLEG_JOINT1: 1.2  # [rad]
-    LLEG_JOINT2: 1.5708  # [rad]
-    LLEG_JOINT3: 1.2  # [rad]
-    LLEG_JOINT4: 0.5  # [rad]
+  #   LLEG_JOINT0: 0.5  # [rad]
+  #   LLEG_JOINT1: 1.2  # [rad]
+  #   LLEG_JOINT2: 1.5708  # [rad]
+  #   LLEG_JOINT3: 1.2  # [rad]
+  #   LLEG_JOINT4: 0.5  # [rad]
 
-    RARM_JOINT0: 1.5708  # [rad]
-    RARM_JOINT1: 1.5708  # [rad]
-    RARM_JOINT2: 1.5708  # [rad]
+  #   RARM_JOINT0: 1.5708  # [rad]
+  #   RARM_JOINT1: 1.5708  # [rad]
+  #   RARM_JOINT2: 1.5708  # [rad]
 
-    RLEG_JOINT0: 0.15  # [rad]
-    RLEG_JOINT1: 1.2  # [rad]
-    RLEG_JOINT2: 1.5708  # [rad]
-    RLEG_JOINT3: 1.2  # [rad]
-    RLEG_JOINT4: 0.5  # [rad]
+  #   RLEG_JOINT0: 0.15  # [rad]
+  #   RLEG_JOINT1: 1.2  # [rad]
+  #   RLEG_JOINT2: 1.5708  # [rad]
+  #   RLEG_JOINT3: 1.2  # [rad]
+  #   RLEG_JOINT4: 0.5  # [rad]
 
   urdfAsset:
     collapseFixedJoints: True
@@ -108,10 +108,10 @@ env:
     # rewards
     gravityVectorRewardScale: 1.0
     zHeightRewardScale: 1.0
-    posErrorRewardScale: 0.5
-    torqueRewardScale: -0.000025
-    targetPosDiffReward: 0.5
-    feetContactReward: 0.3
+    posErrorRewardScale: 0.01
+    torqueRewardScale: -0.00000025
+    targetPosDiffReward: 0.1
+    feetContactReward: 0.1
 
     # normalization
     linearVelocityScale: 1.0

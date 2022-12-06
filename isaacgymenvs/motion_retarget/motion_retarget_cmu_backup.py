@@ -1,6 +1,5 @@
 import time
 import numpy as np
-import numpy.core.umath_tests as ut
 from utils import BVH, Animation
 from utils import pose3d
 
