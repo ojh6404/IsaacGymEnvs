@@ -58,6 +58,7 @@ class KHRRecovery(VecTask):
         self.rew_scales["posError"] = self.cfg["env"]["learn"]["posErrorRewardScale"]
         self.rew_scales["torque"] = self.cfg["env"]["learn"]["torqueRewardScale"]
         self.rew_scales["targetPosDiff"] = self.cfg["env"]["learn"]["targetPosDiffReward"]
+        self.rew_scales["feetContact"] = self.cfg["env"]["learn"]["feetContactReward"]
 
         # randomization
         self.randomization_params = self.cfg["task"]["randomization_params"]
@@ -347,8 +348,8 @@ class KHRRecovery(VecTask):
             self.target_dof_pos,
             # self.commands,
             self.torques,
-            # self.contact_forces,
-            self.knee_indices,
+            self.contact_forces,
+            self.feet_indices,
             self.progress_buf,
             # Dict
             self.rew_scales,
@@ -471,7 +472,8 @@ def compute_khr_recovery_reward(
         target_z_height,
         target_dof_pos,
         torques,
-        knee_indices,
+        contact_forces,
+        feet_indices,
         episode_lengths,
         # Dict
         rew_scales,
@@ -484,7 +486,7 @@ def compute_khr_recovery_reward(
         # base_target_state,
 ):
     # (reward, reset, feet_in air, feet_air_time, episode sums)
-    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Dict[str, float], int, int, int, int, int) -> Tuple[Tensor, Tensor]
+    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Dict[str, float], int, int, int, int, int) -> Tuple[Tensor, Tensor]
 
     # prepare quantities (TODO: return from obs ?)
     base_quat = root_states[:, 3:7]
@@ -521,8 +523,17 @@ def compute_khr_recovery_reward(
     # torque penalty
     rew_torque = torch.sum(torch.square(torques), dim=1) * rew_scales["torque"]
 
+    # foot contact
+    # reset = torch.norm(contact_forces[:, base_index, :], dim=1) > 1.
+    rew_foot = rew_scales["feetContact"] * torch.all(torch.norm(
+        contact_forces[:, feet_indices, :], dim=2) > 1., dim=1)
+
+    # print('rew_foot', rew_foot.shape)
+    # print('rew_torque', rew_torque.shape)
+    # print(rew_foot)
+
     total_reward = rew_torque + rew_gravity_vector_error + \
-        rew_z_height + rew_dof_pos_error + rew_target_pos_diff
+        rew_z_height + rew_dof_pos_error + rew_target_pos_diff + rew_foot
     total_reward = torch.clip(total_reward, 0., None)
 
     if episode_lengths[0] < init_dropping_step:

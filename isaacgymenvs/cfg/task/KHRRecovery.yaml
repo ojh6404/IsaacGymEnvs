@@ -106,11 +106,12 @@ env:
 
   learn:
     # rewards
-    gravityVectorRewardScale: 0.6
-    zHeightRewardScale: 0.3
-    posErrorRewardScale: 0.1
+    gravityVectorRewardScale: 1.0
+    zHeightRewardScale: 1.0
+    posErrorRewardScale: 0.5
     torqueRewardScale: -0.000025
-    targetPosDiffReward : 0.3
+    targetPosDiffReward: 0.5
+    feetContactReward: 0.3
 
     # normalization
     linearVelocityScale: 1.0
