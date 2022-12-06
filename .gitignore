@@ -32,3 +32,4 @@ outputs/
 /isaacgymenvs/wandb
 /isaacgymenvs/test
 .python-version
+*.bvh
