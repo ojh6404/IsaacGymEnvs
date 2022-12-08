@@ -136,11 +136,11 @@ def main():
 
     # print(robot_joint_indices)
 
-    joint = "RARM_JOINT1"
+    joint = "LARM_JOINT0"
     for k in range(num_joints):
         if k == non_fixed_joint_dict[joint]:
             pybullet.resetJointState(
-                robot, non_fixed_joint_dict[joint], joint_upper[non_fixed_joint_indices.index(k)], 0.)
+                robot, non_fixed_joint_dict[joint], joint_lower[non_fixed_joint_indices.index(k)], 0.)
         else:
             continue
 

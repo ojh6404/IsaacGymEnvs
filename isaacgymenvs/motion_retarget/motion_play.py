@@ -132,7 +132,7 @@ def main():
         robot_joint_indices[joint_name] = i
 
     # load frame of retargeted motion and reference motion data
-    frames = np.load("./test.npz")
+    frames = np.load("./result/output/77_17.npz")
     retarget_pos = frames["retarget_frames"]
     ref_joint_pos = frames["ref_joint_pos"]
 
