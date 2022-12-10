@@ -4,10 +4,10 @@ name: KHRRecovery
 physics_engine: ${..physics_engine}
 
 env:
-  numEnvs: ${resolve_default:4096,${...num_envs}}
+  numEnvs: ${resolve_default:8192,${...num_envs}}
   envSpacing: 1.  # [m]
   enableDebugVis: True
-  randomInitialize: True
+  randomInitialize: False
 
 
   # clipObservations: 5.0
@@ -120,23 +120,23 @@ env:
 
   learn:
     # rewards
-    gravityVectorRewardScale: 0.3
-    zHeightRewardScale: 0.4
-    posErrorRewardScale: 0.1
-    targetPosDiffRewardScale: 0.0
+    gravityVectorRewardScale: 0.8
+    zHeightRewardScale: 0.5
+    posErrorRewardScale: 0.3
     feetContactRewardScale: 0.1
     feetUprightRewardScale: 0.1
 
     # penalty
-    torquePenaltyScale: -0.01
-    powerPenaltyScale: -0.001
-    dofVelocityPenaltyScale: -0.001
+    torquePenaltyScale: -0.0003
+    powerPenaltyScale: -0.0001
+    dofVelocityPenaltyScale: -0.0 # -0.0001
     dofAccelerationPenaltyScale: -0.0 # -0.001
-    actionsDiffPenaltyScale: -0.001
-    baseLinearVelocityPenaltyScale: -0.02 # -0.02
-    baseAngularVelocityPenaltyScale: -0.02 # -0.02
-    contactForcesPenaltyScale: -0.001
-    bodyContactPenaltyScale: -0.1
+    actionsDiffPenaltyScale: -0.0 # -0.0001
+    baseLinearVelocityPenaltyScale: -0.001 # -0.02
+    baseAngularVelocityPenaltyScale: -0.001 # -0.02
+    contactForcesPenaltyScale: -0.0001
+    bodyContactPenaltyScale: -0.0
+    targetPosDiffPenaltyScale: -0.001 # somewhat like action
 
     # normalization
     linearVelocityScale: 1.0
@@ -145,7 +145,7 @@ env:
     dofVelocityScale: 1.0 # 0.05
 
     # episode length in seconds
-    episodeLength_s: 8
+    episodeLength_s: 10
 
   # viewer cam:
   viewer:

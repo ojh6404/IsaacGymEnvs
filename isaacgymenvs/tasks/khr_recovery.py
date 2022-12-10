@@ -57,7 +57,6 @@ class KHRRecovery(VecTask):
         self.rew_scales["gravityVector"] = self.cfg["env"]["learn"]["gravityVectorRewardScale"]
         self.rew_scales["zHeight"] = self.cfg["env"]["learn"]["zHeightRewardScale"]
         self.rew_scales["posError"] = self.cfg["env"]["learn"]["posErrorRewardScale"]
-        self.rew_scales["targetPosDiff"] = self.cfg["env"]["learn"]["targetPosDiffRewardScale"]
         self.rew_scales["feetContact"] = self.cfg["env"]["learn"]["feetContactRewardScale"]
         self.rew_scales["feetUpright"] = self.cfg["env"]["learn"]["feetUprightRewardScale"]
 
@@ -71,6 +70,7 @@ class KHRRecovery(VecTask):
         self.rew_scales["contactForces"] = self.cfg["env"]["learn"]["contactForcesPenaltyScale"]
         self.rew_scales["baseLinearVelocity"] = self.cfg["env"]["learn"]["baseLinearVelocityPenaltyScale"]
         self.rew_scales["baseAngularVelocity"] = self.cfg["env"]["learn"]["baseAngularVelocityPenaltyScale"]
+        self.rew_scales["targetPosDiff"] = self.cfg["env"]["learn"]["targetPosDiffPenaltyScale"]
 
         # randomization
         self.randomization_params = self.cfg["task"]["randomization_params"]
@@ -280,11 +280,17 @@ class KHRRecovery(VecTask):
         start_pose.p = gymapi.Vec3(*self.base_init_state[:3])
 
         # BODY, HEAD_LINK0, LARM_LINK0, ...
-        body_names = self.gym.get_asset_rigid_body_names(khr_asset)
+        self.body_names = self.gym.get_asset_rigid_body_names(khr_asset)
         self.dof_names = self.gym.get_asset_dof_names(khr_asset)
-        feet_names = ["LLEG_LINK4", "RLEG_LINK4"]
+        self.feet_names = ["LLEG_LINK4", "RLEG_LINK4"]
+        self.other_names = [
+            body_name for body_name in self.body_names if body_name not in self.feet_names]
         self.feet_indices = torch.zeros(
-            len(feet_names), dtype=torch.long, device=self.device, requires_grad=False)
+            len(self.feet_names), dtype=torch.long, device=self.device, requires_grad=False)
+        self.body_indices = torch.zeros(
+            len(self.body_names), dtype=torch.long, device=self.device, requires_grad=False)
+        self.other_indices = torch.zeros(
+            len(self.other_names), dtype=torch.long, device=self.device, requires_grad=False)
         # knee_names = ["LLEG_LINK2", "RLEG_LINK2"]
         # self.knee_indices = torch.zeros(
         #     len(knee_names), dtype=torch.long, device=self.device, requires_grad=False)
@@ -321,9 +327,21 @@ class KHRRecovery(VecTask):
             self.envs.append(env_ptr)
             self.khr_handles.append(khr_handle)
 
-        for i in range(len(feet_names)):
+        for i in range(len(self.feet_names)):
             self.feet_indices[i] = self.gym.find_actor_rigid_body_handle(
-                self.envs[0], self.khr_handles[0], feet_names[i])
+                self.envs[0], self.khr_handles[0], self.feet_names[i])
+        for i in range(len(self.body_names)):
+            self.body_indices[i] = self.gym.find_actor_rigid_body_handle(
+                self.envs[0], self.khr_handles[0], self.body_names[i])
+        for i in range(len(self.other_names)):
+            self.other_indices[i] = self.gym.find_actor_rigid_body_handle(
+                self.envs[0], self.khr_handles[0], self.other_names[i])
+
+        print('debug')
+        print(self.body_indices)
+        print(self.feet_indices)
+        print(self.other_indices)
+
         # for i in range(len(knee_names)):
         #     self.knee_indices[i] = self.gym.find_actor_rigid_body_handle(
         #         self.envs[0], self.khr_handles[0], knee_names[i])
@@ -424,6 +442,7 @@ class KHRRecovery(VecTask):
             self.force_tensor,
             self.contact_forces,
             self.feet_indices,
+            self.other_indices,
             self.progress_buf,
             self.actions,
             self.prev_actions,
@@ -485,8 +504,9 @@ class KHRRecovery(VecTask):
 
         positions_offset = torch_rand_float(
             0.5, 1.5, (len(env_ids), self.num_dof), device=self.device)
-        velocities = torch_rand_float(-0.01, 0.01,
-                                      (len(env_ids), self.num_dof), device=self.device)
+        # velocities = torch_rand_float(-0.01, 0.01,
+        #                               (len(env_ids), self.num_dof), device=self.device)
+        velocities = 0.
 
         self.dof_pos[env_ids] = self.default_dof_pos[env_ids] * \
             positions_offset
@@ -505,18 +525,19 @@ class KHRRecovery(VecTask):
                                               gymtorch.unwrap_tensor(env_ids_int32), len(env_ids_int32))
 
         # reset observation buffer
-        self.prev_target_pos[env_ids] = self.dof_pos
+        self.prev_target_pos[env_ids] = self.dof_pos[env_ids]
 
         for i in range(self.prev_state_buffer_step + 1):
             self.obs_buf[env_ids, (2 * i) * self.num_actions: (2 + 2 * i) * self.num_actions] = \
-                torch.cat((self.dof_pos, self.prev_target_pos), dim=1)
+                torch.cat((self.dof_pos[env_ids],
+                          self.prev_target_pos[env_ids]), dim=1)
 
         # self.obs_buf[env_ids, 2 * self.prev_state_buffer_step *
             # self.num_actions] = 0.
 
         # reset progress_buf & reset_buf
         self.progress_buf[env_ids] = 0
-        self.reset_buf[env_ids] = 1
+        self.reset_buf[env_ids] = 0
 
     def axis_visualiztion(self, rb_indices):
         # compute start and end positions for visualizing thrust lines
@@ -607,6 +628,7 @@ def compute_khr_recovery_reward(
         torques,
         contact_forces,
         feet_indices,
+        other_indices,
         episode_lengths,
         actions,
         prev_actions,
@@ -620,7 +642,7 @@ def compute_khr_recovery_reward(
         max_episode_length,
 ):
     # (reward, reset, feet_in air, feet_air_time, episode sums)
-    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Dict[str, float], int, int, int, int, int) -> Tuple[Tensor, Tensor]
+    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Dict[str, float], int, int, int, int, int) -> Tuple[Tensor, Tensor]
 
     # prepare quantities (TODO: return from obs ?)
 
@@ -656,17 +678,26 @@ def compute_khr_recovery_reward(
         rew_scales["posError"]
 
     # target pos difference reward
+    # current_target_pos = obs_buf[:, num_actions: 2 * num_actions]
+    # ahead_target_pos = obs_buf[:, 2 * num_actions +
+    #                            num_actions: 2 * num_actions + 2 * num_actions]
+    # target_pos_diff = torch.sum(torch.square(
+    #     current_target_pos - ahead_target_pos), dim=1)
+    # rew_target_pos_diff = torch.exp(- 2. * target_pos_diff) * \
+    #     rew_scales["targetPosDiff"]
     current_target_pos = obs_buf[:, num_actions: 2 * num_actions]
     ahead_target_pos = obs_buf[:, 2 * num_actions +
                                num_actions: 2 * num_actions + 2 * num_actions]
-    target_pos_diff = torch.sum(torch.square(
-        current_target_pos - ahead_target_pos), dim=1)
-    rew_target_pos_diff = torch.exp(- 2. * target_pos_diff) * \
-        rew_scales["targetPosDiff"]
+    # target_pos_diff = torch.sum(torch.square(
+    #     current_target_pos - ahead_target_pos), dim=1)
+    target_pos_diff = torch.norm(current_target_pos - ahead_target_pos, dim=1)
+    rew_target_pos_diff = target_pos_diff * rew_scales["targetPosDiff"]
 
     # foot contact
     # reset = torch.norm(contact_forces[:, base_index, :], dim=1) > 1.
-    feet_contact = torch.norm(contact_forces[:, feet_indices, :], dim=2) > 1.
+    # feet_contact = torch.norm(contact_forces[:, feet_indices, :], dim=2) > 0.5
+    # only Z-direction force
+    feet_contact = torch.abs(contact_forces[:, feet_indices, 2]) > 0.5
     rew_feet_contact = torch.all(
         feet_contact, dim=1) * rew_scales["feetContact"]
 
@@ -702,7 +733,7 @@ def compute_khr_recovery_reward(
         gravity_vec_error_wrt_feet_masked, dim=1) * rew_scales["feetUpright"]
 
     # base contact
-    base_contact = torch.norm(contact_forces[:, base_index, :], dim=1) > 1.
+    base_contact = torch.norm(contact_forces[:, base_index, :], dim=1) > 0.3
     rew_base_contact = base_contact * rew_scales["bodyContact"]
 
     # body impulse (contact force) penalty
@@ -758,14 +789,54 @@ def compute_khr_recovery_reward(
     # print("rew_base_ang_vel", rew_base_ang_vel[0])
     # print("rew_actions_diff", rew_actions_diff[0])
     # print("rew_contact_forces", rew_contact_forces[0])
+    # print('feet contact')
+    # print(feet_contact[0])
+    # print('base_contact')
+    # print(base_contact[0])
+    # print('debug')
+    # print(contact_forces.shape)
 
-    if episode_lengths[0] < init_dropping_step:
-        total_reward = torch.zeros_like(total_reward)
+    # no reward when initializing
+    total_reward = total_reward * (episode_lengths > init_dropping_step)
 
-    # reset agents
+    # reset when time out
     time_out = episode_lengths >= max_episode_length - \
-        1  # no terminal reward for time-outs
+        1
+
     reset = time_out
+
+    # reset when base contacts after 150 steps
+    reset = reset | (base_contact * (episode_lengths - 150 > 0))
+
+    # reset when feet not contact after 300 steps
+    feet_not_contact = ~torch.any(feet_contact, dim=1)
+    reset = reset | (feet_not_contact * (episode_lengths - 300 > 0))
+
+    # reset when other body contact after 300 steps
+    # other_body_contact
+    other_body_contact = torch.any(torch.norm(
+        contact_forces[:, other_indices, :], dim=2) > 0.5, dim=1)
+    reset = reset | (other_body_contact * (episode_lengths - 300 > 0))
+
+    # reset when base_z_height is lower than target_z_height - 1.0 after 300 steps
+    reset = reset | (base_z_height < target_z_height - 1.0) * \
+        (episode_lengths - 300 > 0)
+
+    # reset when feet is too high after 200 steps
+    reset = reset | (torch.any(
+        rb_states[:, feet_indices, 2] > 1.5, dim=-1) * (episode_lengths - 200 > 0))
+
+    # reset when base_lin_vel is too high after initilizing
+    reset = reset | (torch.norm(base_lin_vel, dim=-1) > 3.0) * \
+        (episode_lengths - init_dropping_step > 0)
+
+    # reset when base_ang_vel is too high after initilizing
+    reset = reset | (torch.norm(base_ang_vel, dim=-1) > 15.0) * \
+        (episode_lengths - init_dropping_step > 0)
+
+    # reset when contact forces too high (impulse)
+    # reset = reset | (torch.sum(torch.norm(contact_forces, dim=2),
+    #                  dim=1) * (episode_lengths - init_dropping_step > 0))[0]
 
     return total_reward.detach(), reset
 
