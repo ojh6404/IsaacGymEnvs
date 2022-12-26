@@ -159,6 +159,7 @@ class KHRRecovery(VecTask):
         self.gym.refresh_actor_root_state_tensor(self.sim)
         self.gym.refresh_net_contact_force_tensor(self.sim)
         self.gym.refresh_dof_force_tensor(self.sim)
+        self.gym.refresh_rigid_body_state_tensor(self.sim)
 
         # create some wrapper tensors for different slices
         self.root_states = gymtorch.wrap_tensor(actor_root_state)
@@ -337,11 +338,6 @@ class KHRRecovery(VecTask):
             self.other_indices[i] = self.gym.find_actor_rigid_body_handle(
                 self.envs[0], self.khr_handles[0], self.other_names[i])
 
-        print('debug')
-        print(self.body_indices)
-        print(self.feet_indices)
-        print(self.other_indices)
-
         # for i in range(len(knee_names)):
         #     self.knee_indices[i] = self.gym.find_actor_rigid_body_handle(
         #         self.envs[0], self.khr_handles[0], knee_names[i])
@@ -462,18 +458,24 @@ class KHRRecovery(VecTask):
         self.gym.refresh_actor_root_state_tensor(self.sim)
         self.gym.refresh_net_contact_force_tensor(self.sim)
         self.gym.refresh_dof_force_tensor(self.sim)
+        self.gym.refresh_rigid_body_state_tensor(self.sim)
+
+        # print('debug')
+        # print(self.obs_buf[0][0:32])
+        # print(self.obs_buf[0][32:64])
+        # print(self.obs_buf[0][64:96])
 
         # compute acceleration
         self.dof_acc = compute_dof_acceleration(
             self.dof_vel, self.prev_dof_vel, self.dt)
 
         self.obs_buf[:] = compute_khr_recovery_observations(  # tensors
-            self.obs_buf[:, 0: self.prev_state_buffer_step * \
+            self.obs_buf[:, 2 * self.num_actions: 2 * self.num_actions + self.prev_state_buffer_step * \
                          self.num_actions * 2],
-            self.dof_pos,
-            self.prev_target_pos,
-            self.dof_lower_limit,
-            self.dof_upper_limit,
+            scale_joint_pos(self.dof_pos, self.dof_lower_limit,
+                            self.dof_upper_limit),
+            scale_joint_pos(self.prev_target_pos,
+                            self.dof_lower_limit, self.dof_upper_limit),
             self.root_states,
             self.ang_vel_scale
         )
@@ -484,6 +486,8 @@ class KHRRecovery(VecTask):
         if self.randomize:
             self.apply_randomizations(self.randomization_params)
 
+        initial_roll, initial_pitch, initial_yaw = get_euler_xyz(
+            self.initial_root_states[:, 3:7])
         # randomize initial quaternion states
         if self.random_initialize:
             initial_root_euler_delta = torch_rand_float(
@@ -491,8 +495,6 @@ class KHRRecovery(VecTask):
             initial_roll_delta, initial_pitch_delta = initial_root_euler_delta[
                 :, 0], initial_root_euler_delta[:, 1]
 
-            initial_roll, initial_pitch, initial_yaw = get_euler_xyz(
-                self.initial_root_states[:, 3:7])
             initial_roll_rand, initial_pitch_rand = initial_roll + \
                 initial_roll_delta, initial_pitch + initial_pitch_delta
             initial_root_quat_rand = quat_from_euler_xyz(
@@ -501,6 +503,8 @@ class KHRRecovery(VecTask):
             initial_root_states[:, 3:7] = initial_root_quat_rand
         else:
             initial_root_states = self.initial_root_states
+            initial_roll_rand = initial_roll
+            initial_pitch_rand = initial_pitch
 
         positions_offset = torch_rand_float(
             0.5, 1.5, (len(env_ids), self.num_dof), device=self.device)
@@ -524,16 +528,22 @@ class KHRRecovery(VecTask):
                                                   self.dof_state),
                                               gymtorch.unwrap_tensor(env_ids_int32), len(env_ids_int32))
 
-        # reset observation buffer
+        # reset prev target pos
         self.prev_target_pos[env_ids] = self.dof_pos[env_ids]
 
+        # reset obs buffer for dof pos and prev target dof pos
         for i in range(self.prev_state_buffer_step + 1):
             self.obs_buf[env_ids, (2 * i) * self.num_actions: (2 + 2 * i) * self.num_actions] = \
-                torch.cat((self.dof_pos[env_ids],
-                          self.prev_target_pos[env_ids]), dim=1)
+                torch.cat((scale_joint_pos(self.dof_pos[env_ids], self.dof_lower_limit, self.dof_upper_limit),
+                          scale_joint_pos(self.prev_target_pos[env_ids], self.dof_lower_limit, self.dof_upper_limit)), dim=1)
 
-        # self.obs_buf[env_ids, 2 * self.prev_state_buffer_step *
-            # self.num_actions] = 0.
+        # reset obs buffer for roll, pitch
+        self.obs_buf[env_ids, self.num_actions * 2 * (self.prev_state_buffer_step + 1): self.num_actions * 2 * (
+            self.prev_state_buffer_step + 1) + 2] = torch.hstack([initial_roll_rand[env_ids].unsqueeze(1), initial_pitch_rand[env_ids].unsqueeze(1)])
+
+        # reset obs buffer for base_ang_vel
+        self.obs_buf[env_ids, self.num_actions * 2 * (self.prev_state_buffer_step + 1) + 2: self.num_actions * 2 * (
+            self.prev_state_buffer_step + 1) + 5] = initial_root_states[env_ids, 10:13] * self.ang_vel_scale
 
         # reset progress_buf & reset_buf
         self.progress_buf[env_ids] = 0
@@ -660,7 +670,7 @@ def compute_khr_recovery_reward(
     #     rew_scales["gravityVector"]
     gravity_vec_error = gravity_vec - projected_gravity
     gravity_vec_error_norm = torch.norm(gravity_vec_error, dim=1)
-    rew_gravity_vector_error = torch.exp(- 2. * gravity_vec_error_norm) * \
+    rew_gravity_vector_error = torch.exp(- 20. * gravity_vec_error_norm) * \
         rew_scales["gravityVector"]
 
     # height reward
@@ -668,7 +678,7 @@ def compute_khr_recovery_reward(
     # rew_z_height = torch.zeros_like(base_z_height)
     # rew_z_height = torch.where(base_z_height > target_z_height, rew_z_height + 1., rew_z_height) * rew_scales["zHeight"]
     rew_z_height_error = torch.square(base_z_height - target_z_height)
-    rew_z_height = torch.exp(- 10. * rew_z_height_error) * \
+    rew_z_height = torch.exp(- 20. * rew_z_height_error) * \
         rew_scales["zHeight"]
     # rew_z_height = base_z_height * rew_scales["zHeight"]
 
@@ -685,9 +695,10 @@ def compute_khr_recovery_reward(
     #     current_target_pos - ahead_target_pos), dim=1)
     # rew_target_pos_diff = torch.exp(- 2. * target_pos_diff) * \
     #     rew_scales["targetPosDiff"]
-    current_target_pos = obs_buf[:, num_actions: 2 * num_actions]
-    ahead_target_pos = obs_buf[:, 2 * num_actions +
-                               num_actions: 2 * num_actions + 2 * num_actions]
+    current_target_pos = obs_buf[:, num_actions * 2 * prev_state_buffer_step +
+                                 num_actions: num_actions * 2 * prev_state_buffer_step + num_actions * 2]
+    ahead_target_pos = obs_buf[:, num_actions * 2 * (
+        prev_state_buffer_step - 1) + num_actions: num_actions * 2 * prev_state_buffer_step]
     # target_pos_diff = torch.sum(torch.square(
     #     current_target_pos - ahead_target_pos), dim=1)
     target_pos_diff = torch.norm(current_target_pos - ahead_target_pos, dim=1)
@@ -805,34 +816,34 @@ def compute_khr_recovery_reward(
 
     reset = time_out
 
-    # reset when base contacts after 150 steps
-    reset = reset | (base_contact * (episode_lengths - 150 > 0))
+    # reset when base contacts after 250 steps
+    reset = reset | (base_contact * (episode_lengths - 250 > 0))
 
     # reset when feet not contact after 300 steps
-    feet_not_contact = ~torch.any(feet_contact, dim=1)
-    reset = reset | (feet_not_contact * (episode_lengths - 300 > 0))
+    # feet_not_contact = ~torch.any(feet_contact, dim=1)
+    # reset = reset | (feet_not_contact * (episode_lengths - 300 > 0))
 
     # reset when other body contact after 300 steps
     # other_body_contact
     other_body_contact = torch.any(torch.norm(
-        contact_forces[:, other_indices, :], dim=2) > 0.5, dim=1)
+        contact_forces[:, other_indices, :], dim=2) > 0.2, dim=1)
     reset = reset | (other_body_contact * (episode_lengths - 300 > 0))
 
     # reset when base_z_height is lower than target_z_height - 1.0 after 300 steps
     reset = reset | (base_z_height < target_z_height - 1.0) * \
         (episode_lengths - 300 > 0)
 
-    # reset when feet is too high after 200 steps
+    # reset when feet is too high after 250 steps
     reset = reset | (torch.any(
-        rb_states[:, feet_indices, 2] > 1.5, dim=-1) * (episode_lengths - 200 > 0))
+        rb_states[:, feet_indices, 2] > 0.1, dim=-1) * (episode_lengths - 250 > 0))
 
     # reset when base_lin_vel is too high after initilizing
-    reset = reset | (torch.norm(base_lin_vel, dim=-1) > 3.0) * \
-        (episode_lengths - init_dropping_step > 0)
+    # reset = reset | (torch.norm(base_lin_vel, dim=-1) > 3.0) * \
+    #     (episode_lengths - init_dropping_step > 0)
 
     # reset when base_ang_vel is too high after initilizing
-    reset = reset | (torch.norm(base_ang_vel, dim=-1) > 15.0) * \
-        (episode_lengths - init_dropping_step > 0)
+    # reset = reset | (torch.norm(base_ang_vel, dim=-1) > 15.0) * \
+    #     (episode_lengths - init_dropping_step > 0)
 
     # reset when contact forces too high (impulse)
     # reset = reset | (torch.sum(torch.norm(contact_forces, dim=2),
@@ -843,28 +854,23 @@ def compute_khr_recovery_reward(
 
 @ torch.jit.script
 def compute_khr_recovery_observations(prev_joint_obs_buf,
-                                      dof_pos,
-                                      prev_target_pos,
-                                      dof_lower_limit,
-                                      dof_upper_limit,
+                                      dof_pos_scaled,
+                                      prev_target_pos_scaled,
                                       root_states,
                                       ang_vel_scale
                                       ):
 
-    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, float) -> Tensor
+    # type: (Tensor, Tensor, Tensor, Tensor, float) -> Tensor
     base_quat = root_states[:, 3:7]
     roll, pitch, yaw = get_euler_xyz(base_quat)
-    base_ang_vel = quat_rotate_inverse(
-        base_quat, root_states[:, 10:13]) * ang_vel_scale
-    joint_pos_scaled = (2.0 * dof_pos - (dof_lower_limit +
-                                         dof_upper_limit)) / (dof_upper_limit - dof_lower_limit)
-    prev_target_pos_scaled = (2.0 * prev_target_pos - (
-        dof_lower_limit + dof_upper_limit)) / (dof_upper_limit - dof_lower_limit)
+    # base_ang_vel = quat_rotate_inverse(
+    #     base_quat, root_states[:, 10:13]) * ang_vel_scale
+    base_ang_vel = root_states[:, 10:13] * ang_vel_scale
 
     obs = torch.cat((
-        joint_pos_scaled,
-        prev_target_pos_scaled,
         prev_joint_obs_buf,
+        dof_pos_scaled,
+        prev_target_pos_scaled,
         roll.unsqueeze(1),
         pitch.unsqueeze(1),
         base_ang_vel
@@ -877,3 +883,11 @@ def compute_dof_acceleration(dof_vel, prev_dof_vel, dt):
     # type: (Tensor, Tensor, float) -> Tensor
     dof_acc = (dof_vel - prev_dof_vel) / dt
     return dof_acc
+
+
+@torch.jit.script
+def scale_joint_pos(dof_pos, dof_lower_limit, dof_upper_limit):
+    # type: (Tensor, Tensor, Tensor) -> Tensor
+    joint_pos_scaled = (2.0 * dof_pos - (dof_lower_limit +
+                                         dof_upper_limit)) / (dof_upper_limit - dof_lower_limit)
+    return joint_pos_scaled

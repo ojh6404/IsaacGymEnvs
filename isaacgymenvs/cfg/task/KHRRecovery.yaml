@@ -7,7 +7,7 @@ env:
   numEnvs: ${resolve_default:8192,${...num_envs}}
   envSpacing: 1.  # [m]
   enableDebugVis: True
-  randomInitialize: False
+  randomInitialize: True
 
 
   # clipObservations: 5.0
@@ -120,15 +120,15 @@ env:
 
   learn:
     # rewards
-    gravityVectorRewardScale: 0.8
-    zHeightRewardScale: 0.5
-    posErrorRewardScale: 0.3
-    feetContactRewardScale: 0.1
-    feetUprightRewardScale: 0.1
+    gravityVectorRewardScale: 10.0
+    zHeightRewardScale: 10.0
+    posErrorRewardScale: 10.0
+    feetContactRewardScale: 0.05
+    feetUprightRewardScale: 0.05
 
     # penalty
     torquePenaltyScale: -0.0003
-    powerPenaltyScale: -0.0001
+    powerPenaltyScale: -0.0005
     dofVelocityPenaltyScale: -0.0 # -0.0001
     dofAccelerationPenaltyScale: -0.0 # -0.001
     actionsDiffPenaltyScale: -0.0 # -0.0001
@@ -136,11 +136,11 @@ env:
     baseAngularVelocityPenaltyScale: -0.001 # -0.02
     contactForcesPenaltyScale: -0.0001
     bodyContactPenaltyScale: -0.0
-    targetPosDiffPenaltyScale: -0.001 # somewhat like action
+    targetPosDiffPenaltyScale: -0.01 # somewhat like action
 
     # normalization
     linearVelocityScale: 1.0
-    angularVelocityScale: 1.0
+    angularVelocityScale: 0.25
     dofPositionScale: 1.0
     dofVelocityScale: 1.0 # 0.05
 
