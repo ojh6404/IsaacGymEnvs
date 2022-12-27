@@ -26,13 +26,13 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/BODY_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/BODY_mesh.dae" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/BODY_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/BODY_mesh.dae" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -45,13 +45,13 @@
     <visual>
       <origin xyz="0 0 0.0644" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/HEAD_LINK0_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/HEAD_LINK0_mesh.dae" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0 0 0.0644" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/HEAD_LINK0_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/HEAD_LINK0_mesh.dae" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -64,13 +64,13 @@
     <visual>
       <origin xyz="0.0115 0.049 0.0474" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/LARM_LINK0_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/LARM_LINK0_mesh.dae" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0.0115 0.049 0.0474" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/LARM_LINK0_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/LARM_LINK0_mesh.dae" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -83,13 +83,13 @@
     <visual>
       <origin xyz="0.01975 0.0255 0" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/LARM_LINK1_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/LARM_LINK1_mesh.dae" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0.01975 0.0255 0" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/LARM_LINK1_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/LARM_LINK1_mesh.dae" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -102,13 +102,13 @@
     <visual>
       <origin xyz="-0.0153 -0.0197 -0.0875" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/LARM_LINK2_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/LARM_LINK2_mesh.dae" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="-0.0153 -0.0197 -0.0875" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/LARM_LINK2_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/LARM_LINK2_mesh.dae" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -121,13 +121,13 @@
     <visual>
       <origin xyz="0.018517 0.017 -0.06265" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/LLEG_LINK0_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/LLEG_LINK0_mesh.dae" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0.018517 0.017 -0.06265" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/LLEG_LINK0_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/LLEG_LINK0_mesh.dae" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -140,13 +140,13 @@
     <visual>
       <origin xyz="-0.0192 -0.00825 -0.0385" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/LLEG_LINK1_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/LLEG_LINK1_mesh.dae" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="-0.0192 -0.00825 -0.0385" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/LLEG_LINK1_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/LLEG_LINK1_mesh.dae" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -159,13 +159,13 @@
     <visual>
       <origin xyz="0 0 -0.065" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/LLEG_LINK2_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/LLEG_LINK2_mesh.dae" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0 0 -0.065" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/LLEG_LINK2_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/LLEG_LINK2_mesh.dae" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -178,13 +178,13 @@
     <visual>
       <origin xyz="0 0 -0.065" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/LLEG_LINK3_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/LLEG_LINK3_mesh.dae" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0 0 -0.065" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/LLEG_LINK3_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/LLEG_LINK3_mesh.dae" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -197,13 +197,13 @@
     <visual>
       <origin xyz="0.019683 0.00825 -0.0385" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/LLEG_LINK4_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/LLEG_LINK4_mesh.dae" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0.019683 0.00825 -0.0385" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/LLEG_LINK4_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/LLEG_LINK4_mesh.dae" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -216,13 +216,13 @@
     <visual>
       <origin xyz="0.0115 -0.049 0.0474" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/RARM_LINK0_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/RARM_LINK0_mesh.dae" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0.0115 -0.049 0.0474" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/RARM_LINK0_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/RARM_LINK0_mesh.dae" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -235,13 +235,13 @@
     <visual>
       <origin xyz="0.01975 -0.0255 0" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/RARM_LINK1_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/RARM_LINK1_mesh.dae" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0.01975 -0.0255 0" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/RARM_LINK1_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/RARM_LINK1_mesh.dae" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -254,13 +254,13 @@
     <visual>
       <origin xyz="-0.0153 0.0197 -0.0875" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/RARM_LINK2_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/RARM_LINK2_mesh.dae" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="-0.0153 0.0197 -0.0875" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/RARM_LINK2_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/RARM_LINK2_mesh.dae" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -273,13 +273,13 @@
     <visual>
       <origin xyz="0.018517 -0.017 -0.06265" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/RLEG_LINK0_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/RLEG_LINK0_mesh.dae" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0.018517 -0.017 -0.06265" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/RLEG_LINK0_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/RLEG_LINK0_mesh.dae" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -292,13 +292,13 @@
     <visual>
       <origin xyz="-0.0192 0.00825 -0.0385" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/RLEG_LINK1_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/RLEG_LINK1_mesh.dae" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="-0.0192 0.00825 -0.0385" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/RLEG_LINK1_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/RLEG_LINK1_mesh.dae" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -311,13 +311,13 @@
     <visual>
       <origin xyz="0 0 -0.065" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/RLEG_LINK2_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/RLEG_LINK2_mesh.dae" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0 0 -0.065" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/RLEG_LINK2_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/RLEG_LINK2_mesh.dae" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -330,13 +330,13 @@
     <visual>
       <origin xyz="0 0 -0.065" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/RLEG_LINK3_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/RLEG_LINK3_mesh.dae" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0 0 -0.065" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/RLEG_LINK3_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/RLEG_LINK3_mesh.dae" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -349,13 +349,13 @@
     <visual>
       <origin xyz="0.019683 -0.00825 -0.0385" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/RLEG_LINK4_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/RLEG_LINK4_mesh.dae" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <origin xyz="0.019683 -0.00825 -0.0385" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="mesh/RLEG_LINK4_mesh.stl" scale="1 1 1" />
+        <mesh filename="mesh/RLEG_LINK4_mesh.dae" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -384,7 +384,7 @@
     <child  link="HEAD_LINK0"/>
     <origin xyz="0 0 0.0170" rpy="0 -0 0 "/>
     <axis   xyz="0 0 1"/>
-    <limit lower="-1.5708" upper="1.5708" effort="0.005" velocity="1.0" />
+    <limit lower="-1.5708" upper="1.5708" effort="2.5" velocity="10.0" />
     <dynamics damping="0.2" friction="0" />
   </joint>
   <joint name="LARM_JOINT0" type="revolute">
@@ -392,7 +392,7 @@
     <child  link="LARM_LINK0"/>
     <origin xyz="0.0115 0.049 0.0" rpy="0 -0 0 "/>
     <axis   xyz="0 1 0"/>
-    <limit lower="-3.1416" upper="0.5236" effort="0.005" velocity="1.0" />
+    <limit lower="-3.1416" upper="0.5236" effort="2.5" velocity="10.0" />
     <dynamics damping="0.2" friction="0" />
   </joint>
   <joint name="LARM_JOINT1" type="revolute">
@@ -400,7 +400,7 @@
     <child  link="LARM_LINK1"/>
     <origin xyz="0.01975 0.0255 0" rpy="0 -0 0 "/>
     <axis   xyz="1 0 0"/>
-    <limit lower="-0.5236" upper="3.1416" effort="0.005" velocity="1.0" />
+    <limit lower="-0.5236" upper="3.1416" effort="2.5" velocity="10.0" />
     <dynamics damping="0.2" friction="0" />
   </joint>
   <joint name="LARM_JOINT2" type="revolute">
@@ -408,7 +408,7 @@
     <child  link="LARM_LINK2"/>
     <origin xyz="-0.0153 -0.0197 -0.0875" rpy="0 -0 0 "/>
     <axis   xyz="0 1 0"/>
-    <limit lower="-2.0944" upper="0.0" effort="0.005" velocity="1.0" />
+    <limit lower="-2.0944" upper="0.0" effort="2.5" velocity="10.0" />
     <dynamics damping="0.2" friction="0" />
   </joint>
   <joint name="LLEG_JOINT0" type="revolute">
@@ -416,7 +416,7 @@
     <child  link="LLEG_LINK0"/>
     <origin xyz="0.018517 0.017 0.0" rpy="0 -0 0 "/>
     <axis   xyz="1 0 0"/>
-    <limit lower="-0.2618" upper="0.5236" effort="0.005" velocity="1.0" />
+    <limit lower="-0.2618" upper="0.5236" effort="2.5" velocity="10.0" />
     <dynamics damping="0.2" friction="0" />
   </joint>
   <joint name="LLEG_JOINT1" type="revolute">
@@ -424,7 +424,7 @@
     <child  link="LLEG_LINK1"/>
     <origin xyz="-0.0192 -0.00825 -0.0385" rpy="0 -0 0 "/>
     <axis   xyz="0 1 0"/>
-    <limit lower="-1.5708" upper="1.5708" effort="0.005" velocity="1.0" />
+    <limit lower="-1.5708" upper="1.5708" effort="2.5" velocity="10.0" />
     <dynamics damping="0.2" friction="0" />
   </joint>
   <joint name="LLEG_JOINT2" type="revolute">
@@ -432,7 +432,7 @@
     <child  link="LLEG_LINK2"/>
     <origin xyz="0 0 -0.065" rpy="0 -0 0 "/>
     <axis   xyz="0 1 0"/>
-    <limit lower="0.0" upper="2.6180" effort="0.005" velocity="1.0" />
+    <limit lower="0.0" upper="2.6180" effort="2.5" velocity="10.0" />
     <dynamics damping="0.2" friction="0" />
   </joint>
   <joint name="LLEG_JOINT3" type="revolute">
@@ -440,7 +440,7 @@
     <child  link="LLEG_LINK3"/>
     <origin xyz="0 0 -0.065" rpy="0 -0 0 "/>
     <axis   xyz="0 1 0"/>
-    <limit lower="0.0" upper="1.5708" effort="0.005" velocity="1.0" />
+    <limit lower="0.0" upper="1.5708" effort="2.5" velocity="10.0" />
     <dynamics damping="0.2" friction="0" />
   </joint>
   <joint name="LLEG_JOINT4" type="revolute">
@@ -448,7 +448,7 @@
     <child  link="LLEG_LINK4"/>
     <origin xyz="0.019683 0.00825 -0.0385" rpy="0 -0 0 "/>
     <axis   xyz="1 0 0"/>
-    <limit lower="-0.5236" upper="0.0" effort="0.005" velocity="1.0" />
+    <limit lower="-0.5236" upper="0.0" effort="2.5" velocity="10.0" />
     <dynamics damping="0.2" friction="0" />
   </joint>
   <joint name="RARM_JOINT0" type="revolute">
@@ -456,7 +456,7 @@
     <child  link="RARM_LINK0"/>
     <origin xyz="0.0115 -0.049 0.0" rpy="0 -0 0 "/>
     <axis   xyz="0 1 0"/>
-    <limit lower="-3.1416" upper="0.5236" effort="0.005" velocity="1.0" />
+    <limit lower="-3.1416" upper="0.5236" effort="2.5" velocity="10.0" />
     <dynamics damping="0.2" friction="0" />
   </joint>
   <joint name="RARM_JOINT1" type="revolute">
@@ -464,7 +464,7 @@
     <child  link="RARM_LINK1"/>
     <origin xyz="0.01975 -0.0255 0" rpy="0 -0 0 "/>
     <axis   xyz="1 0 0"/>
-    <limit lower="-3.1416" upper="0.5236" effort="0.005" velocity="1.0" />
+    <limit lower="-3.1416" upper="0.5236" effort="2.5" velocity="10.0" />
     <dynamics damping="0.2" friction="0" />
   </joint>
   <joint name="RARM_JOINT2" type="revolute">
@@ -472,7 +472,7 @@
     <child  link="RARM_LINK2"/>
     <origin xyz="-0.0153 0.0197 -0.0875" rpy="0 -0 0 "/>
     <axis   xyz="0 1 0"/>
-    <limit lower="-2.0944" upper="0.0" effort="0.005" velocity="1.0" />
+    <limit lower="-2.0944" upper="0.0" effort="2.5" velocity="10.0" />
     <dynamics damping="0.2" friction="0" />
   </joint>
   <joint name="RLEG_JOINT0" type="revolute">
@@ -480,7 +480,7 @@
     <child  link="RLEG_LINK0"/>
     <origin xyz="0.018517 -0.017 0.0" rpy="0 -0 0 "/>
     <axis   xyz="1 0 0"/>
-    <limit lower="-0.5236" upper="0.2518" effort="0.005" velocity="1.0" />
+    <limit lower="-0.5236" upper="0.2518" effort="2.5" velocity="10.0" />
     <dynamics damping="0.2" friction="0" />
   </joint>
   <joint name="RLEG_JOINT1" type="revolute">
@@ -488,7 +488,7 @@
     <child  link="RLEG_LINK1"/>
     <origin xyz="-0.0192 0.00825 -0.0385" rpy="0 -0 0 "/>
     <axis   xyz="0 1 0"/>
-    <limit lower="-1.5708" upper="1.5708" effort="0.005" velocity="1.0" />
+    <limit lower="-1.5708" upper="1.5708" effort="2.5" velocity="10.0" />
     <dynamics damping="0.2" friction="0" />
   </joint>
   <joint name="RLEG_JOINT2" type="revolute">
@@ -496,7 +496,7 @@
     <child  link="RLEG_LINK2"/>
     <origin xyz="0 0 -0.065" rpy="0 -0 0 "/>
     <axis   xyz="0 1 0"/>
-    <limit lower="0.0" upper="2.6108" effort="0.005" velocity="1.0" />
+    <limit lower="0.0" upper="2.6108" effort="2.5" velocity="10.0" />
     <dynamics damping="0.2" friction="0" />
   </joint>
   <joint name="RLEG_JOINT3" type="revolute">
@@ -504,7 +504,7 @@
     <child  link="RLEG_LINK3"/>
     <origin xyz="0 0 -0.065" rpy="0 -0 0 "/>
     <axis   xyz="0 1 0"/>
-    <limit lower="0.0" upper="1.5708" effort="0.005" velocity="1.0" />
+    <limit lower="0.0" upper="1.5708" effort="2.5" velocity="10.0" />
     <dynamics damping="0.2" friction="0" />
   </joint>
   <joint name="RLEG_JOINT4" type="revolute">
@@ -512,7 +512,7 @@
     <child  link="RLEG_LINK4"/>
     <origin xyz="0.019683 -0.00825 -0.0385" rpy="0 -0 0 "/>
     <axis   xyz="1 0 0"/>
-    <limit lower="0.0" upper="0.5236" effort="0.005" velocity="1.0" />
+    <limit lower="0.0" upper="0.5236" effort="2.5" velocity="10.0" />
     <dynamics damping="0.2" friction="0" />
   </joint>
 

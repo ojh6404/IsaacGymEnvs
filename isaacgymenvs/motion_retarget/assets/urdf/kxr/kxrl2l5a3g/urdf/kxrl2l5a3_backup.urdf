@@ -1,0 +1,757 @@
+<?xml version="1.0"?>
+<robot name="kxrl2l5a3g"
+       xmlns:xi="http://www.w3.org/2001/XInclude">
+  <link name="torso">
+    <visual>
+      <origin xyz="-8e-06 0 0.191982" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="../meshes/torso_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="-0.010000 0.00000 0.020000" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.07000 0.08 0.08" />
+      </geometry>
+    </collision>
+    <inertial>
+      <!-- from rcb4eus -->
+      <!-- <mass value="0.583234" /> -->
+      <!-- real robot w/o battery: 0.583234 - 0.296 = 0.287234; only compensate the real weight by torso adjustment -->
+      <mass value="0.287234" />
+      <origin xyz="0 0 0" rpy="0 -0 0"/>
+      <inertia ixx="0.001179" ixy="-8.41182e-06" ixz="-1.70062e-06" iyy="0.001167" iyz="1.49116e-06" izz="0.001999"/>
+    </inertial>
+  </link>
+  <link name="HEAD_LINK0">
+    <visual>
+      <origin xyz="-0.00725 0 0.061" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="../meshes/HEAD_LINK0_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="0.03752" />
+      <origin xyz="0.008278 -1.86739e-06 0.020216" rpy="0 -0 0"/>
+      <inertia ixx="3.88837e-05" ixy="-3.94e-12" ixz="6.70242e-09" iyy="4.27546e-05" iyz="-6.02408e-09" izz="2.51931e-05"/>
+    </inertial>
+  </link>
+  <link name="HEAD_LINK1">
+    <visual>
+      <origin xyz="0.0105 0 0.033" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="../meshes/HEAD_LINK1_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.00000 0.0000 -0.0080" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.025 0.025 0.03" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.024597" />
+      <!-- <origin xyz="0.004067 2.59182e-19 0.008603" rpy="0 -0 0"/> -->
+      <origin xyz="0.004067 4.0547e-19 0.008603" rpy="0 -0 0"/>
+      <inertia ixx="9.7242e-05" ixy="-2.28993e-09" ixz="1.36484e-07" iyy="8.87817e-05" iyz="-1.71513e-08" izz="1.3887e-05"/>
+    </inertial>
+  </link>
+  <link name="LARM_LINK0">
+    <visual>
+      <origin xyz="-0.00725 0.0485 0.0435" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="../meshes/LARM_LINK0_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="0.01195" />
+      <origin xyz="2.60209e-18 0 0.010386" rpy="0 -0 0"/>
+      <inertia ixx="2.28576e-05" ixy="-9.80842e-10" ixz="6.34046e-10" iyy="1.18146e-05" iyz="1.5468e-08" izz="1.61687e-05"/>
+    </inertial>
+  </link>
+  <link name="LARM_LINK1">
+    <visual>
+      <origin xyz="0 0.026 0" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="../meshes/LARM_LINK1_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.00000 0.0000 -0.0080" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.025 0.025 0.03" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.0 0.0000 -0.030" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.028 0.028 0.006" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.041025" />
+      <origin xyz="0 0 -0.01644" rpy="0 -0 0"/>
+      <inertia ixx="5.49194e-05" ixy="-6.71102e-10" ixz="8.95645e-09" iyy="2.53332e-05" iyz="6.90862e-09" izz="5.98969e-05"/>
+    </inertial>
+  </link>
+  <link name="LARM_LINK2">
+    <visual>
+      <origin xyz="0 0 -0.047" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="../meshes/LARM_LINK2_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.00000 0.0000 -0.008" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.025 0.025 0.03" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.00000 0.0130 -0.055" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.025 0.03 0.025" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.0 0.0000 -0.033" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.028 0.028 0.010" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.071724" />
+      <origin xyz="0 0 -0.012787" rpy="0 -0 0"/>
+      <inertia ixx="9.38809e-05" ixy="-3.94e-12" ixz="1.53141e-08" iyy="5.47619e-05" iyz="-1.12819e-08" izz="9.84962e-05"/>
+    </inertial>
+  </link>
+  <!-- <link name="LARM_LINK3"> -->
+  <!--   <visual> -->
+  <!--     <origin xyz="0 0.021 -0.0555" rpy="0 -0 0"/> -->
+  <!--     <geometry> -->
+  <!--       <mesh filename="../meshes/LARM_LINK3_mesh.dae" scale="1 1 1" /> -->
+  <!--     </geometry> -->
+  <!--   </visual> -->
+  <!--   <collision> -->
+  <!--     <!-\- <origin xyz="0.00000 0.0225 -0.022" rpy="${-1.0471975512 - 0.05} -0.00000000 0.00000000"/> -\-> -->
+  <!--     <origin xyz="0.00000 0.0225 -0.022" rpy="-1.0971975512 -0.00000000 0.00000000"/> -->
+  <!--     <geometry> -->
+  <!--       <box size="0.04 0.03 0.006" /> -->
+  <!--     </geometry> -->
+  <!--   </collision> -->
+  <!--   <inertial> -->
+  <!--     <mass value="0.013908" /> -->
+  <!--     <origin xyz="-3.46945e-18 0.035082 -0.036273" rpy="0 -0 0"/> -->
+  <!--     <inertia ixx="5.39534e-05" ixy="-2.54028e-09" ixz="-2.35822e-09" iyy="2.3568e-05" iyz="-1.52851e-07" izz="4.68022e-05"/> -->
+  <!--   </inertial> -->
+  <!-- </link> -->
+  <link name="LLEG_LINK0">
+    <visual>
+      <origin xyz="0 0.0235 -0.052" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="../meshes/LLEG_LINK0_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="-0.035 0.0000 -0.0080" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.025 0.025 0.03" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.00000 0.0000 -0.0080" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.025 0.025 0.03" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.061776" />
+      <origin xyz="-0.015804 -3.46945e-18 -0.00811" rpy="0 -0 0"/>
+      <inertia ixx="4.81066e-05" ixy="1.50384e-08" ixz="-2.07075e-08" iyy="5.46135e-05" iyz="-1.15288e-07" izz="4.88736e-05"/>
+    </inertial>
+  </link>
+  <link name="LLEG_LINK1">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="../meshes/LLEG_LINK1_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.0 0.0000 -0.038" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.028 0.028 0.012" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.025166" />
+      <origin xyz="2.87307e-19 -3.46945e-18 -0.032713" rpy="0 -0 0"/>
+      <inertia ixx="6.74466e-05" ixy="-2.27142e-09" ixz="1.80148e-09" iyy="6.14497e-05" iyz="3.35902e-08" izz="1.35243e-05"/>
+    </inertial>
+  </link>
+  <link name="LLEG_LINK2">
+    <visual>
+      <origin xyz="0 0 -0.058" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="../meshes/LLEG_LINK2_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <!-- <origin xyz="0.00000 0.00 -0.00" rpy="0.00000000 ${0.52359877559 - 0.07} 0.00000000"/> -->
+      <!-- <origin xyz="0.00700 0.00 -0.003" rpy="0.00000000 0.45359877559 0.00000000"/> -->
+      <origin xyz="0.01000 0.00 -0.0045" rpy="0.00000000 0.45359877559 0.00000000"/>
+      <geometry>
+        <box size="0.03 0.025 0.025" />
+      </geometry>
+    </collision>
+    <inertial>
+      <!-- from rcb4eus -->
+      <mass value="0.055049" />
+      <!-- real robot 3304R2: 0.055049 + 0.0073 = 0.062349 -->
+      <!-- <mass value="0.062349" /> -->
+      <origin xyz="0.010892 0 -0.013685" rpy="0 -0 0"/>
+      <inertia ixx="0.00013" ixy="5.70585e-08" ixz="1.76606e-08" iyy="0.000122" iyz="-6.55478e-07" izz="3.84933e-05"/>
+    </inertial>
+  </link>
+  <link name="LLEG_LINK3">
+    <visual>
+      <origin xyz="0 0 -0.057976" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="../meshes/LLEG_LINK3_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="-0.035 0.0000 0.0080" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.025 0.025 0.03" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.00000 0.0000 0.0080" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.025 0.025 0.03" />
+      </geometry>
+    </collision>
+    <inertial>
+      <!-- from rcb4eus -->
+      <mass value="0.061776" />
+      <!-- real robot 3304R2 x 2: 0.061776 + 0.0073 x 2 = 0.076376 -->
+      <!-- <mass value="0.076376" /> -->
+      <origin xyz="-0.015804 -3.46945e-18 -0.00811" rpy="0 -0 0"/>
+      <inertia ixx="0.000134" ixy="1.50384e-08" ixz="-2.07075e-08" iyy="0.00014" iyz="-1.15288e-07" izz="4.88736e-05"/>
+    </inertial>
+  </link>
+  <link name="LLEG_LINK4">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="../meshes/LLEG_LINK4_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.0 0.0000 -0.025" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.028 0.028 0.006" />
+      </geometry>
+    </collision>
+    <!-- method 1: approximation by 1 box -->
+    <!-- <collision> -->
+    <!--   <!-\- <origin xyz="0.00000 0.0100 -0.029" rpy="0.00000000 -0.00000000 0.00000000"/> -\-> -->
+    <!--   <origin xyz="0.00000 0.0100 -0.029" rpy="0.00000000 -0.00000000 0.00000000"/> -->
+    <!--   <geometry> -->
+    <!--     <box size="0.1 0.06 0.004" /> -->
+    <!--     <!-\- <box size="0.1 0.04 0.004" /> -\-> -->
+    <!--   </geometry> -->
+    <!-- </collision> -->
+    <!-- method 2: approximation by 2 boxes -->
+    <collision>
+      <!-- <origin xyz="0.00000 0.000 -0.029" rpy="0.00000000 -0.00000000 0.00000000"/> -->
+      <!-- add small offset to avoid 2 feet get collisin -->
+      <origin xyz="0.00000 0.0040 -0.029" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.1 0.04 0.004" />
+      </geometry>
+    </collision>
+    <collision>
+      <!-- <origin xyz="0.00000 0.0300 -0.029" rpy="0.00000000 -0.00000000 0.00000000"/> -->
+      <!-- add small offset to avoid 2 feet get collisin -->
+      <origin xyz="0.00000 0.03400 -0.029" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.08 0.02 0.004" />
+      </geometry>
+    </collision>
+    <!-- method 3: approximation by overlay of 2 spheres and 1 box -->
+    <!-- <collision> -->
+    <!--   <origin xyz="0.02000 0.0100 -0.029" rpy="0.00000000 -0.00000000 0.00000000"/> -->
+    <!--   <geometry> -->
+    <!--     <cylinder length="0.004" radius="0.03" /> -->
+    <!--   </geometry> -->
+    <!-- </collision> -->
+    <!-- <collision> -->
+    <!--   <origin xyz="-0.02000 0.0100 -0.029" rpy="0.00000000 -0.00000000 0.00000000"/> -->
+    <!--   <geometry> -->
+    <!--     <cylinder length="0.004" radius="0.03" /> -->
+    <!--   </geometry> -->
+    <!-- </collision> -->
+    <!-- <collision> -->
+    <!--   <origin xyz="0.00000 0.0100 -0.029" rpy="0.00000000 -0.00000000 0.00000000"/> -->
+    <!--   <geometry> -->
+    <!--     <box size="0.06 0.06 0.004" /> -->
+    <!--   </geometry> -->
+    <!-- </collision> -->
+    <inertial>
+      <mass value="0.034088" />
+      <origin xyz="-7.61549e-06 0.005841 -0.024808" rpy="0 -0 0"/>
+      <inertia ixx="0.000284" ixy="6.51398e-09" ixz="1.25882e-08" iyy="0.000186" iyz="-2.42528e-07" izz="0.000103"/>
+    </inertial>
+  </link>
+  <link name="RARM_LINK0">
+    <visual>
+      <origin xyz="-0.00725 -0.049 0.0435" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="../meshes/RARM_LINK0_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="0.01195" />
+      <origin xyz="2.60209e-18 0 0.010386" rpy="0 -0 0"/>
+      <inertia ixx="2.30389e-05" ixy="-9.80842e-10" ixz="6.34046e-10" iyy="1.18146e-05" iyz="1.5468e-08" izz="1.63501e-05"/>
+    </inertial>
+  </link>
+  <link name="RARM_LINK1">
+    <visual>
+      <origin xyz="0 -0.026 0" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="../meshes/RARM_LINK1_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.00000 0.0000 -0.00800" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.025 0.025 0.03" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.0 0.0000 -0.030" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.028 0.028 0.006" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.041025" />
+      <origin xyz="0 0 -0.01644" rpy="0 -0 0"/>
+      <inertia ixx="5.53679e-05" ixy="-6.71102e-10" ixz="8.95645e-09" iyy="2.53332e-05" iyz="6.90862e-09" izz="6.03453e-05"/>
+    </inertial>
+  </link>
+  <link name="RARM_LINK2">
+    <visual>
+      <origin xyz="0 0 -0.047" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="../meshes/RARM_LINK2_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.00000 0.0000 -0.008" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.025 0.025 0.03" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.00000 -0.0130 -0.055" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.025 0.03 0.025" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.0 0.0000 -0.033" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.028 0.028 0.010" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.071724" />
+      <origin xyz="0 0 -0.012787" rpy="0 -0 0"/>
+      <inertia ixx="9.45007e-05" ixy="-3.94e-12" ixz="1.53141e-08" iyy="5.47619e-05" iyz="-1.12819e-08" izz="9.91161e-05"/>
+    </inertial>
+  </link>
+  <!-- <link name="RARM_LINK3"> -->
+  <!--   <visual> -->
+  <!--     <origin xyz="0 -0.021 -0.0555" rpy="0 -0 0"/> -->
+  <!--     <geometry> -->
+  <!--       <mesh filename="../meshes/RARM_LINK3_mesh.dae" scale="1 1 1" /> -->
+  <!--     </geometry> -->
+  <!--   </visual> -->
+  <!--   <collision> -->
+  <!--     <!-\- <origin xyz="0.00000 -0.0225 -0.022" rpy="${1.0471975512 + 0.05} -0.00000000 0.00000000"/> -\-> -->
+  <!--     <origin xyz="0.00000 -0.0225 -0.022" rpy="1.0971975512 -0.00000000 0.00000000"/> -->
+  <!--     <geometry> -->
+  <!--       <box size="0.04 0.03 0.006" /> -->
+  <!--     </geometry> -->
+  <!--   </collision> -->
+  <!--   <inertial> -->
+  <!--     <mass value="0.013908" /> -->
+  <!--     <origin xyz="1.73472e-18 -0.035082 -0.036273" rpy="0 -0 0"/> -->
+  <!--     <inertia ixx="5.42657e-05" ixy="-2.54028e-09" ixz="-2.35822e-09" iyy="2.3568e-05" iyz="-1.52851e-07" izz="4.71146e-05"/> -->
+  <!--   </inertial> -->
+  <!-- </link> -->
+  <link name="RLEG_LINK0">
+    <visual>
+      <origin xyz="0 -0.0235 -0.052" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="../meshes/RLEG_LINK0_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="-0.035 0.0000 -0.0080" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.025 0.025 0.03" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.00000 0.0000 -0.0080" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.025 0.025 0.03" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.061776" />
+      <origin xyz="-0.015804 -3.46945e-18 -0.00811" rpy="0 -0 0"/>
+      <inertia ixx="4.81066e-05" ixy="1.50384e-08" ixz="-2.07075e-08" iyy="5.46135e-05" iyz="-1.15288e-07" izz="4.88736e-05"/>
+    </inertial>
+  </link>
+  <link name="RLEG_LINK1">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="../meshes/RLEG_LINK1_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.0 0.0000 -0.038" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.028 0.028 0.012" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.025166" />
+      <origin xyz="2.87307e-19 -3.46945e-18 -0.032713" rpy="0 -0 0"/>
+      <inertia ixx="6.74466e-05" ixy="-2.27142e-09" ixz="1.80148e-09" iyy="6.14497e-05" iyz="3.35902e-08" izz="1.35243e-05"/>
+    </inertial>
+  </link>
+  <link name="RLEG_LINK2">
+    <visual>
+      <origin xyz="0 0 -0.058" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="../meshes/RLEG_LINK2_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <!-- <origin xyz="0.00000 0.00 -0.00" rpy="0.00000000 ${0.52359877559 - 0.07} 0.00000000"/> -->
+      <!-- <origin xyz="0.00700 0.00 -0.003" rpy="0.00000000 0.45359877559 0.00000000"/> -->
+      <origin xyz="0.01000 0.00 -0.0045" rpy="0.00000000 0.45359877559 0.00000000"/>
+      <geometry>
+        <box size="0.03 0.025 0.025" />
+      </geometry>
+    </collision>
+    <inertial>
+      <!-- from rcb4eus -->
+      <mass value="0.055049" />
+      <!-- real robot 3304R2: 0.055049 + 0.0073 = 0.062349 -->
+      <!-- <mass value="0.062349" /> -->
+      <origin xyz="0.010892 0 -0.013685" rpy="0 -0 0"/>
+      <inertia ixx="0.00013" ixy="5.70585e-08" ixz="1.76606e-08" iyy="0.000122" iyz="-6.55478e-07" izz="3.84933e-05"/>
+    </inertial>
+  </link>
+  <link name="RLEG_LINK3">
+    <visual>
+      <origin xyz="0 0 -0.057976" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="../meshes/RLEG_LINK3_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="-0.035 0.0000 0.0080" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.025 0.025 0.03" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.00000 0.0000 0.0080" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.025 0.025 0.03" />
+      </geometry>
+    </collision>
+    <inertial>
+      <!-- from rcb4eus -->
+      <mass value="0.061776" />
+      <!-- real robot 3304R2 x 2: 0.061776 + 0.0073 x 2 = 0.076376 -->
+      <!-- <mass value="0.076376" /> -->
+      <origin xyz="-0.015804 -3.46945e-18 -0.00811" rpy="0 -0 0"/>
+      <inertia ixx="0.000134" ixy="1.50384e-08" ixz="-2.07075e-08" iyy="0.00014" iyz="-1.15288e-07" izz="4.88736e-05"/>
+    </inertial>
+  </link>
+  <link name="RLEG_LINK4">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="../meshes/RLEG_LINK4_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.0 0.0000 -0.025" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.028 0.028 0.006" />
+      </geometry>
+    </collision>
+    <!-- method 1: approximation by 1 box -->
+    <!-- <collision> -->
+    <!--   <!-\- <origin xyz="0.00000 -0.0100 -0.029" rpy="0.00000000 -0.00000000 0.00000000"/> -\-> -->
+    <!--   <origin xyz="0.00000 -0.0100 -0.029" rpy="0.00000000 -0.00000000 0.00000000"/> -->
+    <!--   <geometry> -->
+    <!--     <box size="0.1 0.06 0.004" /> -->
+    <!--     <!-\- <box size="0.1 0.04 0.004" /> -\-> -->
+    <!--   </geometry> -->
+    <!-- </collision> -->
+    <!-- method 2: approximation by 2 boxes -->
+    <collision>
+      <!-- <origin xyz="0.00000 -0.000 -0.029" rpy="0.00000000 -0.00000000 0.00000000"/> -->
+      <!-- add small offset to avoid 2 feet get collisin -->
+      <origin xyz="0.00000 -0.0040 -0.029" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.1 0.04 0.004" />
+      </geometry>
+    </collision>
+    <collision>
+      <!-- <origin xyz="0.00000 -0.0300 -0.029" rpy="0.00000000 -0.00000000 0.00000000"/> -->
+      <!-- add small offset to avoid 2 feet get collisin -->
+      <origin xyz="0.00000 -0.03400 -0.029" rpy="0.00000000 -0.00000000 0.00000000"/>
+      <geometry>
+        <box size="0.08 0.02 0.004" />
+      </geometry>
+    </collision>
+    <!-- method 3: approximation by overlay of 2 spheres and 1 box -->
+    <!-- <collision> -->
+    <!--   <origin xyz="0.02000 -0.0100 -0.029" rpy="0.00000000 -0.00000000 0.00000000"/> -->
+    <!--   <geometry> -->
+    <!--     <cylinder length="0.004" radius="0.03" /> -->
+    <!--   </geometry> -->
+    <!-- </collision> -->
+    <!-- <collision> -->
+    <!--   <origin xyz="-0.02000 -0.0100 -0.029" rpy="0.00000000 -0.00000000 0.00000000"/> -->
+    <!--   <geometry> -->
+    <!--     <cylinder length="0.004" radius="0.03" /> -->
+    <!--   </geometry> -->
+    <!-- </collision> -->
+    <!-- <collision> -->
+    <!--   <origin xyz="0.00000 -0.0100 -0.029" rpy="0.00000000 -0.00000000 0.00000000"/> -->
+    <!--   <geometry> -->
+    <!--     <box size="0.06 0.06 0.004" /> -->
+    <!--   </geometry> -->
+    <!-- </collision> -->
+    <inertial>
+      <mass value="0.034088" />
+      <origin xyz="7.61549e-06 -0.005841 -0.024808" rpy="0 -0 0"/>
+      <inertia ixx="0.000284" ixy="6.51398e-09" ixz="1.25882e-08" iyy="0.000186" iyz="-2.42528e-07" izz="0.000103"/>
+    </inertial>
+  </link>
+  <joint name="HEAD_JOINT0" type="fixed">
+    <parent link="torso"/>
+    <child  link="HEAD_LINK0"/>
+    <origin xyz="-0.00725 0 0.061" rpy="0 -0 0 "/>
+    <axis   xyz="0 0 1"/>
+    <limit lower="-3.14159" upper="3.14159" effort="100" velocity="0.5" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <joint name="HEAD_JOINT1" type="fixed">
+    <parent link="HEAD_LINK0"/>
+    <child  link="HEAD_LINK1"/>
+    <origin xyz="0.0105 0 0.033" rpy="0 -0 0 "/>
+    <axis   xyz="0 1 0"/>
+    <limit lower="-3.14159" upper="3.14159" effort="100" velocity="0.5" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <joint name="LARM_JOINT0" type="revolute">
+    <parent link="torso"/>
+    <child  link="LARM_LINK0"/>
+    <origin xyz="-0.00725 0.0485 0.0435" rpy="0 -0 0 "/>
+    <axis   xyz="0 1 0"/>
+    <limit lower="-3.14159" upper="3.14159" effort="1.17655" velocity="7.47998" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <joint name="LARM_JOINT1" type="revolute">
+    <parent link="LARM_LINK0"/>
+    <child  link="LARM_LINK1"/>
+    <origin xyz="0 0.026 0" rpy="0 -0 0 "/>
+    <axis   xyz="1 0 0"/>
+    <limit lower="-0.523599" upper="3.22886" effort="1.17655" velocity="7.47998" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <joint name="LARM_JOINT2" type="revolute">
+    <parent link="LARM_LINK1"/>
+    <child  link="LARM_LINK2"/>
+    <origin xyz="0 0 -0.047" rpy="0 -0 0 "/>
+    <axis   xyz="0 1 0"/>
+    <limit lower="-2.96706" upper="2.96706" effort="1.17655" velocity="7.47998" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <!-- <joint name="LARM_JOINT3" type="revolute"> -->
+  <!--   <parent link="LARM_LINK2"/> -->
+  <!--   <child  link="LARM_LINK3"/> -->
+  <!--   <origin xyz="0 0.021 -0.0555" rpy="0 -0 0 "/> -->
+  <!--   <axis   xyz="1 0 0"/> -->
+  <!--   <limit lower="-1.74533" upper="1.74533" effort="1.17655" velocity="7.47998" /> -->
+  <!--   <dynamics damping="0.2" friction="0" /> -->
+  <!-- </joint> -->
+  <joint name="RARM_JOINT0" type="revolute">
+    <parent link="torso"/>
+    <child  link="RARM_LINK0"/>
+    <origin xyz="-0.00725 -0.049 0.0435" rpy="0 -0 0 "/>
+    <axis   xyz="0 1 0"/>
+    <limit lower="-3.14159" upper="3.14159" effort="1.17655" velocity="7.47998" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <joint name="RARM_JOINT1" type="revolute">
+    <parent link="RARM_LINK0"/>
+    <child  link="RARM_LINK1"/>
+    <origin xyz="0 -0.026 0" rpy="0 -0 0 "/>
+    <axis   xyz="1 0 0"/>
+    <limit lower="-3.22886" upper="0.523599" effort="1.17655" velocity="7.47998" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <joint name="RARM_JOINT2" type="revolute">
+    <parent link="RARM_LINK1"/>
+    <child  link="RARM_LINK2"/>
+    <origin xyz="0 0 -0.047" rpy="0 -0 0 "/>
+    <axis   xyz="0 1 0"/>
+    <limit lower="-2.96706" upper="2.96706" effort="1.17655" velocity="7.47998" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <!-- <joint name="RARM_JOINT3" type="revolute"> -->
+  <!--   <parent link="RARM_LINK2"/> -->
+  <!--   <child  link="RARM_LINK3"/> -->
+  <!--   <origin xyz="0 -0.021 -0.0555" rpy="0 -0 0 "/> -->
+  <!--   <axis   xyz="-1 1.22465e-16 6.16298e-33"/> -->
+  <!--   <limit lower="-1.74533" upper="1.74533" effort="1.17655" velocity="7.47998" /> -->
+  <!--   <dynamics damping="0.2" friction="0" /> -->
+  <!-- </joint> -->
+  <joint name="LLEG_JOINT0" type="revolute">
+    <parent link="torso"/>
+    <child  link="LLEG_LINK0"/>
+    <origin xyz="0 0.0235 -0.052" rpy="0 -0 0 "/>
+    <axis   xyz="1 0 0"/>
+    <limit lower="-2.35619" upper="2.32129" effort="1.17655" velocity="7.47998" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <joint name="LLEG_JOINT1" type="revolute">
+    <parent link="LLEG_LINK0"/>
+    <child  link="LLEG_LINK1"/>
+    <origin xyz="0 0 0" rpy="0 -0 0 "/>
+    <axis   xyz="0 1 0"/>
+    <limit lower="-2.35619" upper="1.5708" effort="1.17655" velocity="7.47998" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <joint name="LLEG_JOINT2" type="revolute">
+    <parent link="LLEG_LINK1"/>
+    <child  link="LLEG_LINK2"/>
+    <origin xyz="0 0 -0.058" rpy="0 -0 0 "/>
+    <axis   xyz="0 1 0"/>
+    <limit lower="-1.74533" upper="2.79253" effort="1.17655" velocity="7.47998" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <joint name="LLEG_JOINT3" type="revolute">
+    <parent link="LLEG_LINK2"/>
+    <child  link="LLEG_LINK3"/>
+    <origin xyz="0 0 -0.057976" rpy="0 -0 0 "/>
+    <axis   xyz="0 1 0"/>
+    <limit lower="-1.8326" upper="1.8326" effort="1.17655" velocity="7.47998" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <joint name="LLEG_JOINT4" type="revolute">
+    <parent link="LLEG_LINK3"/>
+    <child  link="LLEG_LINK4"/>
+    <origin xyz="0 0 0" rpy="0 -0 0 "/>
+    <axis   xyz="1 0 0"/>
+    <limit lower="-2.96706" upper="2.96706" effort="1.17655" velocity="7.47998" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <joint name="RLEG_JOINT0" type="revolute">
+    <parent link="torso"/>
+    <child  link="RLEG_LINK0"/>
+    <origin xyz="0 -0.0235 -0.052" rpy="0 -0 0 "/>
+    <axis   xyz="1 0 0"/>
+    <limit lower="-2.35619" upper="2.32129" effort="1.17655" velocity="7.47998" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <joint name="RLEG_JOINT1" type="revolute">
+    <parent link="RLEG_LINK0"/>
+    <child  link="RLEG_LINK1"/>
+    <origin xyz="0 0 0" rpy="0 -0 0 "/>
+    <axis   xyz="0 1 0"/>
+    <limit lower="-2.35619" upper="1.5708" effort="1.17655" velocity="7.47998" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <joint name="RLEG_JOINT2" type="revolute">
+    <parent link="RLEG_LINK1"/>
+    <child  link="RLEG_LINK2"/>
+    <origin xyz="0 0 -0.058" rpy="0 -0 0 "/>
+    <axis   xyz="0 1 0"/>
+    <limit lower="-1.74533" upper="2.79253" effort="1.17655" velocity="7.47998" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <joint name="RLEG_JOINT3" type="revolute">
+    <parent link="RLEG_LINK2"/>
+    <child  link="RLEG_LINK3"/>
+    <origin xyz="0 0 -0.057976" rpy="0 -0 0 "/>
+    <axis   xyz="0 1 0"/>
+    <limit lower="-1.8326" upper="1.8326" effort="1.17655" velocity="7.47998" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <joint name="RLEG_JOINT4" type="revolute">
+    <parent link="RLEG_LINK3"/>
+    <child  link="RLEG_LINK4"/>
+    <origin xyz="0 0 0" rpy="0 -0 0 "/>
+    <axis   xyz="1 0 0"/>
+    <limit lower="-2.96706" upper="2.96706" effort="1.17655" velocity="7.47998" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+
+  <!-- Virtual Hand joint -->
+  <joint name="LHAND_VIRTUAL_JOINT" type="fixed">
+    <parent link="LARM_LINK2"/>
+    <child link="LHAND_VIRTUAL_LINK"/>
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 -0.05"/>
+  </joint>
+  <!-- Hand Virtual link for data acquire -->
+  <link name="LHAND_VIRTUAL_LINK">
+  </link>
+
+  <!-- Virtual Hand joint -->
+  <joint name="RHAND_VIRTUAL_JOINT" type="fixed">
+    <parent link="RARM_LINK2"/>
+    <child link="RHAND_VIRTUAL_LINK"/>
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 -0.05"/>
+  </joint>
+  <!-- Hand Virtual link for data acquire -->
+  <link name="RHAND_VIRTUAL_LINK">
+  </link>
+
+  <!-- Virtual Foot joint -->
+  <joint name="LFOOT_VIRTUAL_JOINT" type="fixed">
+    <parent link="LLEG_LINK4"/>
+    <child link="LFOOT_VIRTUAL_LINK"/>
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+  </joint>
+  <!-- Foot Virtual link for data acquire -->
+  <link name="LFOOT_VIRTUAL_LINK">
+  </link>
+
+  <!-- Virtual Foot joint -->
+  <joint name="RFOOT_VIRTUAL_JOINT" type="fixed">
+    <parent link="RLEG_LINK4"/>
+    <child link="RFOOT_VIRTUAL_LINK"/>
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+  </joint>
+  <!-- Foot Virtual link for data acquire -->
+  <link name="RFOOT_VIRTUAL_LINK">
+  </link>
+</robot>

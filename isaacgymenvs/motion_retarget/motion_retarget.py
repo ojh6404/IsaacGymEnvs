@@ -1,15 +1,29 @@
 import time
 import numpy as np
-import numpy.core.umath_tests as ut
-from utils import BVH, Animation
-from utils import pose3d
-
 import pybullet
 import pybullet_data as pd
 from pybullet_utils import transformations
 
-import config.bvh_cfg.bvh_sfu_config as bvh_cfg
-import config.robot_cfg.khr_retarget_config as khr_cfg
+
+from utils import BVH, Animation
+from utils import pose3d
+from utils.Quaternions import Quaternions
+
+import config.bvh_cfg.bvh_cmu_config as bvh_cfg
+import config.robot_cfg.khr22_retarget_config_cmu as robot_cfg
+
+
+"""
+Motion Retarget for humanoid robot
+Input : bvh_cfg file and robot_cfg.
+
+        bvh_cfg contains motion file path and joint configuration of bvh.
+
+        robot_cfg contains robot's urdf file path and configuration of joint and scale.
+
+Output : retargeted motion frames in .npy format
+        motion frames will contain : [root pos(3), root quat(4), dof pos(J)]
+"""
 
 
 def set_joint_pos_origin(joint_global_pos):
@@ -36,33 +50,6 @@ def set_joint_pos_origin(joint_global_pos):
     return pos_data_origin
 
 
-def calc_end_eff_posi(animation: Animation):
-    """
-     calculate the end-site global position
-     append it into the end of joint position list
-    -------
-    """
-    joint_global_transform = animation.transforms_global(animation)
-    num_frames = joint_global_transform.shape[0]
-    LH_joint_transform = joint_global_transform[:, bvh_cfg.LH_JOINT_IDX, :, :]
-    RH_joint_transform = joint_global_transform[:, bvh_cfg.RH_JOINT_IDX, :, :]
-    LF_joint_transform = joint_global_transform[:, bvh_cfg.LF_JOINT_IDX, :, :]
-    RF_joint_transform = joint_global_transform[:, bvh_cfg.RF_JOINT_IDX, :, :]
-
-    LH_end_global_position = ut.matrix_multiply(
-        LH_joint_transform, bvh_cfg.LH_END_OFFSET).reshape(num_frames, 1, 4)[:, :, 3]
-    RH_end_global_position = ut.matrix_multiply(
-        RH_joint_transform, bvh_cfg.RH_END_OFFSET).reshape(num_frames, 1, 4)[:, :, 3]
-    LF_end_global_position = ut.matrix_multiply(
-        LF_joint_transform, bvh_cfg.LF_END_OFFSET).reshape(num_frames, 1, 4)[:, :, 3]
-    RF_end_global_position = ut.matrix_multiply(
-        RF_joint_transform, bvh_cfg.RF_END_OFFSET).reshape(num_frames, 1, 4)[:, :, 3]
-
-    end_effector_position = np.concatenate(
-        (LH_end_global_position, RH_end_global_position, LF_end_global_position, RF_end_global_position), axis=1)
-    return end_effector_position
-
-
 def get_joint_global_pos(bvh_file):
     """
     get the joint position in global frame
@@ -80,49 +67,15 @@ def get_joint_global_pos(bvh_file):
     anim, joint_names, frame_interval = BVH.load(bvh_file)
     joint_position = Animation.positions_global(anim)
 
-    if bvh_cfg.CAL_END_EFFECTOR:
-        end_site_position = calc_end_eff_posi(anim)
-        joint_position = np.concatenate(
-            (joint_position, end_site_position), axis=1)
     joint_position *= bvh_cfg.POSITION_SCALING
     joint_position = set_joint_pos_origin(joint_position)
     return joint_position, joint_names
 
 
-def write_txt(frame_data, output_file):
-    with open(output_file, "w") as f:
-        for i in range(frame_data.shape[0]):
-            for j in range(frame_data.shape[1]):
-                if j == frame_data.shape[1] - 1:
-                    for k in range(frame_data.shape[2]):
-                        a = frame_data[i, j, k]
-                        f.write("%.5f" % a)
-                        if k != frame_data.shape[2] - 1:
-                            f.write(", ")
-                else:
-                    for k in range(frame_data.shape[2]):
-                        a = frame_data[i, j, k]
-                        f.write("%.5f" % a)
-                        f.write(", ")
-            f.write("\n")
-    return
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-
-def build_markers(num_markers):
-    marker_radius = 0.01
+def build_markers(num_markers, col=[0., 0., 0., 1.], size=0.01):
+    marker_radius = size
     markers_handle = []
     for i in range(num_markers):
-        if (bvh_cfg.BVH_JOINT_NAMES[i] == 'Hips') or (bvh_cfg.BVH_JOINT_NAMES[i] == 'Spine')\
-                or (bvh_cfg.BVH_JOINT_NAMES[i] == 'Spine1') or (bvh_cfg.BVH_JOINT_NAMES[i] == 'Neck'):
-            col = [0, 1, 0, 1]
-        elif 'Left' in bvh_cfg.BVH_JOINT_NAMES[i]:
-            col = [0.9, 0, 0.7, 1]
-        elif 'Right' in bvh_cfg.BVH_JOINT_NAMES[i]:
-            col = [0, 0, 0, 1]
-        else:
-            col = [1, 1, 0, 1]
         virtual_shape_id = pybullet.createVisualShape(shapeType=pybullet.GEOM_SPHERE,
                                                       radius=marker_radius,
                                                       rgbaColor=col)
@@ -146,6 +99,23 @@ def get_joint_limits(robot):
         joint_info = pybullet.getJointInfo(robot, i)
         joint_type = joint_info[2]
         if joint_type == pybullet.JOINT_PRISMATIC or joint_type == pybullet.JOINT_REVOLUTE:
+            joint_lower_bound.append(joint_info[8])
+            joint_upper_bound.append(joint_info[9])
+            joint_limit_range.append(joint_info[9] - joint_info[8])
+    return joint_lower_bound, joint_upper_bound, joint_limit_range
+
+
+def get_joint_limits2(robot):
+
+    num_joints = pybullet.getNumJoints(robot)
+    joint_lower_bound = []
+    joint_upper_bound = []
+    joint_limit_range = []
+
+    for i in range(num_joints):
+        joint_info = pybullet.getJointInfo(robot, i)
+        joint_type = joint_info[2]
+        if joint_type == pybullet.JOINT_PRISMATIC or joint_type == pybullet.JOINT_REVOLUTE or joint_type == pybullet.JOINT_FIXED:
             joint_lower_bound.append(joint_info[8])
             joint_upper_bound.append(joint_info[9])
             joint_limit_range.append(joint_info[9] - joint_info[8])
@@ -202,10 +172,8 @@ def set_pose(robot, pose):
     return
 
 
-def set_maker_pos(marker_pos, marker_ids):
+def set_marker_pos(marker_pos, marker_ids):
     num_markers = len(marker_ids)
-    # print(marker_pos.shape[0])
-    # print(num_markers)
     assert(num_markers == marker_pos.shape[0])
 
     for i in range(num_markers):
@@ -234,12 +202,11 @@ def pre_process_ref_joint_pos(ref_joint_pos):
             curr_pos = pose3d.QuaternionRotatePoint(
                 curr_pos, transformations.quaternion_from_euler(0.5 * np.pi, 0, 0.5 * np.pi, axes='sxyz'))
             # curr_pos = pose3d.QuaternionRotatePoint(curr_pos, transformations.quaternion_from_euler(0, 0, -0.5 * np.pi))
-            curr_pos = curr_pos * khr_cfg.REF_POS_SCALE
+            curr_pos = curr_pos * robot_cfg.REF_POS_SCALE
             proc_pos[i] = curr_pos
 
     else:
         raise NotImplementedError
-    # print("prepocess", proc_pos[0])
     return proc_pos
 
 
@@ -277,11 +244,10 @@ def retarget_root_pose(ref_joint_pos):
     root_quaternion = transformations.quaternion_from_matrix(rotation_matrix)
 
     # root_position = ref_joint_pos[0]
-    root_position = ref_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index('Spine1')]
-    # print("root_position",root_position)
-    root_height_scale = khr_cfg.KHR_ROOT_HEIGHT / bvh_cfg.BVH_ROOT_HEIGHT
+    root_position = ref_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index('Hips')]
+    root_height_scale = robot_cfg.KHR_ROOT_HEIGHT / bvh_cfg.BVH_ROOT_HEIGHT
     # root_position = root_position * root_height_scale  # TODO: scale z or scale x, y and z?
-    # root_position[-1] = root_position[-1] + khr_cfg.KHR_ROOT_HEIGHT
+    # root_position[-1] = root_position[-1] + robot_cfg.KHR_ROOT_HEIGHT
     return root_position, root_quaternion
 
 
@@ -290,147 +256,363 @@ def get_non_fixed_joint_indices(robot):
     non_fixed_joint_indices = []
     for i in range(num_joints):
         joint_type = pybullet.getJointInfo(robot, i)[2]
-        if joint_type is not 4:
+        if joint_type != 4:
             non_fixed_joint_indices.append(i)
     return non_fixed_joint_indices
 
 
-def retarget_pose(robot, ref_joint_pos, robot_joint_indices):
+def scale_ref_pos(robot, ref_joint_pos):
+    """
+    Hips : HIP_VIRTUAL_JOINT (hip)
+    Spine : SPINE_VIRTUAL_JOINT (spine)
+    Spine1 : TORSO_VIRTUAL_JOINT (torso)
+    Neck : HEAD_JOINT0 (neck, end)
+
+    Spine1 : TORSO_VIRTUAL_JOINT (torso)
+    Shoulder : ARM_JOINT0 (shoulder)
+    Arm : ARM_JOINT1 (shoulder)
+    ForeArm : ARM_JOINT2 (elbow)
+    Hand : HAND_VIRTUAL_JOINT (hand, end-effector)
+
+    Hip (HipJoint) : HIP_VIRTUAL_JOINT (hip)
+    UpLeg : LEG_JOINT0 (crotch)
+    Leg : LEG_JOINT2 (knee)
+    Foot : LEG_JOINT4 (foot , end)
+    """
+
+    robot_joint_indices = get_robot_joint_indices(robot)
+    scaled_joint_pos = ref_joint_pos.copy()
+
+    non_fixed_joint_indices = get_non_fixed_joint_indices(robot)
+    joint_lower_bound, joint_upper_bound, joint_limit_range = get_joint_limits(
+        robot)
+
+    robot_num_joints = len(robot_joint_indices)
+
+    # align root pose by cross product each frame
+    root_pos, root_quat = retarget_root_pose(ref_joint_pos)
+    # pybullet.resetBasePositionAndOrientation(robot, root_pos, root_quater)
+
+    # reference joint position from frame
+    ref_hip_pos = ref_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index('Hips')]
+    ref_spine_pos = ref_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index('Spine')]
+    ref_torso_pos = ref_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index('Spine1')]
+    ref_neck_pos = ref_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index('Neck')]
+    ref_neck1_pos = ref_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index('Neck1')]
+    ref_head_pos = ref_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index('Head')]
+
+    ref_shoulder1_pos = ref_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftShoulder'), bvh_cfg.BVH_JOINT_NAMES.index('RightShoulder')]]
+    ref_shoulder2_pos = ref_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftArm'), bvh_cfg.BVH_JOINT_NAMES.index('RightArm')]]
+    ref_elbow_pos = ref_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftForeArm'), bvh_cfg.BVH_JOINT_NAMES.index('RightForeArm')]]
+    ref_hand_pos = ref_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftHand'), bvh_cfg.BVH_JOINT_NAMES.index('RightHand')]]
+    ref_finger1_pos = ref_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftFingerBase'), bvh_cfg.BVH_JOINT_NAMES.index('RightFingerBase')]]
+    ref_finger2_pos = ref_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftHandIndex1'), bvh_cfg.BVH_JOINT_NAMES.index('RightHandIndex1')]]
+    ref_thumb_pos = ref_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LThumb'), bvh_cfg.BVH_JOINT_NAMES.index('RThumb')]]
+
+    ref_hips_pos = ref_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LHipJoint'), bvh_cfg.BVH_JOINT_NAMES.index('RHipJoint')]]
+    ref_crotch_pos = ref_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftUpLeg'), bvh_cfg.BVH_JOINT_NAMES.index('RightUpLeg')]]
+    ref_knee_pos = ref_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftLeg'), bvh_cfg.BVH_JOINT_NAMES.index('RightLeg')]]
+    ref_foot_pos = ref_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftFoot'), bvh_cfg.BVH_JOINT_NAMES.index('RightFoot')]]
+    ref_toe_pos = ref_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftToeBase'), bvh_cfg.BVH_JOINT_NAMES.index('RightToeBase')]]
+
+    # calculate vector between reference joint pos
+    ref_hip_to_spine_pos_delta = ref_spine_pos - ref_hip_pos
+    ref_spine_to_torso_pos_delta = ref_torso_pos - ref_spine_pos
+    ref_torso_to_neck_pos_delta = ref_neck_pos - ref_torso_pos
+    ref_neck_to_neck1_pos_delta = ref_neck1_pos - ref_neck_pos
+    ref_neck1_to_head_pos_delta = ref_head_pos - ref_neck1_pos
+
+    ref_torso_to_shoulder1_pos_delta = ref_shoulder1_pos - ref_torso_pos
+    ref_shoulder1_to_shoulder2_pos_delta = ref_shoulder2_pos - ref_shoulder1_pos
+    ref_shoulder2_to_elbow_pos_delta = ref_elbow_pos - ref_shoulder2_pos
+    ref_elbow_to_hand_pos_delta = ref_hand_pos - ref_elbow_pos
+    ref_hand_to_finger1_pos_delta = ref_finger1_pos - ref_hand_pos
+    ref_finger1_to_finger2_pos_delta = ref_finger2_pos - ref_finger1_pos
+    ref_finger2_to_thumb_pos_delta = ref_thumb_pos - ref_finger2_pos
+
+    ref_hips_to_crotch_pos_delta = ref_crotch_pos - ref_hips_pos
+    ref_crotch_to_knee_pos_delta = ref_knee_pos - ref_crotch_pos
+    ref_knee_to_foot_pos_delta = ref_foot_pos - ref_knee_pos
+    ref_foot_to_toe_pos_delta = ref_toe_pos - ref_foot_pos
+
+    # scale upper body
+    scaled_hip_to_spine_pos_delta = ref_hip_to_spine_pos_delta * \
+        robot_cfg.HIP_TO_SPINE_SCALE
+    scaled_spine_to_torso_pos_delta = ref_spine_to_torso_pos_delta * \
+        robot_cfg.SPINE_TO_TORSO_SCALE
+    scaled_torso_to_neck_pos_delta = ref_torso_to_neck_pos_delta * \
+        robot_cfg.TORSO_TO_NECK_SCALE
+    scaled_neck_to_neck1_pos_delta = ref_neck_to_neck1_pos_delta * \
+        robot_cfg.NECK_TO_NECK1_SCALE
+    scaled_neck1_to_head_pos_delta = ref_neck1_to_head_pos_delta * \
+        robot_cfg.NECK1_TO_HEAD_SCALED
+
+    scaled_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index(
+        'Spine')] = ref_hip_pos + scaled_hip_to_spine_pos_delta
+    scaled_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LowerBack')] = scaled_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index('Spine')]
+    scaled_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index(
+        'Spine1')] = scaled_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index('Spine')] + scaled_spine_to_torso_pos_delta
+    scaled_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index(
+        'Neck')] = scaled_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index('Spine1')] + scaled_torso_to_neck_pos_delta
+    scaled_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index(
+        'Neck1')] = scaled_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index('Neck')] + scaled_neck_to_neck1_pos_delta
+    scaled_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index(
+        'Head')] = scaled_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index('Neck1')] + scaled_neck1_to_head_pos_delta
+
+    scaled_torso_to_shoulder1_pos_delta = ref_torso_to_shoulder1_pos_delta * \
+        robot_cfg.TORSO_TO_SHOULDER1_SCALE
+    scaled_shoulder1_to_shoulder2_pos_delta = ref_shoulder1_to_shoulder2_pos_delta * \
+        robot_cfg.SHOULDER1_TO_SHOULDER2_SCALE
+    scaled_shoulder2_to_elbow_pos_delta = ref_shoulder2_to_elbow_pos_delta * \
+        robot_cfg.SHOULDER2_TO_ELBOW_SCALE
+    scaled_elbow_to_hand_pos_delta = ref_elbow_to_hand_pos_delta * \
+        robot_cfg.ELBOW_TO_HAND_SCALE
+    scaled_hand_to_finger1_pos_delta = ref_hand_to_finger1_pos_delta * \
+        robot_cfg.HAND_TO_FINGER1_SCALE
+    scaled_finger1_to_finger2_pos_delta = ref_finger1_to_finger2_pos_delta * \
+        robot_cfg.FINGER1_TO_FINGER2_SCALE
+    scaled_finger2_to_thumb_pos_delta = ref_finger2_to_thumb_pos_delta * \
+        robot_cfg.FIGNER2_TO_THUMB_SCALE
+
+    scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftShoulder'), bvh_cfg.BVH_JOINT_NAMES.index('RightShoulder')]] = scaled_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index('Spine1')] + scaled_torso_to_shoulder1_pos_delta
+    scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftArm'), bvh_cfg.BVH_JOINT_NAMES.index('RightArm')]] = scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+            'LeftShoulder'), bvh_cfg.BVH_JOINT_NAMES.index('RightShoulder')]] + scaled_shoulder1_to_shoulder2_pos_delta
+    scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftForeArm'), bvh_cfg.BVH_JOINT_NAMES.index('RightForeArm')]] = scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+            'LeftArm'), bvh_cfg.BVH_JOINT_NAMES.index('RightArm')]] + scaled_shoulder2_to_elbow_pos_delta
+    scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftHand'), bvh_cfg.BVH_JOINT_NAMES.index('RightHand')]] = scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+            'LeftForeArm'), bvh_cfg.BVH_JOINT_NAMES.index('RightForeArm')]] + scaled_elbow_to_hand_pos_delta
+
+    scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftFingerBase'), bvh_cfg.BVH_JOINT_NAMES.index('RightFingerBase')]] = scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+            'LeftHand'), bvh_cfg.BVH_JOINT_NAMES.index('RightHand')]] + scaled_hand_to_finger1_pos_delta
+    scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index('LeftHandIndex1'), bvh_cfg.BVH_JOINT_NAMES.index('RightHandIndex1')]] = scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftFingerBase'), bvh_cfg.BVH_JOINT_NAMES.index('RightFingerBase')]] + scaled_finger1_to_finger2_pos_delta
+    scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index('LThumb'), bvh_cfg.BVH_JOINT_NAMES.index('RThumb')]] = scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftHandIndex1'), bvh_cfg.BVH_JOINT_NAMES.index('RightHandIndex1')]] + scaled_finger2_to_thumb_pos_delta
+
+    # scale lower body (leg)
+    scaled_hips_to_crotch_pos_delta = ref_hips_to_crotch_pos_delta * \
+        robot_cfg.HIPS_TO_CROTCH_SCALE
+    scaled_crotch_to_knee_pos_delta = ref_crotch_to_knee_pos_delta * \
+        robot_cfg.CROTCH_TO_KNEE_SCALE
+    scaled_knee_to_foot_pos_delta = ref_knee_to_foot_pos_delta * \
+        robot_cfg.KNEE_TO_FOOT_SCALE
+    scaled_foot_to_toe_pos_delta = ref_foot_to_toe_pos_delta * robot_cfg.FOOT_TO_TOE_SCALE
+
+    scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftUpLeg'), bvh_cfg.BVH_JOINT_NAMES.index('RightUpLeg')]] = ref_hips_pos + scaled_hips_to_crotch_pos_delta
+    scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftLeg'), bvh_cfg.BVH_JOINT_NAMES.index('RightLeg')]] = scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+            'LeftUpLeg'), bvh_cfg.BVH_JOINT_NAMES.index('RightUpLeg')]] + scaled_crotch_to_knee_pos_delta
+    scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftFoot'), bvh_cfg.BVH_JOINT_NAMES.index('RightFoot')]] = scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+            'LeftLeg'), bvh_cfg.BVH_JOINT_NAMES.index('RightLeg')]] + scaled_knee_to_foot_pos_delta
+
+    scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+        'LeftToeBase'), bvh_cfg.BVH_JOINT_NAMES.index('RightToeBase')]] = scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
+            'LeftFoot'), bvh_cfg.BVH_JOINT_NAMES.index('RightFoot')]] + scaled_foot_to_toe_pos_delta
+
+    return scaled_joint_pos
+
+
+def retarget_pose(robot, ref_joint_pos):
     """
     robot: the robot need be retargeted
     ref_joint_pos: one frame data of global joint position [J+N, 3]
     """
+
+    robot_joint_indices = get_robot_joint_indices(robot)
     robot_num_joints = len(robot_joint_indices)
+
+    non_fixed_joint_indices = get_non_fixed_joint_indices(robot)
+    joint_lower_bound, joint_upper_bound, joint_limit_range = get_joint_limits(
+        robot)
+    joint_lower_limit, joint_upper_limit, joint_limit_range = get_joint_limits2(
+        robot)
+
     # align root pose by cross product each frame
-    root_pos, root_quater = retarget_root_pose(ref_joint_pos)
-    pybullet.resetBasePositionAndOrientation(robot, root_pos, root_quater)
+    root_pos, root_quat = retarget_root_pose(ref_joint_pos)
+    pybullet.resetBasePositionAndOrientation(robot, root_pos, root_quat)
 
-    # retarget chest joint
-    # ref_root_joint_position = ref_joint_pos[0]
-    # ref_neck_joint_position = ref_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index(
-    #     'Neck')]
-    # ref_chest_delta = ref_neck_joint_position - ref_root_joint_position
+    # reference joint position from frame
+    scaled_joint_pos = scale_ref_pos(robot, ref_joint_pos)
 
-    # chest_scale = khr_cfg.KHR_CHEST_LENGTH / bvh_cfg.BVH_CHESET_LENGTH
+    # set target joint
+    target_neck_indices = [
+        bvh_cfg.BVH_JOINT_NAMES.index('Hips'),
+        bvh_cfg.BVH_JOINT_NAMES.index('Neck')
+    ]
 
-    # # khr_chest_delta = ref_chest_delta * chest_scale  #TODO: only z or x,y,z??
-    # khr_chest_delta = ref_chest_delta
-    # target_chest2_position = root_pos + khr_chest_delta
-    # chest_joint_pose = pybullet.calculateInverseKinematics(robot,
-    #                                                        endEffectorLinkIndex=robot_joint_indices['CHEST_JOINT2'],
-    #                                                        targetPosition=target_chest2_position,
-    #                                                        jointDamping=khr_cfg.JOINT_DAMPING*robot_num_joints)
+    target_shoulder_indices = [
+        bvh_cfg.BVH_JOINT_NAMES.index('LeftShoulder'),
+        bvh_cfg.BVH_JOINT_NAMES.index('RightShoulder')
+    ]
 
-    # chest_joint_pose = np.array(chest_joint_pose)
-    # chest_joint_pose[0] = 0.
-    # chest_joint_pose[1] = 0.
-    # # print('chest_joint_pose',chest_joint_pose)
+    target_elbow_indices = [
+        bvh_cfg.BVH_JOINT_NAMES.index('LeftForeArm'),
+        bvh_cfg.BVH_JOINT_NAMES.index('RightForeArm'),
+    ]
+
+    target_hand_indices = [
+        bvh_cfg.BVH_JOINT_NAMES.index('LeftHand'),
+        bvh_cfg.BVH_JOINT_NAMES.index('RightHand')
+    ]
+
+    target_knee_indices = [
+        bvh_cfg.BVH_JOINT_NAMES.index('LeftLeg'),
+        bvh_cfg.BVH_JOINT_NAMES.index('RightLeg')
+    ]
+
+    target_foot_indices = [
+        bvh_cfg.BVH_JOINT_NAMES.index('LeftFoot'),
+        bvh_cfg.BVH_JOINT_NAMES.index('RightFoot')
+    ]
+
     # non_fixed_joint_indices = get_non_fixed_joint_indices(robot)
     # for k in range(len(non_fixed_joint_indices)):
     #     pybullet.resetJointState(
     #         robot, non_fixed_joint_indices[k], chest_joint_pose[k], 0.)
 
-    # retarget hand
-    ref_hand_position = ref_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
-        'LeftHand'), bvh_cfg.BVH_JOINT_NAMES.index('RightHand')]]
-    ref_arm_position = ref_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
-        'LeftArm'), bvh_cfg.BVH_JOINT_NAMES.index('RightArm')]]
-    ref_hand_delta = ref_hand_position - ref_arm_position
+    DEFAULT_JOINT_POS = np.array(
+        joint_lower_limit) + np.array(joint_upper_limit) / 2.
 
-    hand_scale = khr_cfg.KHR_HAND_LENGTH / bvh_cfg.BVH_HAND_LENGTH
+    target_neck_position = scaled_joint_pos[target_neck_indices]
+    target_shoulder_position = scaled_joint_pos[target_shoulder_indices]
+    target_elbow_position = scaled_joint_pos[target_elbow_indices]
+    target_hand_position = scaled_joint_pos[target_hand_indices]
+    target_knee_position = scaled_joint_pos[target_knee_indices]
+    target_foot_position = scaled_joint_pos[target_foot_indices]
 
-    khr_hand_delta = ref_hand_delta * hand_scale
-    khr_hand_delta = ref_hand_delta
-    khr_larm_link2_position = np.array(pybullet.getLinkState(
-        robot, robot_joint_indices['LARM_JOINT1'], computeForwardKinematics=True)[4])
-    khr_rarm_link2_position = np.array(pybullet.getLinkState(
-        robot, robot_joint_indices['RARM_JOINT1'], computeForwardKinematics=True)[4])
-    khr_arm_link2_position = np.vstack(
-        (khr_larm_link2_position, khr_rarm_link2_position))
-    target_hand_position = khr_arm_link2_position + khr_hand_delta
-    joint_lower_bound, joint_upper_bound, joint_limit_range = get_joint_limits(
-        robot)
-    upper_body_joint_pose = pybullet.calculateInverseKinematics2(robot,
-                                                                 endEffectorLinkIndices=[
-                                                                     robot_joint_indices['LARM_JOINT2'], robot_joint_indices['RARM_JOINT2']],
-                                                                 targetPositions=target_hand_position,
-                                                                 jointDamping=khr_cfg.JOINT_DAMPING*robot_num_joints
-                                                                 # lowerLimits=joint_lower_bound,
-                                                                 # upperLimits=joint_upper_bound,
-                                                                 # jointRanges=joint_limit_range,
-                                                                 # restPoses=16 *
-                                                                 # [0.017]
-                                                                 )
-    # print("upper_body_joint_pose",upper_body_joint_pose)
+    # target_joint_indices = target_foot_indices
+    target_joint_indices = \
+        target_neck_indices + target_shoulder_indices + \
+        target_elbow_indices + target_hand_indices + \
+        target_knee_indices + target_foot_indices
 
-    non_fixed_joint_indices = get_non_fixed_joint_indices(robot)
+    target_robot_joint_indices = [
+        # neck target
+        robot_joint_indices['HIP_VIRTUAL_JOINT'], robot_joint_indices['HEAD_JOINT0'],
+        # shoulder target
+        robot_joint_indices['LARM_VIRTUAL_JOINT1'], robot_joint_indices['RARM_VIRTUAL_JOINT1'],
+        # elbow target
+        robot_joint_indices['LARM_JOINT2'], robot_joint_indices['RARM_JOINT2'],
+        # hand target
+        robot_joint_indices['LHAND_VIRTUAL_JOINT'], robot_joint_indices['RHAND_VIRTUAL_JOINT'],
+        # knee target
+        robot_joint_indices['LLEG_VIRTUAL_JOINT3'], robot_joint_indices['RLEG_VIRTUAL_JOINT3'],
+        # foot target
+        robot_joint_indices['LLEG_VIRTUAL_JOINT4'], robot_joint_indices['RLEG_VIRTUAL_JOINT4']
+    ]
 
-    for k in range(len(non_fixed_joint_indices)):
-        pybullet.resetJointState(
-            robot, non_fixed_joint_indices[k], upper_body_joint_pose[k], 0.)
+    target_joint_position = np.vstack(
+        [
+            target_neck_position,
+            target_shoulder_position,
+            target_elbow_position,
+            target_hand_position,
+            target_knee_position,
+            target_foot_position
+        ])
 
-    # retarget foot
-    ref_foot_position = ref_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
-        'LeftFoot'), bvh_cfg.BVH_JOINT_NAMES.index('RightFoot')]]
-    ref_upper_leg_position = ref_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
-        'LeftUpLeg'), bvh_cfg.BVH_JOINT_NAMES.index('RightUpLeg')]]
-    ref_leg_delta = ref_foot_position - ref_upper_leg_position
+    DEFAULT_JOINT_POS = np.array(
+        joint_lower_limit) + np.array(joint_upper_limit) / 2.
 
-    leg_scale = khr_cfg.KHR_LEG_LENGTH / (bvh_cfg.BVH_ROOT_HEIGHT + 0.015)
-    # khr_foot_delta = ref_leg_delta * leg_scale
-    khr_foot_delta = ref_leg_delta
-    khr_lleg_link0_position = np.array(pybullet.getLinkState(
-        robot, robot_joint_indices['LLEG_JOINT0'], computeForwardKinematics=True)[4])
-    khr_rleg_link0_position = np.array(pybullet.getLinkState(
-        robot, robot_joint_indices['RLEG_JOINT0'], computeForwardKinematics=True)[4])
-    khr_leg_link0_position = np.vstack(
-        (khr_lleg_link0_position, khr_rleg_link0_position))
-    target_foot_position = khr_leg_link0_position + khr_foot_delta
-    # target_foot_position[:, 2] = ref_foot_position[:, 2] # make the foot clearance more stable
-
-    # TODO: add foot orientation in global
     target_joint_pose = pybullet.calculateInverseKinematics2(robot,
-                                                             endEffectorLinkIndices=[
-                                                                 robot_joint_indices['LLEG_JOINT3'], robot_joint_indices['RLEG_JOINT3']],
-                                                             targetPositions=target_foot_position,
-                                                             jointDamping=khr_cfg.JOINT_DAMPING*robot_num_joints)
-    # lowerLimits=joint_lower_bound,
-    # upperLimits=joint_upper_bound,
-    # jointRanges=joint_limit_range,
-    # restPoses=chest_joint_pose)
-    # print("target_joint_pose", target_joint_pose)
-    # root_pos : (3,) root_quater : (4,) target_joint_pose : J
-    pose = np.concatenate([root_pos, root_quater, target_joint_pose])
-    return pose
+                                                             endEffectorLinkIndices=target_robot_joint_indices,
+                                                             targetPositions=target_joint_position,
+                                                             jointDamping=robot_cfg.JOINT_DAMPING*robot_num_joints,
+                                                             lowerLimits=joint_lower_limit,
+                                                             upperLimits=joint_upper_limit,
+                                                             jointRanges=joint_limit_range,
+                                                             restPoses=DEFAULT_JOINT_POS
+                                                             )
+
+    # root_pos : (3,) root_quat : (4,) joint_pose : (J,) end_pos_local (4 * 3,), base_lin_vel_local (3, ) base_ang_vel_local(3.) joint_vel (J,), end_vel_local(4 * 3)
+    pose = np.concatenate([root_pos, root_quat, target_joint_pose])
+    return pose, scaled_joint_pos
 
 
-def update_camera(robot):
-    base_pos = np.array(pybullet.getBasePositionAndOrientation(robot)[0])
-    [yaw, pitch, dist] = pybullet.getDebugVisualizerCamera()[8:11]
-    pybullet.resetDebugVisualizerCamera(dist, yaw, pitch, base_pos)
-    return
-
-
-def retarget_motion(robot, ref_joint_pos, robot_joint_indices):
+def retarget_motion(robot, ref_joint_pos):
     num_frames = ref_joint_pos.shape[0]
-    print("retargeted file has %d frames" % num_frames)
+    scaled_joint_pos_frames = np.zeros_like(ref_joint_pos)
     for f in range(num_frames):
         ref_joint_position = ref_joint_pos[f, ...]  # shape:[J+N,3]
         ref_joint_position = pre_process_ref_joint_pos(ref_joint_position)
 
         # ref_joint_position : right-handed, Z_UP_AXIS and scaled to robot
-        curr_pose = retarget_pose(
-            robot, ref_joint_position, robot_joint_indices)
+        curr_pose, scaled_joint_pos = retarget_pose(
+            robot, ref_joint_position)
         set_pose(robot, curr_pose)  # for visualization
         # time.sleep(0.02)
+        scaled_joint_pos_frames[f] = scaled_joint_pos
 
         if f == 0:
             pose_size = curr_pose.shape[-1]
             new_frames = np.zeros([num_frames, pose_size])
         new_frames[f] = curr_pose
 
+    print("%d frames" % num_frames)
     new_frames[:, 0:2] -= new_frames[0, 0:2]
-    return new_frames
+    return new_frames, scaled_joint_pos_frames
+
+
+def set_robot_joint_marker(robot, marker_ids):
+
+    num_joints = pybullet.getNumJoints(robot)
+    assert(num_joints == len(marker_ids))
+
+    robot_joint_pos = np.array(pybullet.getLinkStates(robot, list(
+        range(num_joints)), computeForwardKinematics=True))[:, 4]
+
+    for i in range(len(marker_ids)):
+        curr_id = marker_ids[i]
+        curr_pos = robot_joint_pos[i]
+        pybullet.resetBasePositionAndOrientation(
+            curr_id, curr_pos, np.array([0, 0, 0, 1]))
+
+
+def build_world():
+    pybullet.connect(pybullet.GUI)
+    pybullet.setAdditionalSearchPath(pd.getDataPath())
+    pybullet.resetSimulation()
+    pybullet.setGravity(0, 0, -9.8)
+
+    # create ground
+    ground = pybullet.loadURDF("plane_implicit.urdf",
+                               basePosition=[0., 0., 0.])
+
+    # create actor
+    robot = pybullet.loadURDF(robot_cfg.ROBOT_URDF_FILENAME, basePosition=np.array(
+        robot_cfg.INIT_POS), baseOrientation=robot_cfg.INIT_QUAT)
+
+    return robot, ground
+
+
+def get_robot_joint_indices(robot):
+    robot_joint_indices = {}
+    for i in range(pybullet.getNumJoints(robot)):
+        joint_name = str(pybullet.getJointInfo(robot, i)[1], 'utf-8')
+        # print(pybullet.getJointInfo(robot, i))
+        robot_joint_indices[joint_name] = i
+
+    return robot_joint_indices
 
 
 def output_motion(frames, out_filename):
@@ -440,6 +622,7 @@ def output_motion(frames, out_filename):
         f.write("\"FrameDuration\": " + str(bvh_cfg.FRAME_DURATION) + ",\n")
         f.write("\"EnableCycleOffsetPosition\": true,\n")
         f.write("\"EnableCycleOffsetRotation\": true,\n")
+        f.write("\"MotionWeight\": " + str(bvh_cfg.MOTION_WEIGHT) + "\n")
         f.write("\n")
 
         f.write("\"Frames\":\n")
@@ -468,111 +651,78 @@ def output_motion(frames, out_filename):
 
 def main():
     # build world
-    pybullet.connect(pybullet.GUI)
-    pybullet.setAdditionalSearchPath(pd.getDataPath())
-    pybullet.resetSimulation()
-    pybullet.setGravity(0, 0, -0)
-    ground = pybullet.loadURDF(
-        khr_cfg.GROUND_URDF_FILENAME, basePosition=[0., 0., 0.])
-
-    # create actor
-    robot = pybullet.loadURDF(khr_cfg.ROBOT_URDF_FILENAME, basePosition=np.array(
-        [0, 0, 0.3]), baseOrientation=np.array([0, 0, 0, 1]))
+    robot, ground = build_world()
     num_joints = pybullet.getNumJoints(robot)
-    robot_joint_indices = {}
-    for i in range(num_joints):
-        joint_name = str(pybullet.getJointInfo(robot, i)[1], 'utf-8')
-        # print(pybullet.getJointInfo(robot, i))
-        robot_joint_indices[joint_name] = i
+    robot_joint_indices = get_robot_joint_indices(robot)
+    print("robot's joint :", robot_joint_indices)
 
-    print(robot_joint_indices)
-    # robot_joint_indices
-    # {'HEAD_JOINT0': 0, 'LARM_JOINT0': 1, 'LARM_JOINT1': 2, 'LARM_JOINT2': 3,
-    # 'LLEG_JOINT0': 4, 'LLEG_JOINT1': 5, 'LLEG_JOINT2': 6, 'LLEG_JOINT3': 7,
-    # 'LLEG_JOINT4': 8, 'RARM_JOINT0': 9, 'RARM_JOINT1': 10, 'RARM_JOINT2': 11,
-    # 'RLEG_JOINT0': 12, 'RLEG_JOINT1': 13, 'RLEG_JOINT2': 14, 'RLEG_JOINT3': 15,
-    # 'RLEG_JOINT4': 16}
+    print("robot's non-fixed-joint :", get_non_fixed_joint_indices(robot))
 
     # create marker to display reference motion
-    num_markers = len(bvh_cfg.BVH_JOINT_NAMES)
-    marker_ids = build_markers(num_markers)
+    num_bvh_joints = len(bvh_cfg.BVH_JOINT_NAMES)
+    # ref_bvh_joint_marker_ids = build_markers(
+    #     num_bvh_joints, col=[0., 1., 0., 1.], size=0.005)
+    robot_joint_marker_ids = build_markers(
+        num_joints, col=[0., 0., 1., 1.], size=0.005)
+    scaled_bvh_joint_pos_marker_ids = build_markers(
+        num_bvh_joints, col=[0.9, 0., 0.7, 1.], size=0.01)
 
-    # load global joint position from BVH file
+    # load global joint position from BVH
     bvh_file_list = bvh_cfg.FILE_LIST
     for i in range(len(bvh_file_list)):
         bvh_file = bvh_file_list[i]
         file_path = bvh_cfg.FILE_DIR + bvh_file
-        # (F, J+N, 3) J : joint_num, N : end_effector_num
-        ref_joint_position, bvh_joint_names = get_joint_global_pos(file_path)
-        print(bvh_joint_names)
-        if bvh_cfg.SAVE_TEMP_FILE:
-            temp_file_name = bvh_cfg.TEMP_FILE_DIR + \
-                bvh_file.split(".")[0] + '.txt'
-            write_txt(ref_joint_position, temp_file_name)  # (F, (J+N)*3)
-            print("generated txt_file: %s successfully" % temp_file_name)
 
-        if not isinstance(ref_joint_position, np.ndarray):
-            ref_joint_position = np.ndarray(ref_joint_position)
-        assert len(ref_joint_position.shape) == 3, (
-            "data shape must be [num_frames, num_joint, 3], get data shape:", ref_joint_position.shape)
+        # retarget motion using scaled joint global position
+        # ref_joint_pos_frames : (F : frames, J : number of bvh joints, 3 : global position)
+        # retarget_frames, scaled_joint_pos_frames : (F : frames, J : number of robot joints, )
+        ref_joint_pos_frames, bvh_joint_names = get_joint_global_pos(file_path)
+        retarget_frames, scaled_joint_pos_frames = retarget_motion(
+            robot, ref_joint_pos_frames)
 
-        retarget_frames = retarget_motion(
-            robot, ref_joint_position, robot_joint_indices)
+        dof_pos = retarget_frames[:, 7:]
+
+        f = 0  # frame count for display
+        num_frames = ref_joint_pos_frames.shape[0]  # frames for motion
+
+        #
+        ref_joint_pos = []
+        for frame in range(num_frames):
+            ref_joint_pos.append(
+                pre_process_ref_joint_pos(ref_joint_pos_frames[frame]))
+
+        save_path = bvh_cfg.OUT_FILE_DIR + bvh_cfg.FILE_LIST[i].split('.')[0]
+
+        ref_joint_pos = np.array(ref_joint_pos)
+        np.savez(save_path, retarget_frames=retarget_frames,
+                 ref_joint_pos=ref_joint_pos)
 
         output_file_name = bvh_cfg.OUT_FILE_DIR + \
             bvh_file.split(".")[0] + '.txt'
         output_motion(retarget_frames, output_file_name)
 
-        # visualize the output motion
-        print("start visualization")
-        f = 0
-        num_frames = ref_joint_position.shape[0]
+        print(retarget_frames.shape)
 
         while True:
+            # pybullet.resetSimulation()
             time_start = time.time()
 
             f_idx = f % num_frames
-            # print("Frame {:d}".format(f_idx))
-
-            ref_joint_pos = ref_joint_position[f_idx]
-            ref_joint_pos = np.reshape(ref_joint_pos, [-1, 3])
-            ref_joint_pos = pre_process_ref_joint_pos(ref_joint_pos)
             pose = retarget_frames[f_idx]
             set_pose(robot, pose)
 
-            # root_pos = np.array(pybullet.getLinkState(
-            #     robot, 0, computeForwardKinematics=True)[4])
-
-            # marker_radius = 0.03
-            # col = [1, 1, 0, 1]
-            # virtual_shape_id = pybullet.createVisualShape(shapeType=pybullet.GEOM_SPHERE,
-            #                                                 radius=marker_radius,
-            #                                                 rgbaColor=col)
-            # body_id = pybullet.createMultiBody(baseMass=0,
-            #                                     baseCollisionShapeIndex=-1,
-            #                                     baseVisualShapeIndex=virtual_shape_id,
-            #                                     basePosition=[0, 0, 0],
-            #                                     useMaximalCoordinates=True)
-
-            # pybullet.resetBasePositionAndOrientation(
-            #     body_id, root_pos, np.array([0, 0, 0, 1]))
-
-            # if f_idx == 30:
-            #   a = np.array(pybullet.getLinkState(robot, 15)[0])
-            #   print(a.shape)
-            #   a = a - np.array(pose[0:3])
-            #   print(a)
-
-            set_maker_pos(ref_joint_pos, marker_ids)
-            # update_camera(robot)
-            f += 1
+            # set_marker_pos(ref_joint_pos[f_idx], ref_bvh_joint_marker_ids)
+            set_robot_joint_marker(robot, robot_joint_marker_ids)
+            set_marker_pos(
+                scaled_joint_pos_frames[f_idx], scaled_bvh_joint_pos_marker_ids)
 
             time_end = time.time()
             sleep_dur = bvh_cfg.FRAME_DURATION - (time_end - time_start)
             sleep_dur = max(0, sleep_dur)
 
-            time.sleep(sleep_dur * 2)
-            # time.sleep(0.02)  # jp hack
+            time.sleep(sleep_dur)
+            f += 1
+            input()
 
         pybullet.disconnect()
 
@@ -581,7 +731,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-    # BVH_FILE = './bvh_data/SFU_Motion_Capture_Database/jump_obstacle/0015_JumpOverObstacle001.bvh'
-    # raw_anim, raw_joint_names, raw_frames = BVH.load(BVH_FILE)
-    # print("joint_name", raw_joint_names)

@@ -10,7 +10,7 @@ from pybullet_utils import transformations
 
 
 import config.bvh_cfg.bvh_cmu_config as bvh_cfg
-import config.robot_cfg.khr_retarget_config_cmu as khr_cfg
+import config.robot_cfg.khr22_retarget_config_cmu as robot_cfg
 
 
 # DEFAULT_JOINT_POS = [0.0, 0.0, 0.0, 0.0, 0.3, 0.0, -0.5,
@@ -193,7 +193,7 @@ def pre_process_ref_joint_pos(ref_joint_pos):
             curr_pos = pose3d.QuaternionRotatePoint(
                 curr_pos, transformations.quaternion_from_euler(0.5 * np.pi, 0, 0.5 * np.pi, axes='sxyz'))
             # curr_pos = pose3d.QuaternionRotatePoint(curr_pos, transformations.quaternion_from_euler(0, 0, -0.5 * np.pi))
-            curr_pos = curr_pos * khr_cfg.REF_POS_SCALE
+            curr_pos = curr_pos * robot_cfg.REF_POS_SCALE
             proc_pos[i] = curr_pos
 
     else:
@@ -238,9 +238,9 @@ def retarget_root_pose(ref_joint_pos):
     # root_position = ref_joint_pos[0]
     root_position = ref_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index('Hips')]
     # print("root_position",root_position)
-    root_height_scale = khr_cfg.KHR_ROOT_HEIGHT / bvh_cfg.BVH_ROOT_HEIGHT
+    root_height_scale = robot_cfg.ROBOT_ROOT_HEIGHT / bvh_cfg.BVH_ROOT_HEIGHT
     # root_position = root_position * root_height_scale  # TODO: scale z or scale x, y and z?
-    # root_position[-1] = root_position[-1] + khr_cfg.KHR_ROOT_HEIGHT
+    # root_position[-1] = root_position[-1] + robot_cfg.ROBOT_ROOT_HEIGHT
     return root_position, root_quaternion
 
 
@@ -342,15 +342,15 @@ def scale_ref_pos(robot, ref_joint_pos):
 
     # scale upper body
     scaled_hip_to_spine_pos_delta = ref_hip_to_spine_pos_delta * \
-        khr_cfg.HIP_TO_SPINE_SCALE
+        robot_cfg.HIP_TO_SPINE_SCALE
     scaled_spine_to_torso_pos_delta = ref_spine_to_torso_pos_delta * \
-        khr_cfg.SPINE_TO_TORSO_SCALE
+        robot_cfg.SPINE_TO_TORSO_SCALE
     scaled_torso_to_neck_pos_delta = ref_torso_to_neck_pos_delta * \
-        khr_cfg.TORSO_TO_NECK_SCALE
+        robot_cfg.TORSO_TO_NECK_SCALE
     scaled_neck_to_neck1_pos_delta = ref_neck_to_neck1_pos_delta * \
-        khr_cfg.NECK_TO_NECK1_SCALE
+        robot_cfg.NECK_TO_NECK1_SCALE
     scaled_neck1_to_head_pos_delta = ref_neck1_to_head_pos_delta * \
-        khr_cfg.NECK1_TO_HEAD_SCALED
+        robot_cfg.NECK1_TO_HEAD_SCALED
 
     scaled_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index(
         'Spine')] = ref_hip_pos + scaled_hip_to_spine_pos_delta
@@ -366,19 +366,19 @@ def scale_ref_pos(robot, ref_joint_pos):
         'Head')] = scaled_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index('Neck1')] + scaled_neck1_to_head_pos_delta
 
     scaled_torso_to_shoulder1_pos_delta = ref_torso_to_shoulder1_pos_delta * \
-        khr_cfg.TORSO_TO_SHOULDER1_SCALE
+        robot_cfg.TORSO_TO_SHOULDER1_SCALE
     scaled_shoulder1_to_shoulder2_pos_delta = ref_shoulder1_to_shoulder2_pos_delta * \
-        khr_cfg.SHOULDER1_TO_SHOULDER2_SCALE
+        robot_cfg.SHOULDER1_TO_SHOULDER2_SCALE
     scaled_shoulder2_to_elbow_pos_delta = ref_shoulder2_to_elbow_pos_delta * \
-        khr_cfg.SHOULDER2_TO_ELBOW_SCALE
+        robot_cfg.SHOULDER2_TO_ELBOW_SCALE
     scaled_elbow_to_hand_pos_delta = ref_elbow_to_hand_pos_delta * \
-        khr_cfg.ELBOW_TO_HAND_SCALE
+        robot_cfg.ELBOW_TO_HAND_SCALE
     scaled_hand_to_finger1_pos_delta = ref_hand_to_finger1_pos_delta * \
-        khr_cfg.HAND_TO_FINGER1_SCALE
+        robot_cfg.HAND_TO_FINGER1_SCALE
     scaled_finger1_to_finger2_pos_delta = ref_finger1_to_finger2_pos_delta * \
-        khr_cfg.FINGER1_TO_FINGER2_SCALE
+        robot_cfg.FINGER1_TO_FINGER2_SCALE
     scaled_finger2_to_thumb_pos_delta = ref_finger2_to_thumb_pos_delta * \
-        khr_cfg.FIGNER2_TO_THUMB_SCALE
+        robot_cfg.FIGNER2_TO_THUMB_SCALE
 
     scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
         'LeftShoulder'), bvh_cfg.BVH_JOINT_NAMES.index('RightShoulder')]] = scaled_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index('Spine1')] + scaled_torso_to_shoulder1_pos_delta
@@ -402,12 +402,12 @@ def scale_ref_pos(robot, ref_joint_pos):
 
     # scale lower body (leg)
     scaled_hips_to_crotch_pos_delta = ref_hips_to_crotch_pos_delta * \
-        khr_cfg.HIPS_TO_CROTCH_SCALE
+        robot_cfg.HIPS_TO_CROTCH_SCALE
     scaled_crotch_to_knee_pos_delta = ref_crotch_to_knee_pos_delta * \
-        khr_cfg.CROTCH_TO_KNEE_SCALE
+        robot_cfg.CROTCH_TO_KNEE_SCALE
     scaled_knee_to_foot_pos_delta = ref_knee_to_foot_pos_delta * \
-        khr_cfg.KNEE_TO_FOOT_SCALE
-    scaled_foot_to_toe_pos_delta = ref_foot_to_toe_pos_delta * khr_cfg.FOOT_TO_TOE_SCALE
+        robot_cfg.KNEE_TO_FOOT_SCALE
+    scaled_foot_to_toe_pos_delta = ref_foot_to_toe_pos_delta * robot_cfg.FOOT_TO_TOE_SCALE
 
     scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
         'LeftUpLeg'), bvh_cfg.BVH_JOINT_NAMES.index('RightUpLeg')]] = ref_hips_pos + scaled_hips_to_crotch_pos_delta
@@ -516,7 +516,7 @@ def retarget_pose(robot, ref_joint_pos):
     target_joint_pose = pybullet.calculateInverseKinematics2(robot,
                                                              endEffectorLinkIndices=target_robot_joint_indices,
                                                              targetPositions=target_joint_position,
-                                                             jointDamping=khr_cfg.JOINT_DAMPING*robot_num_joints,
+                                                             jointDamping=robot_cfg.JOINT_DAMPING*robot_num_joints,
                                                              lowerLimits=joint_lower_limit,
                                                              upperLimits=joint_upper_limit,
                                                              jointRanges=joint_limit_range,
@@ -611,10 +611,10 @@ def build_world():
 
     # create ground
     ground = pybullet.loadURDF(
-        khr_cfg.GROUND_URDF_FILENAME, basePosition=[0., 0., 0.])
+        robot_cfg.GROUND_URDF_FILENAME, basePosition=[0., 0., 0.])
 
     # create actor
-    robot = pybullet.loadURDF(khr_cfg.ROBOT_URDF_FILENAME, basePosition=np.array(
+    robot = pybullet.loadURDF(robot_cfg.ROBOT_URDF_FILENAME, basePosition=np.array(
         [0, 0, 0.3]), baseOrientation=np.array([0, 0, 0, 1]))
 
     return robot, ground
