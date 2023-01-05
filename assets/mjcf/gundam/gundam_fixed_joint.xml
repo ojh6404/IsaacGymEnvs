@@ -1,0 +1,279 @@
+<mujoco model="GGC_TestModel_rx78_20170112">
+    <compiler angle="radian" />
+    <size njmax="500" nconmax="100" />
+    <asset>
+        <mesh name="rx78_object_084-lib" file="meshes/rx78_object_084-lib.stl" />
+        <mesh name="rx78_object_083-lib" file="meshes/rx78_object_083-lib.stl" />
+        <mesh name="rx78_object_080-lib" file="meshes/rx78_object_080-lib.stl" />
+        <mesh name="rx78_object_008-lib" file="meshes/rx78_object_008-lib.stl" />
+        <mesh name="rx78_object_011-lib" file="meshes/rx78_object_011-lib.stl" />
+        <mesh name="rx78_object_003-lib" file="meshes/rx78_object_003-lib.stl" />
+        <mesh name="rx78_object_007-lib" file="meshes/rx78_object_007-lib.stl" />
+        <mesh name="rx78_object_006-lib" file="meshes/rx78_object_006-lib.stl" />
+        <mesh name="rx78_object_005-lib" file="meshes/rx78_object_005-lib.stl" />
+        <mesh name="rx78_object_004-lib" file="meshes/rx78_object_004-lib.stl" />
+        <mesh name="rx78_object_063-lib" file="meshes/rx78_object_063-lib.stl" />
+        <mesh name="rx78_object_001-lib" file="meshes/rx78_object_001-lib.stl" />
+        <mesh name="rx78_object_002-lib" file="meshes/rx78_object_002-lib.stl" />
+        <mesh name="rx78_object_062-lib" file="meshes/rx78_object_062-lib.stl" />
+        <mesh name="rx78_object_064-lib" file="meshes/rx78_object_064-lib.stl" />
+        <mesh name="rx78_object_061-lib" file="meshes/rx78_object_061-lib.stl" />
+        <mesh name="rx78_object_060-lib" file="meshes/rx78_object_060-lib.stl" />
+        <mesh name="rx78_object_067-lib" file="meshes/rx78_object_067-lib.stl" />
+        <mesh name="rx78_object_066-lib" file="meshes/rx78_object_066-lib.stl" />
+        <mesh name="rx78_object_065-lib" file="meshes/rx78_object_065-lib.stl" />
+        <mesh name="rx78_object_070-lib" file="meshes/rx78_object_070-lib.stl" />
+        <mesh name="rx78_object_069-lib" file="meshes/rx78_object_069-lib.stl" />
+        <mesh name="rx78_object_068-lib" file="meshes/rx78_object_068-lib.stl" />
+        <mesh name="rx78_object_053-lib" file="meshes/rx78_object_053-lib.stl" />
+        <mesh name="rx78_object_052-lib" file="meshes/rx78_object_052-lib.stl" />
+        <mesh name="rx78_object_071-lib" file="meshes/rx78_object_071-lib.stl" />
+        <mesh name="rx78_object_056-lib" file="meshes/rx78_object_056-lib.stl" />
+        <mesh name="rx78_object_055-lib" file="meshes/rx78_object_055-lib.stl" />
+        <mesh name="rx78_object_054-lib" file="meshes/rx78_object_054-lib.stl" />
+        <mesh name="rx78_object_059-lib" file="meshes/rx78_object_059-lib.stl" />
+        <mesh name="rx78_object_058-lib" file="meshes/rx78_object_058-lib.stl" />
+        <mesh name="rx78_object_057-lib" file="meshes/rx78_object_057-lib.stl" />
+        <mesh name="rx78_object_045-lib" file="meshes/rx78_object_045-lib.stl" />
+        <mesh name="rx78_object_078-lib" file="meshes/rx78_object_078-lib.stl" />
+        <mesh name="rx78_object_046-lib" file="meshes/rx78_object_046-lib.stl" />
+        <mesh name="rx78_object_077-lib" file="meshes/rx78_object_077-lib.stl" />
+        <mesh name="rx78_object_076-lib" file="meshes/rx78_object_076-lib.stl" />
+        <mesh name="rx78_object_075-lib" file="meshes/rx78_object_075-lib.stl" />
+        <mesh name="rx78_object_047-lib" file="meshes/rx78_object_047-lib.stl" />
+        <mesh name="rx78_object_048-lib" file="meshes/rx78_object_048-lib.stl" />
+        <mesh name="rx78_object_051-lib" file="meshes/rx78_object_051-lib.stl" />
+        <mesh name="rx78_object_050-lib" file="meshes/rx78_object_050-lib.stl" />
+        <mesh name="rx78_object_049-lib" file="meshes/rx78_object_049-lib.stl" />
+        <mesh name="rx78_object_014-lib" file="meshes/rx78_object_014-lib.stl" />
+        <mesh name="rx78_object_013-lib" file="meshes/rx78_object_013-lib.stl" />
+        <mesh name="rx78_object_012-lib" file="meshes/rx78_object_012-lib.stl" />
+        <mesh name="rx78_object_017-lib" file="meshes/rx78_object_017-lib.stl" />
+        <mesh name="rx78_object_016-lib" file="meshes/rx78_object_016-lib.stl" />
+        <mesh name="rx78_object_015-lib" file="meshes/rx78_object_015-lib.stl" />
+        <mesh name="rx78_object_020-lib" file="meshes/rx78_object_020-lib.stl" />
+        <mesh name="rx78_object_019-lib" file="meshes/rx78_object_019-lib.stl" />
+        <mesh name="rx78_object_018-lib" file="meshes/rx78_object_018-lib.stl" />
+        <mesh name="rx78_object_074-lib" file="meshes/rx78_object_074-lib.stl" />
+        <mesh name="rx78_object_073-lib" file="meshes/rx78_object_073-lib.stl" />
+        <mesh name="rx78_object_072-lib" file="meshes/rx78_object_072-lib.stl" />
+        <mesh name="rx78_object_079-lib" file="meshes/rx78_object_079-lib.stl" />
+        <mesh name="rx78_object_044-lib" file="meshes/rx78_object_044-lib.stl" />
+        <mesh name="rx78_object_085-lib" file="meshes/rx78_object_085-lib.stl" />
+        <mesh name="rx78_object_025-lib" file="meshes/rx78_object_025-lib.stl" />
+        <mesh name="rx78_object_026-lib" file="meshes/rx78_object_026-lib.stl" />
+        <mesh name="rx78_object_027-lib" file="meshes/rx78_object_027-lib.stl" />
+        <mesh name="rx78_object_028-lib" file="meshes/rx78_object_028-lib.stl" />
+        <mesh name="rx78_object_043-lib" file="meshes/rx78_object_043-lib.stl" />
+        <mesh name="rx78_object_029-lib" file="meshes/rx78_object_029-lib.stl" />
+        <mesh name="rx78_object_042-lib" file="meshes/rx78_object_042-lib.stl" />
+        <mesh name="rx78_object_041-lib" file="meshes/rx78_object_041-lib.stl" />
+        <mesh name="rx78_object_030-lib" file="meshes/rx78_object_030-lib.stl" />
+        <mesh name="rx78_object_040-lib" file="meshes/rx78_object_040-lib.stl" />
+        <mesh name="rx78_object_032-lib" file="meshes/rx78_object_032-lib.stl" />
+        <mesh name="rx78_object_034-lib" file="meshes/rx78_object_034-lib.stl" />
+        <mesh name="rx78_object_039-lib" file="meshes/rx78_object_039-lib.stl" />
+        <mesh name="rx78_object_086-lib" file="meshes/rx78_object_086-lib.stl" />
+        <mesh name="rx78_object_024-lib" file="meshes/rx78_object_024-lib.stl" />
+        <mesh name="rx78_object_023-lib" file="meshes/rx78_object_023-lib.stl" />
+        <mesh name="rx78_object_087-lib" file="meshes/rx78_object_087-lib.stl" />
+        <mesh name="rx78_object_022-lib" file="meshes/rx78_object_022-lib.stl" />
+        <mesh name="rx78_object_089-lib" file="meshes/rx78_object_089-lib.stl" />
+        <mesh name="rx78_object_091-lib" file="meshes/rx78_object_091-lib.stl" />
+        <mesh name="rx78_object_021-lib" file="meshes/rx78_object_021-lib.stl" />
+    </asset>
+    <worldbody>
+        <geom name="floor" type="plane" conaffinity="1" size="100 100 .2" material="grid" />
+        <geom pos="0 0 11.5" quat="0.707107 0 0 0.707107" type="mesh" mesh="rx78_object_044-lib" />
+        <geom pos="1.09713 -0.76 11.97" quat="0.707107 0 0 0.707107" type="mesh" mesh="rx78_object_085-lib" />
+        <geom pos="-1.10287 -0.76 11.97" quat="0.707107 0 0 0.707107" type="mesh" mesh="rx78_object_025-lib" />
+        <geom pos="-0.0028688 -1.82901 11.8988" quat="0.707107 0 0 0.707107" type="mesh" mesh="rx78_object_026-lib" />
+        <geom pos="-1.10287 0.76 11.97" quat="0.707107 0 0 0.707107" type="mesh" mesh="rx78_object_027-lib" />
+        <geom pos="1.09713 0.76 11.97" quat="0.707107 0 0 0.707107" type="mesh" mesh="rx78_object_028-lib" />
+        <geom pos="-0.0028688 1.82901 11.8988" quat="0.707107 0 0 0.707107" type="mesh" mesh="rx78_object_043-lib" />
+        <body name="rx78_Null_018_link" pos="1e-07 0 12" quat="0.707107 0 0 0.707107">
+            <inertial pos="-1.80895e-09 0.0532401 0.628965" quat="0.00819406 0.707059 0.00819392 0.707059" mass="942.874" diaginertia="817.032 777.387 434.867" />
+            <joint name="torso_waist_y" pos="0 0 0" axis="0 0 1" limited="true" range="-0.261799 0.261799" damping="300" frictionloss="1000" />
+            <geom type="mesh" mesh="rx78_object_084-lib" />
+            <body name="rx78_Null_017_link" pos="0 0 0.8">
+                <inertial pos="-0.000151166 0.0444147 0.991438" quat="-0.706996 0.00940081 -0.707093 0.00939749" mass="1237.63" diaginertia="1326.6 1235.38 657.057" />
+                <joint name="torso_waist_p" pos="0 0 0" axis="1 0 0" limited="true" range="-0.785398 0.785398" damping="300" frictionloss="1000" />
+                <geom type="mesh" mesh="rx78_object_083-lib" />
+                <body name="rx78_Null_016_link" pos="0 0.0028689 1.07753">
+                    <inertial pos="-0.0427084 0.489139 1.10723" quat="0.919516 0.251696 0.0894477 -0.288339" mass="8346.15" diaginertia="20658.4 19891.6 13687.1" />
+                    <joint name="torso_waist_p2" pos="0 0 0" axis="1 0 0" limited="true" range="-0.785398 0.785398" damping="300" frictionloss="1000" />
+                    <geom type="mesh" mesh="rx78_object_080-lib" />
+                    <geom pos="0 0.36632 1.42247" type="mesh" mesh="rx78_object_008-lib" />
+                    <geom pos="0 0.232202 2.35105" type="mesh" mesh="rx78_object_011-lib" />
+                    <geom quat="0.707107 0 0 0.707106" type="mesh" mesh="rx78_object_003-lib" />
+                    <geom pos="1.5585 1.84712 3.17557" quat="0.92388 0 0 0.382683" type="mesh" mesh="rx78_object_007-lib" />
+                    <geom pos="-1.55851 1.84713 3.17557" quat="0.92388 0 0 -0.382683" type="mesh" mesh="rx78_object_006-lib" />
+                    <geom size="0.4 0.4 0.4" pos="-0.644751 2.09633 -0.765126" type="box" />
+                    <geom pos="-0.644751 2.09633 -0.765126" type="mesh" mesh="rx78_object_005-lib" />
+                    <geom size="0.4 0.4 0.4" pos="0.64475 2.09633 -0.765126" type="box" />
+                    <geom pos="0.64475 2.09633 -0.765126" type="mesh" mesh="rx78_object_004-lib" />
+                    <body name="rx78_Null_004_link" pos="1.72 0.369688 1.07247">
+                        <inertial pos="0.99262 -0.0220551 0.278661" quat="-6.36768e-06 0.417831 6.76371e-06 0.908525" mass="1089.56" diaginertia="550.529 494.773 438.299" />
+                        <joint name="larm_shoulder_p" pos="0 0 0" axis="1 0 0" limited="true" range="-3.14159 1.5708" damping="300" frictionloss="1000" />
+                        <geom type="mesh" mesh="rx78_object_063-lib" />
+                        <geom pos="0.28 -0.019188 0" type="mesh" mesh="rx78_object_045-lib" />
+                        <body name="rx78_Null_001_link" pos="0.93 -0.0191881 0">
+                            <inertial pos="0.014416 -0.00124193 0.0277909" quat="-0.198842 0.749837 -0.583744 0.239685" mass="383.848" diaginertia="97.8694 88.6347 79.4366" />
+                            <joint name="larm_shoulder_r" pos="0 0 0" axis="0 -1 0" limited="true" range="-0.523599 1.5708" damping="300" frictionloss="1000" />
+                            <geom type="mesh" mesh="rx78_object_001-lib" />
+                            <body name="rx78_Null_002_link" pos="4e-07 0 -0.604907">
+                                <inertial pos="-4.99261e-05 -0.00308448 -0.724959" quat="0.0190614 0.999818 -0.000150354 0.000106" mass="267.166" diaginertia="70.032 65.7893 53.5477" />
+                                <joint name="larm_shoulder_y" pos="0 0 0" axis="0 0 1" limited="true" range="-1.5708 1.5708" damping="300" frictionloss="1000" />
+                                <geom type="mesh" mesh="rx78_object_002-lib" />
+                                <body name="rx78_Null_003_link" pos="-2e-07 3.09e-05 -1.55024">
+                                    <inertial pos="0.00511747 0.0432936 0.0125042" quat="0.109462 -0.0355119 -0.0649164 0.991233" mass="299.837" diaginertia="56.8985 53.6182 49.4447" />
+                                    <joint name="larm_elbow_p" pos="0 0 0" axis="1 0 0" limited="true" range="-1.0472 0.1309" damping="300" frictionloss="1000" />
+                                    <geom type="mesh" mesh="rx78_object_062-lib" />
+                                    <body name="rx78_Null_066_link" pos="0 0 0" quat="1 -5e-07 0 0">
+                                        <inertial pos="0.0119505 -0.0473694 -2.68354" quat="0.997815 -0.00923429 -0.00669599 -0.0650817" mass="1572.59" diaginertia="2986.06 2901.44 243.367" />
+                                        <joint name="larm_elbow_p2" pos="0 0 0" axis="1 0 0" limited="true" range="-1.0472 0.1309" damping="300" frictionloss="1000" />
+                                        <geom type="mesh" mesh="rx78_object_064-lib" />
+                                        <geom pos="-8e-07 -3.07e-05 -2.51486" quat="1 0 5e-07 0" type="mesh" mesh="rx78_object_061-lib" />
+                                        <geom pos="0.136894 -3.08e-05 -2.7546" quat="1 5e-07 5e-07 0" type="mesh" mesh="rx78_object_060-lib" />
+                                        <geom pos="0.0685148 0.310792 -3.53757" quat="1 0 5e-07 0" type="mesh" mesh="rx78_object_067-lib" />
+                                        <geom pos="0.0186419 0.310791 -3.83291" quat="1 0 5e-07 0" type="mesh" mesh="rx78_object_066-lib" />
+                                        <geom pos="0.0186425 0.310791 -4.19929" quat="1 -4.5e-06 -2e-06 -9.00013e-12" type="mesh" mesh="rx78_object_065-lib" />
+                                        <geom pos="0.068515 0.0988756 -3.59744" quat="1 0 5e-07 0" type="mesh" mesh="rx78_object_070-lib" />
+                                        <geom pos="0.0186423 0.0988749 -3.89279" quat="1 0 5e-07 0" type="mesh" mesh="rx78_object_069-lib" />
+                                        <geom pos="0.0186435 0.098875 -4.25916" quat="1 -4e-06 -2e-06 -7.99993e-12" type="mesh" mesh="rx78_object_068-lib" />
+                                        <geom pos="0.068515 -0.105663 -3.63174" quat="1 0 5e-07 0" type="mesh" mesh="rx78_object_053-lib" />
+                                        <geom pos="0.0186423 -0.105664 -3.92709" quat="1 0 5e-07 0" type="mesh" mesh="rx78_object_052-lib" />
+                                        <geom pos="0.0186429 -0.105663 -4.29346" quat="1 -3e-06 -2e-06 -5.99998e-12" type="mesh" mesh="rx78_object_071-lib" />
+                                        <geom pos="0.0685152 -0.31076 -3.60781" quat="1 0 5e-07 0" type="mesh" mesh="rx78_object_056-lib" />
+                                        <geom pos="0.0186425 -0.310761 -3.90315" type="mesh" mesh="rx78_object_055-lib" />
+                                        <geom pos="0.0186435 -0.310761 -4.26953" quat="1 -3.5e-06 -2.5e-06 -8.74995e-12" type="mesh" mesh="rx78_object_054-lib" />
+                                        <geom pos="-0.128318 -0.284173 -2.83712" quat="1 5e-07 1.5e-06 0" type="mesh" mesh="rx78_object_059-lib" />
+                                        <geom pos="-0.128318 -0.533022 -3.00753" quat="1 5e-07 1.5e-06 0" type="mesh" mesh="rx78_object_058-lib" />
+                                        <geom pos="-0.128318 -0.533046 -3.37384" quat="1 0 1.5e-06 0" type="mesh" mesh="rx78_object_057-lib" />
+                                    </body>
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                    <body name="rx78_Null_049_link" pos="-1.72 0.35 1.07245">
+                        <inertial pos="-0.990948 0.00207219 0.280404" quat="-0.0210785 0.896084 0.00504973 0.443355" mass="735.342" diaginertia="423.037 367.037 329.188" />
+                        <joint name="rarm_shoulder_p" pos="0 0 0" axis="1 0 0" limited="true" range="-3.14159 1.5708" damping="300" frictionloss="1000" />
+                        <geom type="mesh" mesh="rx78_object_078-lib" />
+                        <geom pos="-0.279999 -4e-07 3.05e-05" quat="1 -1.5e-06 0 0" type="mesh" mesh="rx78_object_079-lib" />
+                        <body name="rx78_Null_050_link" pos="-0.93 -4e-07 2.29e-05" quat="1 0 1e-06 0">
+                            <inertial pos="-0.0316913 -0.0023668 0.0369317" quat="-0.0711149 0.703522 -0.703521 0.0711144" mass="368.192" diaginertia="92.5681 83.3168 78.7835" />
+                            <joint name="rarm_shoulder_r" pos="0 0 0" axis="0 -1 0" limited="true" range="-1.5708 0.523599" damping="300" frictionloss="1000" />
+                            <geom type="mesh" mesh="rx78_object_046-lib" />
+                            <body name="rx78_Null_051_link" pos="1e-06 -9e-07 -0.604907" quat="1 0 -1e-06 0">
+                                <inertial pos="0.000564791 -0.00195265 -0.716757" quat="0.0271034 0.999607 0.00664734 -0.00281259" mass="263.772" diaginertia="68.5942 64.1669 53.1283" />
+                                <joint name="rarm_shoulder_y" pos="0 0 0" axis="0 0 1" limited="true" range="-1.5708 1.5708" damping="300" frictionloss="1000" />
+                                <geom type="mesh" mesh="rx78_object_077-lib" />
+                                <body name="rx78_Null_052_link" pos="6e-07 2.88e-05 -1.55024" quat="1 -1.5e-06 -5e-07 0">
+                                    <inertial pos="-0.00345374 0.0710721 0.00216518" quat="-0.99089 0.119276 0.0392311 -0.0486845" mass="283.033" diaginertia="53.2699 51.3522 47.9078" />
+                                    <joint name="rarm_elbow_p" pos="0 0 0" axis="1 0 0" limited="true" range="-1.0472 0.1309" damping="300" frictionloss="1000" />
+                                    <geom type="mesh" mesh="rx78_object_076-lib" />
+                                    <body name="rx78_Null_053_link" pos="2e-07 0 0" quat="1 1e-06 0 0">
+                                        <inertial pos="-0.0127931 -0.0500361 -2.68017" quat="0.997597 -0.00865852 0.00678912 0.0684105" mass="1565.03" diaginertia="3022.72 2938.89 242.992" />
+                                        <joint name="rarm_elbow_p2" pos="0 0 0" axis="1 0 0" limited="true" range="-1.0472 0.1309" damping="300" frictionloss="1000" />
+                                        <geom type="mesh" mesh="rx78_object_075-lib" />
+                                        <geom pos="-1e-06 -3.74e-05 -2.51486" quat="1 -5e-07 -1e-06 0" type="mesh" mesh="rx78_object_047-lib" />
+                                        <geom pos="-0.136882 -3.77097e-05 -2.72461" quat="1 5e-07 0 -1e-12" type="mesh" mesh="rx78_object_048-lib" />
+                                        <geom pos="0.128318 -0.28418 -2.83712" quat="1 5e-07 0 0" type="mesh" mesh="rx78_object_051-lib" />
+                                        <geom pos="0.128318 -0.533027 -3.00753" quat="1 -5e-07 1e-06 0" type="mesh" mesh="rx78_object_050-lib" />
+                                        <geom pos="0.128317 -0.533053 -3.37384" quat="1 -5e-07 0 0" type="mesh" mesh="rx78_object_049-lib" />
+                                        <geom pos="-0.0684806 -0.10567 -3.63174" quat="1 5e-07 0 0" type="mesh" mesh="rx78_object_014-lib" />
+                                        <geom pos="-0.0186412 -0.10567 -3.92709" quat="1 5e-07 0 0" type="mesh" mesh="rx78_object_013-lib" />
+                                        <geom pos="-0.0186423 -0.105671 -4.29347" quat="1 5e-07 0 -1.00003e-12" type="mesh" mesh="rx78_object_012-lib" />
+                                        <geom pos="-0.0684805 -0.310768 -3.60786" quat="1 5e-07 0 0" type="mesh" mesh="rx78_object_017-lib" />
+                                        <geom pos="-0.0186419 -0.310768 -3.90321" quat="1 5e-07 0 0" type="mesh" mesh="rx78_object_016-lib" />
+                                        <geom pos="-0.0186432 -0.310769 -4.26958" quat="1 5e-07 0 -1.00003e-12" type="mesh" mesh="rx78_object_015-lib" />
+                                        <geom pos="-0.0684803 0.310784 -3.53757" quat="1 5e-07 0 0" type="mesh" mesh="rx78_object_020-lib" />
+                                        <geom pos="-0.0186417 0.310784 -3.83292" quat="1 5e-07 0 0" type="mesh" mesh="rx78_object_019-lib" />
+                                        <geom pos="-0.0186427 0.310783 -4.19929" quat="1 5e-07 0 -1.00009e-12" type="mesh" mesh="rx78_object_018-lib" />
+                                        <geom pos="-0.0684801 0.0988682 -3.59745" quat="1 5e-07 0 0" type="mesh" mesh="rx78_object_074-lib" />
+                                        <geom pos="-0.0186413 0.0988676 -3.89279" type="mesh" mesh="rx78_object_073-lib" />
+                                        <geom pos="-0.0186424 0.0988666 -4.25917" type="mesh" mesh="rx78_object_072-lib" />
+                                    </body>
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+        <body name="rx78_Null_035_addition_null0_link" pos="5.63107e-12 1.15 10.9645" quat="0.707107 0 0 0.707107">
+            <inertial pos="0 0 0" mass="204.8" diaginertia="21.8453 21.8453 21.8453" />
+            <joint name="lleg_crotch_p" pos="0 0 0" axis="1 0 0" limited="true" range="-1.5708 1.0472" damping="300" frictionloss="1000" />
+            <geom size="0.4 0.4 0.4" type="box" />
+            <body name="rx78_Null_035_link" pos="0 0 0">
+                <inertial pos="0.0135019 2.68671e-08 -0.0757614" quat="-2.43752e-07 0.995652 5.66576e-08 0.0931524" mass="282.637" diaginertia="82.6786 78.4805 73.7535" />
+                <joint name="lleg_crotch_r" pos="0 0 0" axis="0 -1 0" limited="true" range="-0.349066 0.785398" damping="300" frictionloss="1000" />
+                <geom type="mesh" mesh="rx78_object_029-lib" />
+                <body name="rx78_Null_036_link" pos="-1e-07 0 -0.684516">
+                    <inertial pos="-0.00207627 0.00204255 -1.31864" quat="-0.00135981 0.999999 0.000788835 -9.48552e-05" mass="1373.46" diaginertia="1169.37 1115.73 448.666" />
+                    <joint name="lleg_crotch_y" pos="0 0 0" axis="0 0 1" limited="true" range="-0.785398 0.785398" damping="300" frictionloss="1000" />
+                    <geom type="mesh" mesh="rx78_object_042-lib" />
+                    <body name="rx78_Null_037_link" pos="0 0.423796 -2.71182">
+                        <inertial pos="-4.54239e-07 -0.273481 -0.405998" quat="-0.135972 0.990713 5.90762e-08 -5.1322e-08" mass="536.139" diaginertia="178.774 146.224 138.315" />
+                        <joint name="lleg_knee_p" pos="0 0 0" axis="1 0 0" limited="true" range="-0.1309 1.0472" damping="300" frictionloss="1000" />
+                        <geom type="mesh" mesh="rx78_object_041-lib" />
+                        <body name="rx78_Null_038_link" pos="-3e-07 -0.162996 -0.408183" quat="1 -5e-07 0 0">
+                            <inertial pos="-0.00305122 -0.207919 -2.77167" quat="0.999209 0.0394693 -0.000661446 0.00471563" mass="5927.78" diaginertia="20334.9 19309.6 3211.76" />
+                            <joint name="lleg_knee_p2" pos="0 0 0" axis="1 0 0" limited="true" range="-0.1309 1.0472" damping="300" frictionloss="1000" />
+                            <geom type="mesh" mesh="rx78_object_030-lib" />
+                            <body name="rx78_Null_039_link" pos="2.8e-06 0.221803 -6.02553" quat="1 0 1e-06 0">
+                                <inertial pos="-0.0026325 -0.407929 -0.218556" quat="0.623015 0.335274 -0.330876 0.624472" mass="1492.4" diaginertia="1435.71 1269.05 740.826" />
+                                <joint name="lleg_ankle_p" pos="0 0 0" axis="1 0 0" limited="true" range="-1.0472 1.0472" damping="300" frictionloss="1000" />
+                                <geom type="mesh" mesh="rx78_object_040-lib" />
+                                <geom pos="1.9e-06 -6e-07 -0.716289" quat="0.707107 0 0 0.707107" type="mesh" mesh="rx78_object_032-lib" />
+                                <geom pos="1e-07 -1e-07 0" quat="1 0 -5e-07 0" type="mesh" mesh="rx78_object_039-lib" />
+                                <body name="rx78_Null_041_link" pos="2.5e-06 -1.44559 -0.716288" quat="0.707107 0 0 0.707107">
+                                    <inertial pos="-0.255051 0.000625745 -0.128349" quat="0.623189 -0.00220929 0.782038 0.00686588" mass="917.387" diaginertia="864.952 686.555 380.112" />
+                                    <joint name="lleg_ankle_r" pos="0 0 0" axis="-1 0 0" limited="true" range="-0.523599 0.523599" damping="300" frictionloss="1000" />
+                                    <geom type="mesh" mesh="rx78_object_034-lib" />
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+        <body name="rx78_Null_085_addition_null0_link" pos="-1.00006e-07 -1.15 10.9645" quat="0.707107 0 0 0.707107">
+            <inertial pos="0 0 0" mass="204.8" diaginertia="21.8453 21.8453 21.8453" />
+            <joint name="rleg_crotch_p" pos="0 0 0" axis="1 0 0" limited="true" range="-1.5708 1.0472" damping="300" frictionloss="1000" />
+            <geom size="0.4 0.4 0.4" type="box" />
+            <body name="rx78_Null_085_link" pos="0 0 0">
+                <inertial pos="-0.0135153 2.64768e-06 -0.0757687" quat="-5.3552e-05 0.995641 3.5782e-05 -0.0932637" mass="282.643" diaginertia="82.6823 78.4848 73.7564" />
+                <joint name="rleg_crotch_r" pos="0 0 0" axis="0 -1 0" limited="true" range="-0.785398 0.349066" damping="300" frictionloss="1000" />
+                <geom type="mesh" mesh="rx78_object_086-lib" />
+                <body name="rx78_Null_086_link" pos="0 0 -0.684517">
+                    <inertial pos="0.00203901 -0.00515317 -1.31975" quat="0.00201184 -0.016433 0.99982 0.00925904" mass="1401.5" diaginertia="1184.95 1123.03 454.537" />
+                    <joint name="rleg_crotch_y" pos="0 0 0" axis="0 0 1" limited="true" range="-0.785398 0.785398" damping="300" frictionloss="1000" />
+                    <geom type="mesh" mesh="rx78_object_024-lib" />
+                    <body name="rx78_Null_087_link" pos="1e-07 0.423796 -2.71182">
+                        <inertial pos="0.00738558 -0.265625 -0.45551" quat="0.0376443 0.0441883 -0.375703 0.92492" mass="460.392" diaginertia="152.402 131.569 123.45" />
+                        <joint name="rleg_knee_p" pos="0 0 0" axis="1 0 0" limited="true" range="-0.1309 1.0472" damping="300" frictionloss="1000" />
+                        <geom type="mesh" mesh="rx78_object_023-lib" />
+                        <body name="rx78_Null_088_link" pos="-4.01e-05 -0.162996 -0.408183">
+                            <inertial pos="-0.0320024 -0.220128 -2.65675" quat="-0.0321749 0.999254 0.0193815 -0.0089314" mass="5351.79" diaginertia="18453.5 17440.6 3017.42" />
+                            <joint name="rleg_knee_p2" pos="0 0 0" axis="1 0 0" limited="true" range="-0.1309 1.0472" damping="300" frictionloss="1000" />
+                            <geom type="mesh" mesh="rx78_object_087-lib" />
+                            <body name="rx78_Null_089_link" pos="-0.000301 0.221804 -6.02553" quat="1 0 5e-07 0">
+                                <inertial pos="0.00031063 -0.39924 -0.236362" quat="0.607833 0.361377 -0.361357 0.607756" mass="1866.29" diaginertia="1569.25 1457.74 883.032" />
+                                <joint name="rleg_ankle_p" pos="0 0 0" axis="1 0 0" limited="true" range="-1.0472 1.0472" damping="300" frictionloss="1000" />
+                                <geom type="mesh" mesh="rx78_object_022-lib" />
+                                <geom pos="2.99e-05 -5e-07 -0.716289" quat="0.707114 1.06067e-06 1.06065e-06 0.7071" type="mesh" mesh="rx78_object_089-lib" />
+                                <geom pos="3e-07 1e-07 0" quat="1 0 -5e-07 0" type="mesh" mesh="rx78_object_021-lib" />
+                                <body name="rx78_Null_091_link" pos="0.0011439 -1.44561 -0.716286" quat="0.707114 1.76779e-06 1.76775e-06 0.707099">
+                                    <inertial pos="-0.312747 0.00670554 -0.158161" quat="0.617052 -1.48194e-05 0.786822 0.0125732" mass="1003.93" diaginertia="982.598 776.784 410.849" />
+                                    <joint name="rleg_ankle_r" pos="0 0 0" axis="-1 0 0" limited="true" range="-0.523599 0.523599" damping="300" frictionloss="1000" />
+                                    <geom type="mesh" mesh="rx78_object_091-lib" />
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+    </worldbody>
+</mujoco>

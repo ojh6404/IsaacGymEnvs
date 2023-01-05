@@ -1,0 +1,28 @@
+{
+    "source_motion": "data/01_01_cmu.npy",
+    "target_motion_path": "data/01_01_cmu_amp.npy",
+    "source_tpose": "data/cmu_tpose.npy",
+    "target_tpose": "data/amp_gundam_tpose.npy",
+    "joint_mapping": {
+         "Hips": "rx78_Null_083_link",
+         "LeftUpLeg": "rx78_Null_036_link",
+         "LeftLeg": "rx78_Null_038_link",
+         "LeftFoot": "rx78_Null_041_link",
+         "RightUpLeg": "rx78_Null_086_link",
+         "RightLeg": "rx78_Null_088_link",
+         "RightFoot": "rx78_Null_091_link",
+         "Spine1": "rx78_Null_016_link",
+         "Head": "rx78_Null_011_link",
+         "LeftArm": "rx78_Null_002_link",
+         "LeftForeArm": "rx78_Null_066_link",
+         "LeftHand": "rx78_Null_069_link",
+         "RightArm": "rx78_Null_051_link",
+         "RightForeArm": "rx78_Null_053_link",
+         "RightHand": "rx78_Null_055_link"
+    },
+    "rotation": [0, 0, 0.7071068, 0.7071068],
+    "scale": 10.056444,
+	"root_height_offset": 0.05,
+	"trim_frame_beg": 75,
+	"trim_frame_end": 372
+}
