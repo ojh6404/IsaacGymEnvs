@@ -51,6 +51,7 @@ from .humanoid_amp import HumanoidAMP
 from .khr_recovery import KHRRecovery
 # from .khr_amp import KHRAMP
 # from .atlas_amp import AtlasAMP
+from .gundam_amp import GundamAMP
 
 # Mappings from strings to environments
 isaacgym_task_map = {
@@ -78,4 +79,5 @@ isaacgym_task_map = {
     "KHRRecovery": KHRRecovery,
     # "KHRAMP": KHRAMP,
     # "AtlasAMP": AtlasAMP,
+    "GundamAMP": GundamAMP,
 }
