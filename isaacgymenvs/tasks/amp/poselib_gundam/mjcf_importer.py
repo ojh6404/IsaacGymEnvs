@@ -32,15 +32,10 @@ from poselib.visualization.common import plot_skeleton_state
 
 # load in XML mjcf file and save zero rotation pose in npy format
 # xml_path = "../../../../assets/mjcf/nv_humanoid.xml"
-xml_path = "../../../../assets/mjcf/amp_gundam.xml"
+xml_path = "../../../../assets/mjcf/gundam/amp_gundam.xml"
 skeleton = SkeletonTree.from_mjcf(xml_path)
 zero_pose = SkeletonState.zero_pose(skeleton)
 zero_pose.to_file("data/gundam_zero_pose.npy")
-
-print('test')
-print(xml_path)
-print(skeleton.node_names)
-print(skeleton._node_names)
 
 # visualize zero rotation pose
 plot_skeleton_state(zero_pose)
