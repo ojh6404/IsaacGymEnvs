@@ -33,3 +33,4 @@ outputs/
 /isaacgymenvs/test
 .python-version
 *.bvh
+flycheck*
