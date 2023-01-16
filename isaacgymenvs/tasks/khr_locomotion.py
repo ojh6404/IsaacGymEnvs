@@ -392,15 +392,20 @@ class KHRLocomotion(VecTask):
         #     self.sim, gymtorch.unwrap_tensor(force_tensor))  # apply actuator force
         # self.prev_target_pos = target_pos  # set previous target position
 
-        if self.progress_buf[0] > self.init_dropping_step:
-            self.gym.set_dof_actuation_force_tensor(
-                self.sim, gymtorch.unwrap_tensor(force_tensor))  # apply actuator force
-            # set previous target position
-            self.prev_target_pos[:] = target_pos
-        else:
-            self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(
-                torch.zeros_like(force_tensor, dtype=torch.float, device=self.device, requires_grad=False)))
-            self.prev_target_pos[:] = self.dof_pos[:]
+        self.gym.set_dof_actuation_force_tensor(
+            self.sim, gymtorch.unwrap_tensor(force_tensor))  # apply actuator force
+        # set previous target position
+        self.prev_target_pos[:] = target_pos
+
+        # if self.progress_buf[0] > self.init_dropping_step:
+        #     self.gym.set_dof_actuation_force_tensor(
+        #         self.sim, gymtorch.unwrap_tensor(force_tensor))  # apply actuator force
+        #     # set previous target position
+        #     self.prev_target_pos[:] = target_pos
+        # else:
+        #     self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(
+        #         torch.zeros_like(force_tensor, dtype=torch.float, device=self.device, requires_grad=False)))
+        #     self.prev_target_pos[:] = self.dof_pos[:]
 
         # normal PD control
         # self.gym.set_dof_position_target_tensor(self.sim, gymtorch.unwrap_tensor(targets))
@@ -501,7 +506,6 @@ class KHRLocomotion(VecTask):
             #     initial_roll_rand, initial_pitch_rand, initial_yaw)
             # initial_root_states = self.initial_root_states.detach()
             # initial_root_states[:, 3:7] = initial_root_quat_rand
-            # initial_root_states = self.initial_root_states +
             pass
         else:
             initial_root_states = self.initial_root_states
@@ -810,7 +814,7 @@ def compute_khr_locomotion_reward(
     # print(contact_forces.shape)
 
     # no reward when initializing
-    total_reward = total_reward * (episode_lengths > init_dropping_step)
+    # total_reward = total_reward * (episode_lengths > init_dropping_step)
 
     # reset when time out
     time_out = episode_lengths >= max_episode_length - \
@@ -819,7 +823,7 @@ def compute_khr_locomotion_reward(
     reset = time_out
 
     # reset when base contacts after 250 steps
-    reset = reset | (base_contact * (episode_lengths - 250 > 0))
+    reset = reset | base_contact
 
     # reset when feet not contact after 300 steps
     # feet_not_contact = ~torch.any(feet_contact, dim=1)
@@ -829,15 +833,15 @@ def compute_khr_locomotion_reward(
     # other_body_contact
     other_body_contact = torch.any(torch.norm(
         contact_forces[:, other_indices, :], dim=2) > 0.2, dim=1)
-    reset = reset | (other_body_contact * (episode_lengths - 300 > 0))
+    reset = reset | other_body_contact
 
     # reset when base_z_height is lower than target_z_height - 1.0 after 300 steps
-    reset = reset | (base_z_height < target_z_height - 1.0) * \
-        (episode_lengths - 300 > 0)
+    # reset = reset | (base_z_height < target_z_height - 1.0) * \
+    #     (episode_lengths - 300 > 0)
 
     # reset when feet is too high after 250 steps
-    reset = reset | (torch.any(
-        rb_states[:, feet_indices, 2] > 0.1, dim=-1) * (episode_lengths - 250 > 0))
+    # reset = reset | (torch.any(
+    #     rb_states[:, feet_indices, 2] > 0.1, dim=-1) * (episode_lengths - 250 > 0))
 
     # reset when base_lin_vel is too high after initilizing
     # reset = reset | (torch.norm(base_lin_vel, dim=-1) > 3.0) * \

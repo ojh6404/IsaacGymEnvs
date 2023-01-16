@@ -4,7 +4,7 @@ name: KHRLocomotion
 physics_engine: ${..physics_engine}
 
 env:
-  numEnvs: ${resolve_default:8192,${...num_envs}}
+  numEnvs: ${resolve_default:4096,${...num_envs}}
   envSpacing: 1.  # [m]
   enableDebugVis: True
   randomInitialize: False
@@ -19,11 +19,11 @@ env:
     restitution: 0.        # [-]
 
   baseInitState:
-    pos: [0.0, 0.0, 0.30] # x,y,z [m]
-    rot: [0.0, 0.7071068, 0.0, 0.7071068] # x,y,z,w [quat]
+    pos: [0.0, 0.0, 0.25] # x,y,z [m]
+    rot: [0.0, 0.0, 0.0, 1.0] # x,y,z,w [quat]
     vLinear: [0.0, 0.0, 0.0]  # x,y,z [m/s]
     vAngular: [0.0, 0.0, 0.0]  # x,y,z [rad/s]
-    initDroppingStep: 50 # step
+    initDroppingStep: 0 # step
 
   baseTargetState:
     pos: [0.0, 0.0, 0.283] # x,y,z [m]
