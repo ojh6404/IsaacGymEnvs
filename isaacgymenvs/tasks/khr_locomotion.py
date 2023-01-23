@@ -54,23 +54,16 @@ class KHRLocomotion(VecTask):
 
         # reward scales
         self.rew_scales = {}
-        self.rew_scales["gravityVector"] = self.cfg["env"]["learn"]["gravityVectorRewardScale"]
-        self.rew_scales["zHeight"] = self.cfg["env"]["learn"]["zHeightRewardScale"]
-        self.rew_scales["posError"] = self.cfg["env"]["learn"]["posErrorRewardScale"]
-        self.rew_scales["feetContact"] = self.cfg["env"]["learn"]["feetContactRewardScale"]
-        self.rew_scales["feetUpright"] = self.cfg["env"]["learn"]["feetUprightRewardScale"]
-
-        # penalty scales
-        self.rew_scales["torque"] = self.cfg["env"]["learn"]["torquePenaltyScale"]
-        self.rew_scales["power"] = self.cfg["env"]["learn"]["powerPenaltyScale"]
-        self.rew_scales["dofVelocity"] = self.cfg["env"]["learn"]["dofVelocityPenaltyScale"]
-        self.rew_scales["dofAcceleration"] = self.cfg["env"]["learn"]["dofAccelerationPenaltyScale"]
-        self.rew_scales["actionsDiff"] = self.cfg["env"]["learn"]["actionsDiffPenaltyScale"]
-        self.rew_scales["bodyContact"] = self.cfg["env"]["learn"]["bodyContactPenaltyScale"]
-        self.rew_scales["contactForces"] = self.cfg["env"]["learn"]["contactForcesPenaltyScale"]
-        self.rew_scales["baseLinearVelocity"] = self.cfg["env"]["learn"]["baseLinearVelocityPenaltyScale"]
-        self.rew_scales["baseAngularVelocity"] = self.cfg["env"]["learn"]["baseAngularVelocityPenaltyScale"]
-        self.rew_scales["targetPosDiff"] = self.cfg["env"]["learn"]["targetPosDiffPenaltyScale"]
+        self.rew_scales["upright"] = self.cfg["env"]["learn"]["uprightRewardScale"]
+        self.rew_scales["heading"] = self.cfg["env"]["learn"]["headingRewardScale"]
+        self.rew_scales["xPos"] = self.cfg["env"]["learn"]["xPositionRewardScale"]
+        self.rew_scales["yPos"] = self.cfg["env"]["learn"]["yPositionRewardScale"]
+        self.rew_scales["zPos"] = self.cfg["env"]["learn"]["zPositionRewardScale"]
+        self.rew_scales["xVel"] = self.cfg["env"]["learn"]["xVelocityRewardScale"]
+        self.rew_scales["yVel"] = self.cfg["env"]["learn"]["yVelocityRewardScale"]
+        self.rew_scales["zVel"] = self.cfg["env"]["learn"]["zVelocityRewardScale"]
+        self.rew_scales["dofPosError"] = self.cfg["env"]["learn"]["dofPosErrorRewardScale"]
+        self.rew_scales["dofVel"] = self.cfg["env"]["learn"]["dofVelRewardScale"]
 
         # randomization
         self.randomization_params = self.cfg["task"]["randomization_params"]
@@ -91,7 +84,6 @@ class KHRLocomotion(VecTask):
         v_ang = self.cfg["env"]["baseInitState"]["vAngular"]
         state = pos + rot + v_lin + v_ang
         self.base_init_state = state
-        self.init_dropping_step = self.cfg["env"]["baseInitState"]["initDroppingStep"]
         self.random_initialize = self.cfg["env"]["randomInitialize"]
 
         # base target state
@@ -249,7 +241,7 @@ class KHRLocomotion(VecTask):
         asset_root = os.path.join(os.path.dirname(
             os.path.abspath(__file__)), '../../assets')
         # asset_file = "urdf/khr/khr.urdf"
-        asset_file = "urdf/khr/khr_set_limit_joint_w_virtual_joint.urdf"
+        asset_file = "urdf/khr/khr_set_limit_joint.urdf"
 
         # asset_path = os.path.join(asset_root, asset_file)
         # asset_root = os.path.dirname(asset_path)
@@ -367,12 +359,12 @@ class KHRLocomotion(VecTask):
     def pre_physics_step(self, actions):
         # actions size : (num_envs, num_actions)
         self.actions = actions.clone().to(self.device)
-        # clipped by -1.0 to 1.0
         target_pos = torch.clamp(self.actions, min=-1.0, max=1.0)
-        target_pos = self.action_scale * target_pos + \
-            self.prev_target_pos    # action
-        target_pos = dof_joint_limit_clip(
-            target_pos, self.dof_lower_limit, self.dof_upper_limit)   # clipped by joiint limit
+        # target_pos = self.action_scale * target_pos + \
+        #     self.prev_target_pos    # action
+        target_pos = self.action_scale * target_pos + self.default_dof_pos
+        target_pos = torch.clamp(
+            target_pos, self.dof_lower_limit, self.dof_upper_limit)
         force_tensor = set_pd_force_tensor_limit(
             self.Kp,
             self.Kd,
@@ -382,7 +374,13 @@ class KHRLocomotion(VecTask):
             self.dof_vel,
             self.torque_limit)
 
+        print('debug')
+        print("max force:", torch.max(force_tensor),
+              "min force:", torch.min(force_tensor))
+
         self.force_tensor = force_tensor
+
+        self.force_tensor = torch.zeros_like(self.force_tensor)
 
         # test for zero action
         # self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(torch.zeros_like(force_tensor, dtype=torch.float, device=self.device, requires_grad=False)))
@@ -393,22 +391,9 @@ class KHRLocomotion(VecTask):
         # self.prev_target_pos = target_pos  # set previous target position
 
         self.gym.set_dof_actuation_force_tensor(
-            self.sim, gymtorch.unwrap_tensor(force_tensor))  # apply actuator force
+            self.sim, gymtorch.unwrap_tensor(self.force_tensor))  # apply actuator force
         # set previous target position
         self.prev_target_pos[:] = target_pos
-
-        # if self.progress_buf[0] > self.init_dropping_step:
-        #     self.gym.set_dof_actuation_force_tensor(
-        #         self.sim, gymtorch.unwrap_tensor(force_tensor))  # apply actuator force
-        #     # set previous target position
-        #     self.prev_target_pos[:] = target_pos
-        # else:
-        #     self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(
-        #         torch.zeros_like(force_tensor, dtype=torch.float, device=self.device, requires_grad=False)))
-        #     self.prev_target_pos[:] = self.dof_pos[:]
-
-        # normal PD control
-        # self.gym.set_dof_position_target_tensor(self.sim, gymtorch.unwrap_tensor(targets))
 
     def post_physics_step(self):
         self.progress_buf += 1
@@ -437,8 +422,8 @@ class KHRLocomotion(VecTask):
             self.dof_pos,
             self.dof_vel,
             self.dof_acc,
-            self.gravity_vec,
             self.target_z_height,
+            self.up_vec,
             self.target_dof_pos,
             self.force_tensor,
             self.contact_forces,
@@ -453,7 +438,6 @@ class KHRLocomotion(VecTask):
             self.base_index,
             self.num_actions,
             self.prev_state_buffer_step,
-            self.init_dropping_step,
             self.max_episode_length,
             # self.base_target_state,
         )
@@ -513,14 +497,21 @@ class KHRLocomotion(VecTask):
             initial_pitch_rand = initial_pitch
 
         positions_offset = torch_rand_float(
-            0.5, 1.5, (len(env_ids), self.num_dof), device=self.device)
+            - torch.pi / 8., torch.pi / 8., (len(env_ids), self.num_dof), device=self.device)
         # velocities = torch_rand_float(-0.01, 0.01,
         #                               (len(env_ids), self.num_dof), device=self.device)
+
         velocities = 0.
 
-        self.dof_pos[env_ids] = self.default_dof_pos[env_ids] * \
-            positions_offset
+        # self.dof_pos[env_ids] = self.default_dof_pos[env_ids] + \
+        #     positions_offset
+
+        self.dof_pos[env_ids] = self.default_dof_pos[env_ids]
+
         self.dof_vel[env_ids] = velocities
+
+        self.dof_pos[env_ids] = torch.clamp(
+            self.dof_pos[env_ids], min=self.dof_lower_limit, max=self.dof_upper_limit)
 
         env_ids_int32 = env_ids.to(dtype=torch.int32)
 
@@ -638,8 +629,8 @@ def compute_khr_locomotion_reward(
         dof_pos,
         dof_vel,
         dof_acc,
-        gravity_vec,
         target_z_height,
+        up_vec,
         target_dof_pos,
         torques,
         contact_forces,
@@ -654,13 +645,10 @@ def compute_khr_locomotion_reward(
         base_index,
         num_actions,
         prev_state_buffer_step,
-        init_dropping_step,
         max_episode_length,
-):
     # (reward, reset, feet_in air, feet_air_time, episode sums)
-    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Dict[str, float], int, int, int, int, int) -> Tuple[Tensor, Tensor]
-
-    # prepare quantities (TODO: return from obs ?)
+):
+    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Dict[str, float], int, int, int, int) -> Tuple[Tensor, Tensor]
 
     base_pos = root_states[:, :3]
     base_quat = root_states[:, 3:7]
@@ -668,192 +656,111 @@ def compute_khr_locomotion_reward(
     base_lin_vel = root_states[:, 7:10]
     base_ang_vel = root_states[:, 10:13]  # world frame
 
-    # upright reward
-    projected_gravity = quat_rotate_inverse(base_quat, gravity_vec)
-    # gravity_vec_error = torch.sum(torch.square(
-    #     gravity_vec - projected_gravity), dim=1)
-    # rew_gravity_vector_error = torch.exp(-gravity_vec_error) * \
-    #     rew_scales["gravityVector"]
-    gravity_vec_error = gravity_vec - projected_gravity
-    gravity_vec_error_norm = torch.norm(gravity_vec_error, dim=1)
-    rew_gravity_vector_error = torch.exp(- 20. * gravity_vec_error_norm) * \
-        rew_scales["gravityVector"]
+    num_envs = base_pos.shape[0]
+    up_vec = get_basis_vector(base_quat, up_vec).view(num_envs, 3)
+    up_vec_norm_xy = torch.norm(up_vec[:, :2], dim=1)
+    up_proj = up_vec[:, 2]
 
-    # height reward
-    base_z_height = base_pos[:, 2]
-    # rew_z_height = torch.zeros_like(base_z_height)
-    # rew_z_height = torch.where(base_z_height > target_z_height, rew_z_height + 1., rew_z_height) * rew_scales["zHeight"]
-    rew_z_height_error = torch.square(base_z_height - target_z_height)
-    rew_z_height = torch.exp(- 20. * rew_z_height_error) * \
-        rew_scales["zHeight"]
-    # rew_z_height = base_z_height * rew_scales["zHeight"]
+    phi = torch.atan2(up_vec_norm_xy, up_proj)
+    heading = calc_heading(base_quat)
 
-    # return pos error reward (pos difference between target pos which is standing up configuration)
-    dof_pos_error = torch.sum(torch.square(dof_pos - target_dof_pos), dim=1)
-    rew_dof_pos_error = torch.exp(- 2. * dof_pos_error) * \
-        rew_scales["posError"]
+    dof_pos_error = torch.norm(target_dof_pos - dof_pos, dim=1)
+    # dof_vel = torch.norm(dof_vel, dim=1)
 
-    # target pos difference reward
-    # current_target_pos = obs_buf[:, num_actions: 2 * num_actions]
-    # ahead_target_pos = obs_buf[:, 2 * num_actions +
-    #                            num_actions: 2 * num_actions + 2 * num_actions]
-    # target_pos_diff = torch.sum(torch.square(
-    #     current_target_pos - ahead_target_pos), dim=1)
-    # rew_target_pos_diff = torch.exp(- 2. * target_pos_diff) * \
-    #     rew_scales["targetPosDiff"]
-    current_target_pos = obs_buf[:, num_actions * 2 * prev_state_buffer_step +
-                                 num_actions: num_actions * 2 * prev_state_buffer_step + num_actions * 2]
-    ahead_target_pos = obs_buf[:, num_actions * 2 * (
-        prev_state_buffer_step - 1) + num_actions: num_actions * 2 * prev_state_buffer_step]
-    # target_pos_diff = torch.sum(torch.square(
-    #     current_target_pos - ahead_target_pos), dim=1)
-    target_pos_diff = torch.norm(current_target_pos - ahead_target_pos, dim=1)
-    rew_target_pos_diff = target_pos_diff * rew_scales["targetPosDiff"]
+    # print('debug')
+    # print("dof_pos:", dof_pos[0])
+    # print("target_dof_pos:", target_dof_pos[0])
+    # print("target - dof_pos:", torch.norm(target_dof_pos[0] - dof_pos[0]))
+    # print("dof_pos_error:", dof_pos_error[0])
+    # print("exponential:", torch.exp(-10. * dof_pos_error[0]))
 
-    # foot contact
-    # reset = torch.norm(contact_forces[:, base_index, :], dim=1) > 1.
-    # feet_contact = torch.norm(contact_forces[:, feet_indices, :], dim=2) > 0.5
-    # only Z-direction force
-    feet_contact = torch.abs(contact_forces[:, feet_indices, 2]) > 0.5
-    rew_feet_contact = torch.all(
-        feet_contact, dim=1) * rew_scales["feetContact"]
+    # from https://arxiv.org/pdf/1809.02074.pdf
+    alpha_phi = 5.
+    alpha_heading = 5.
+    alpha_root_x_pos = 2000.
+    alpha_root_y_pos = 2000.
+    alpha_root_z_pos = 2000.
+    alpha_root_x_vel = 5.
+    alpha_root_y_vel = 5.
+    alpha_root_z_vel = 5.
+    alpha_dof_pos_error = 1.
+    alpha_dof_vel = 1.
 
-    # torque penalty
-    rew_torque = torch.sum(torch.square(torques), dim=1) * rew_scales["torque"]
+    # upright root
+    # rew_upright_root = torch.exp(-alpha_phi * phi ** 2) * rew_scales["upright"]
+    # rew_heading_root = torch.exp(-alpha_heading *
+    #                              heading ** 2) * rew_scales["heading"]
+    # rew_root_x_pos = torch.exp(-alpha_root_x_pos *
+    #                            (base_pos[:, 0]) ** 2) * rew_scales["xPos"]
+    # rew_root_y_pos = torch.exp(-alpha_root_y_pos *
+    #                            (base_pos[:, 1]) ** 2) * rew_scales["yPos"]
+    # rew_root_z_pos = torch.exp(-alpha_root_z_pos *
+    #                            (target_z_height - base_pos[:, 2]) ** 2) * rew_scales["zPos"]
+    # rew_root_x_vel = torch.exp(-alpha_root_x_vel *
+    #                            (base_lin_vel[:, 0]) ** 2) * rew_scales["xVel"]
+    # rew_root_y_vel = torch.exp(-alpha_root_y_vel *
+    #                            (base_lin_vel[:, 1]) ** 2) * rew_scales["yVel"]
+    # rew_root_z_vel = torch.exp(-alpha_root_z_vel *
+    #                            (base_lin_vel[:, 2]) ** 2) * rew_scales["zVel"]
+    # rew_dof_pos_error = torch.exp(-alpha_dof_pos_error *
+    #                               dof_pos_error) * rew_scales["dofPosError"]
+    # rew_dof_vel = torch.exp(-alpha_dof_vel * dof_vel) * rew_scales["dofVel"]
 
-    # power penalty
-    rew_power = torch.sum(torch.square(dof_vel * torques),
-                          dim=1) * rew_scales["power"]
+    # pen_torques = torch.sum(torch.square(torques), dim=1) * 0.001
 
-    # action difference penalty
-    actions_diff = torch.sum(torch.square(
-        actions - prev_actions), dim=1)
-    rew_actions_diff = actions_diff * rew_scales["actionsDiff"]
+    # # calculate total reward
+    # total_reward = \
+    #     rew_upright_root + rew_heading_root + rew_root_x_pos + rew_root_y_pos + \
+    #     rew_root_z_pos + rew_root_x_vel + rew_root_y_vel + \
+    #     rew_root_z_vel + rew_dof_pos_error + rew_dof_vel - pen_torques
+    # total_reward = torch.clip(total_reward, 0., None)
 
-    # joint velocity penalty
-    rew_dof_vel = torch.sum(torch.square(
-        dof_vel), dim=1) * rew_scales["dofVelocity"]
+    # rew_upright_root = (torch.pi / 2. - phi) / (torch.pi / 2.) * 2.0
+    # rew_heading_root = (torch.pi - torch.abs(heading)) / (torch.pi) * 2.0
+    rew_dof_pos_error = torch.exp(-0.1 * dof_pos_error) * 1.0
 
-    # joint acceleration penalty
-    rew_dof_acc = torch.sum(torch.square(
-        dof_acc), dim=1) * rew_scales["dofAcceleration"]
-
-    # foot upright reward when touched ground
-    feet_quats = rb_states[:, feet_indices, 3:7]
-    projected_gravity_wrt_feet = quat_rotate_inverse(
-        feet_quats.view(-1, 4), gravity_vec.repeat(len(feet_indices), 1)).view(-1, 3)  # project gravity vector to feet
-    gravity_vec_error_wrt_feet = torch.sum(torch.square(
-        gravity_vec.repeat(len(feet_indices), 1) - projected_gravity_wrt_feet), dim=1)  # gravity error wrt feet
-    gravity_vec_error_wrt_feet_masked = torch.exp(- 10. * gravity_vec_error_wrt_feet).view(-1, len(
-        feet_indices)) * feet_contact  # masked using feet_contact
-    rew_gravity_vector_error_wrt_feet = torch.sum(
-        gravity_vec_error_wrt_feet_masked, dim=1) * rew_scales["feetUpright"]
-
-    # base contact
-    base_contact = torch.norm(contact_forces[:, base_index, :], dim=1) > 0.3
-    rew_base_contact = base_contact * rew_scales["bodyContact"]
-
-    # body impulse (contact force) penalty
-    contact_forces_norm_total = torch.sum(
-        torch.norm(contact_forces, dim=2), dim=1)
-    rew_contact_forces = contact_forces_norm_total * \
-        rew_scales["contactForces"]
-
-    # base angular velocity penalty
-    # rew_base_lin_vel = torch.sum(torch.square(
-    #     base_lin_vel), dim=1) * rew_scales["baseLinearVelocity"]
-    rew_base_lin_vel = torch.norm(
-        base_lin_vel, dim=1) * rew_scales["baseLinearVelocity"]
-
-    # base angular velocity penalty
-    # rew_base_ang_vel = torch.sum(torch.square(
-    #     base_ang_vel), dim=1) * rew_scales["baseAngularVelocity"]
-    rew_base_ang_vel = torch.norm(
-        base_ang_vel, dim=1) * rew_scales["baseAngularVelocity"]
+    # pen_root_lin_vel = torch.sum(torch.square(base_lin_vel), dim=1)
+    # pen_root_ang_vel = torch.sum(torch.square(base_ang_vel),dim=1)
+    pen_dof_vel = torch.sum(torch.square(dof_vel), dim=1) * 0.001
+    pen_torques = torch.sum(torch.square(torques), dim=1) * 0.001
+    pen_actions = torch.sum(torch.where(torch.abs(
+        actions) > 1.0, 1. * torch.ones_like(actions), torch.zeros_like(actions)), dim=1) * 0.01
 
     # calculate total reward
-    total_reward = rew_gravity_vector_error + \
-        rew_gravity_vector_error_wrt_feet + \
-        rew_z_height + \
-        rew_dof_pos_error + \
-        rew_target_pos_diff + \
-        rew_feet_contact + \
-        rew_base_contact + \
-        rew_torque + \
-        rew_power + \
-        rew_dof_vel + \
-        rew_dof_acc + \
-        rew_base_lin_vel + \
-        rew_base_ang_vel + \
-        rew_actions_diff + \
-        rew_contact_forces
+    total_reward = rew_dof_pos_error - pen_dof_vel - pen_torques - pen_actions
+
     total_reward = torch.clip(total_reward, 0., None)
-
-    # print("debug")
-    # print("rew_gravity_vector_error", rew_gravity_vector_error[0])
-    # print("rew_gravity_vector_error_wrt_feet",
-    #       rew_gravity_vector_error_wrt_feet[0])
-    # print("rew_z_height", rew_z_height[0])
-    # print("rew_dof_pos_error", rew_dof_pos_error[0])
-    # print("rew_target_pos_diff", rew_target_pos_diff[0])
-    # print("rew_feet_contact", rew_feet_contact[0])
-    # print("rew_base_contact", rew_base_contact[0])
-    # print("rew_torque", rew_torque[0])
-    # print("rew_power", rew_power[0])
-    # print("rew_dof_vel", rew_dof_vel[0])
-    # print("rew_dof_acc", rew_dof_acc[0])
-    # print("rew_base_line_vel", rew_base_lin_vel[0])
-    # print("rew_base_ang_vel", rew_base_ang_vel[0])
-    # print("rew_actions_diff", rew_actions_diff[0])
-    # print("rew_contact_forces", rew_contact_forces[0])
-    # print('feet contact')
-    # print(feet_contact[0])
-    # print('base_contact')
-    # print(base_contact[0])
-    # print('debug')
-    # print(contact_forces.shape)
-
-    # no reward when initializing
-    # total_reward = total_reward * (episode_lengths > init_dropping_step)
-
     # reset when time out
     time_out = episode_lengths >= max_episode_length - \
         1
-
     reset = time_out
+    # base_limit = base_pos[:, 2] < 0.23
+    # reset = reset | base_limit
 
-    # reset when base contacts after 250 steps
-    reset = reset | base_contact
+    # print("debug")
+    # print("rew_upright_root", rew_upright_root[0])
+    # print("rew_heading_root", rew_heading_root[0])
+    # print("rew_root_x_pos", rew_root_x_pos[0])
+    # print("rew_root_y_pos", rew_root_y_pos[0])
+    # print("rew_root_z_pos", rew_root_z_pos[0])
+    # print("rew_root_x_vel", rew_root_x_vel[0])
+    # print("rew_root_y_vel", rew_root_y_vel[0])
+    # print("rew_root_z_vel", rew_root_z_vel[0])
+    # print("rew_dof_pos_error", rew_dof_pos_error[0])
+    # print("rew_dof_vel", rew_dof_vel[0])
+    # print("pen_torques", pen_torques[0])
+    # print("max actions", torch.max(actions[0]))
+    # print("min actions", torch.min(actions[0]))
 
-    # reset when feet not contact after 300 steps
-    # feet_not_contact = ~torch.any(feet_contact, dim=1)
-    # reset = reset | (feet_not_contact * (episode_lengths - 300 > 0))
-
-    # reset when other body contact after 300 steps
-    # other_body_contact
-    other_body_contact = torch.any(torch.norm(
-        contact_forces[:, other_indices, :], dim=2) > 0.2, dim=1)
-    reset = reset | other_body_contact
-
-    # reset when base_z_height is lower than target_z_height - 1.0 after 300 steps
-    # reset = reset | (base_z_height < target_z_height - 1.0) * \
-    #     (episode_lengths - 300 > 0)
-
-    # reset when feet is too high after 250 steps
-    # reset = reset | (torch.any(
-    #     rb_states[:, feet_indices, 2] > 0.1, dim=-1) * (episode_lengths - 250 > 0))
-
-    # reset when base_lin_vel is too high after initilizing
-    # reset = reset | (torch.norm(base_lin_vel, dim=-1) > 3.0) * \
-    #     (episode_lengths - init_dropping_step > 0)
-
-    # reset when base_ang_vel is too high after initilizing
-    # reset = reset | (torch.norm(base_ang_vel, dim=-1) > 15.0) * \
-    #     (episode_lengths - init_dropping_step > 0)
-
-    # reset when contact forces too high (impulse)
-    # reset = reset | (torch.sum(torch.norm(contact_forces, dim=2),
-    #                  dim=1) * (episode_lengths - init_dropping_step > 0))[0]
+    print("debug")
+    # print("rew_upright_root", rew_upright_root[0])
+    # print("rew_heading_root", rew_heading_root[0])
+    print("rew_dof_pos_error", rew_dof_pos_error[0])
+    print("pen_dof_vel", pen_dof_vel[0])
+    print("pen_torques", pen_torques[0])
+    print("pen_actions", pen_actions[0])
+    print("max action", torch.max(actions[0]))
+    print("min action", torch.min(actions[0]))
 
     return total_reward.detach(), reset
 
