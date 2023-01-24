@@ -6,7 +6,7 @@ physics_engine: ${..physics_engine}
 env:
   numEnvs: ${resolve_default:4096,${...num_envs}}
   envSpacing: 1.  # [m]
-  enableDebugVis: True
+  enableDebugVis: False
   randomInitialize: False
 
 
@@ -19,14 +19,14 @@ env:
     restitution: 0.        # [-]
 
   baseInitState:
-    pos: [0.0, 0.0, 0.333] # x,y,z [m]
+    pos: [0.0, 0.0, 0.303] # x,y,z [m]
     rot: [0.0, 0.0, 0.0, 1.0] # x,y,z,w [quat]
     vLinear: [0.0, 0.0, 0.0]  # x,y,z [m/s]
     vAngular: [0.0, 0.0, 0.0]  # x,y,z [rad/s]
     initDroppingStep: 0 # step
 
   baseTargetState:
-    pos: [0.0, 0.0, 0.283] # x,y,z [m]
+    pos: [0.0, 0.0, 0.303] # x,y,z [m]
     rot: [0.0, 0.0, 0.0, 1.0] # x,y,z,w [quat]
     vLinear: [0.0, 0.0, 0.0]  # x,y,z [m/s]
     vAngular: [0.0, 0.0, 0.0]  # x,y,z [rad/s]
@@ -36,30 +36,51 @@ env:
     stiffness: 10.0  # [N*m/rad]
     damping: 0.03     # [N*m*s/rad]
     actionScale: 0.279252  # 16 * pi / 180
+    # actionScale: 0.279252  # 16 * pi / 180
     controlFrequencyInv: 8 # 0.02, 50 Hz
     torqueLimit: 2.5 # N*m, spec sheet : 2.4525 N*m, 25.0 kgf * cm
-    prevActionBuffer: 2
+    prevActionBuffer: 0
 
   defaultJointAngles:  # = target angles when action = 0.0
-    LARM_JOINT0: 0.0  # [deg]
-    LARM_JOINT1: 0.0  # [deg]
-    LARM_JOINT2: 0.0  # [deg]
+    LARM_JOINT0: 0.0  # [deg]   -3.1416 ~ 0.7854
+    LARM_JOINT1: 0.0  # [deg]   -0.5236 ~ 3.1416
+    LARM_JOINT2: 0.0  # [deg]   -2.0944 ~ 0.0
 
-    LLEG_JOINT0: 0.0  # [deg]
-    LLEG_JOINT1: -25.0  # [deg]
-    LLEG_JOINT2: 50.0  # [deg]
-    LLEG_JOINT3: -25.0  # [deg]
-    LLEG_JOINT4: 0.0  # [deg]
+    LLEG_JOINT0: 0.0  # [deg]   -0.2618 ~ 0.5236
+    LLEG_JOINT1: -25.0  # [deg] -1.5708 ~ 1.5708
+    LLEG_JOINT2: 50.0  # [deg]  0.0 ~ 2.6180
+    LLEG_JOINT3: -25.0  # [deg] -1.8236 ~ 2.3561
+    LLEG_JOINT4: 0.0  # [deg]   -0.5236 ~ 0.0
 
-    RARM_JOINT0: 0.0  # [deg]
-    RARM_JOINT1: 0.0  # [deg]
-    RARM_JOINT2: 0.0  # [deg]
+    RARM_JOINT0: 0.0  # [deg]   -3.1416 ~ 0.7854
+    RARM_JOINT1: 0.0  # [deg]   -3.1416 ~ 0.5236
+    RARM_JOINT2: 0.0  # [deg]   -2.0944 ~ 0.0
 
-    RLEG_JOINT0: 0.0  # [deg]
-    RLEG_JOINT1: -25.0  # [deg]
-    RLEG_JOINT2: 50.0  # [deg]
-    RLEG_JOINT3: -25.0  # [deg]
-    RLEG_JOINT4: 0.0  # [deg]
+    RLEG_JOINT0: 0.0  # [deg]   -0.5236 ~ 0.2518
+    RLEG_JOINT1: -25.0  # [deg] -1.5708 ~ 1.5708
+    RLEG_JOINT2: 50.0  # [deg]  0.0 ~ 2.6108
+    RLEG_JOINT3: -25.0  # [deg] -1.8236 ~ 2.3561
+    RLEG_JOINT4: 0.0  # [deg]   0.0 ~ 0.5236
+
+    # LARM_JOINT0: 0.0  # [deg]
+    # LARM_JOINT1: 0.0  # [deg]
+    # LARM_JOINT2: 0.0  # [deg]
+
+    # LLEG_JOINT0: 0.0  # [deg]
+    # LLEG_JOINT1: 0.0  # [deg]
+    # LLEG_JOINT2: 0.0  # [deg]
+    # LLEG_JOINT3: 0.0  # [deg]
+    # LLEG_JOINT4: 0.0  # [deg]
+
+    # RARM_JOINT0: 0.0  # [deg]
+    # RARM_JOINT1: 0.0  # [deg]
+    # RARM_JOINT2: 0.0  # [deg]
+
+    # RLEG_JOINT0: 0.0  # [deg]
+    # RLEG_JOINT1: 0.0  # [deg]
+    # RLEG_JOINT2: 0.0  # [deg]
+    # RLEG_JOINT3: 0.0  # [deg]
+    # RLEG_JOINT4: 0.0  # [deg]
 
   urdfAsset:
     collapseFixedJoints: True
@@ -101,6 +122,8 @@ env:
   # viewer cam:
   viewer:
     refEnv: 0
+    # pos: [-0.5, -0.5, 0.5]  # [m]
+    # lookat: [-0.5, 1.0, 0.2]  # [m]
     pos: [-0.5, -0.5, 0.5]  # [m]
     lookat: [1.0, 1.0, 0.2]  # [m]
 
