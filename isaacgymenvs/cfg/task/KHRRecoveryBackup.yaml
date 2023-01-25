@@ -4,9 +4,9 @@ name: KHRRecovery
 physics_engine: ${..physics_engine}
 
 env:
-  numEnvs: ${resolve_default:4096,${...num_envs}}
+  numEnvs: ${resolve_default:8192,${...num_envs}}
   envSpacing: 1.  # [m]
-  enableDebugVis: False
+  enableDebugVis: True
   randomInitialize: True
 
 
@@ -23,10 +23,10 @@ env:
     rot: [0.0, 0.7071068, 0.0, 0.7071068] # x,y,z,w [quat]
     vLinear: [0.0, 0.0, 0.0]  # x,y,z [m/s]
     vAngular: [0.0, 0.0, 0.0]  # x,y,z [rad/s]
-    initDroppingLength_s: 1.5
+    initDroppingStep: 50 # step
 
   baseTargetState:
-    pos: [0.0, 0.0, 0.25] # x,y,z [m]
+    pos: [0.0, 0.0, 0.283] # x,y,z [m]
     rot: [0.0, 0.0, 0.0, 1.0] # x,y,z,w [quat]
     vLinear: [0.0, 0.0, 0.0]  # x,y,z [m/s]
     vAngular: [0.0, 0.0, 0.0]  # x,y,z [rad/s]
@@ -36,35 +36,77 @@ env:
     stiffness: 10.0  # [N*m/rad]
     damping: 0.03     # [N*m*s/rad]
     actionScale: 0.279252  # 16 * pi / 180
-    controlFrequencyInv: 8 # 0.02, 50 Hz
-    torqueLimit: 2.5 # N*m, spec sheet : 2.4525 N*m, 25.0 kgf * cm
-    prevActionBuffer: 0
+    controlFrequencyInv: 1 # 60 Hz
+    torqueLimit: 2.0 # N*m, spec sheet : 2.4525 N*m, 25.0 kgf * cm
+    prevActionBuffer: 2
 
   defaultJointAngles:  # = target angles when action = 0.0
-    LARM_JOINT0: 0.0  # [deg]   -3.1416 ~ 0.7854
-    LARM_JOINT1: 0.0  # [deg]   -0.5236 ~ 3.1416
-    LARM_JOINT2: 0.0  # [deg]   -2.0944 ~ 0.0
+    LARM_JOINT0: 0.0  # [deg]
+    LARM_JOINT1: 0.0  # [deg]
+    LARM_JOINT2: 0.0  # [deg]
 
-    LLEG_JOINT0: 0.0  # [deg]   -0.2618 ~ 0.5236
-    LLEG_JOINT1: -25.0  # [deg] -1.5708 ~ 1.5708
-    LLEG_JOINT2: 50.0  # [deg]  0.0 ~ 2.6180
-    LLEG_JOINT3: -25.0  # [deg] -1.8236 ~ 2.3561
-    LLEG_JOINT4: 0.0  # [deg]   -0.5236 ~ 0.0
+    LLEG_JOINT0: 0.0  # [rad]
+    LLEG_JOINT1: -25.0  # [rad]
+    LLEG_JOINT2: 50.0  # [rad]
+    LLEG_JOINT3: -25.0  # [rad]
+    LLEG_JOINT4: 0.0  # [rad]
 
-    RARM_JOINT0: 0.0  # [deg]   -3.1416 ~ 0.7854
-    RARM_JOINT1: 0.0  # [deg]   -3.1416 ~ 0.5236
-    RARM_JOINT2: 0.0  # [deg]   -2.0944 ~ 0.0
+    RARM_JOINT0: 0.0  # [rad]
+    RARM_JOINT1: 0.0  # [rad]
+    RARM_JOINT2: 0.0  # [rad]
 
-    RLEG_JOINT0: 0.0  # [deg]   -0.5236 ~ 0.2518
-    RLEG_JOINT1: -25.0  # [deg] -1.5708 ~ 1.5708
-    RLEG_JOINT2: 50.0  # [deg]  0.0 ~ 2.6108
-    RLEG_JOINT3: -25.0  # [deg] -1.8236 ~ 2.3561
-    RLEG_JOINT4: 0.0  # [deg]   0.0 ~ 0.5236
+    RLEG_JOINT0: 0.0  # [rad]
+    RLEG_JOINT1: -25.0  # [rad]
+    RLEG_JOINT2: 50.0  # [rad]
+    RLEG_JOINT3: -25.0  # [rad]
+    RLEG_JOINT4: 0.0  # [rad]
+
+  # jointAnglesLowerLimit:
+  #   LARM_JOINT0: -1.0  # [rad]
+  #   LARM_JOINT1: -1.0  # [rad]
+  #   LARM_JOINT2: -1.0  # [rad]
+
+  #   LLEG_JOINT0: -0.15  # [rad]
+  #   LLEG_JOINT1: -1.2  # [rad]
+  #   LLEG_JOINT2: -1.0  # [rad]
+  #   LLEG_JOINT3: -1.2  # [rad]
+  #   LLEG_JOINT4: -0.5  # [rad]
+
+  #   RARM_JOINT0: -1.0  # [rad]
+  #   RARM_JOINT1: -1.0  # [rad]
+  #   RARM_JOINT2: -1.0  # [rad]
+
+  #   RLEG_JOINT0: -0.5  # [rad]
+  #   RLEG_JOINT1: -1.2  # [rad]
+  #   RLEG_JOINT2: -1.0  # [rad]
+  #   RLEG_JOINT3: -1.2  # [rad]
+  #   RLEG_JOINT4: -0.5  # [rad]
+
+  # jointAnglesUpperLimit:
+  #   LARM_JOINT0: 1.0  # [rad]
+  #   LARM_JOINT1: 1.0  # [rad]
+  #   LARM_JOINT2: 1.0  # [rad]
+
+  #   LLEG_JOINT0: 0.5  # [rad]
+  #   LLEG_JOINT1: 1.2  # [rad]
+  #   LLEG_JOINT2: 1.5708  # [rad]
+  #   LLEG_JOINT3: 1.2  # [rad]
+  #   LLEG_JOINT4: 0.5  # [rad]
+
+  #   RARM_JOINT0: 1.5708  # [rad]
+  #   RARM_JOINT1: 1.5708  # [rad]
+  #   RARM_JOINT2: 1.5708  # [rad]
+
+  #   RLEG_JOINT0: 0.15  # [rad]
+  #   RLEG_JOINT1: 1.2  # [rad]
+  #   RLEG_JOINT2: 1.5708  # [rad]
+  #   RLEG_JOINT3: 1.2  # [rad]
+  #   RLEG_JOINT4: 0.5  # [rad]
 
   urdfAsset:
     collapseFixedJoints: True
     fixBaseLink: False
-    defaultDofDriveMode: 0 # see GymDofDriveModeFlags (0 is none, 1 is pos tgt, 2 is vel tgt, 4 effort)
+    defaultDofDriveMode: 1 # see GymDofDriveModeFlags (0 is none, 1 is pos tgt, 2 is vel tgt, 4 effort)
 
   assetOptions:
     maxLinearVelocity: 10.0
@@ -78,42 +120,44 @@ env:
 
   learn:
     # rewards
-    uprightRewardScale: 0.3
-    headingRewardScale: 0.3
-    dofPosErrorRewardScale: 0.3
-    zHeightRewardScale: 0.3
+    gravityVectorRewardScale: 10.0
+    zHeightRewardScale: 10.0
+    posErrorRewardScale: 10.0
+    feetContactRewardScale: 0.05
+    feetUprightRewardScale: 0.05
 
     # penalty
-    torques: 0.001
-    linearVelocity: 0.1
-    angularVelocity: 0.1
+    torquePenaltyScale: -0.0003
+    powerPenaltyScale: -0.0005
+    dofVelocityPenaltyScale: -0.0 # -0.0001
+    dofAccelerationPenaltyScale: -0.0 # -0.001
+    actionsDiffPenaltyScale: -0.0 # -0.0001
+    baseLinearVelocityPenaltyScale: -0.001 # -0.02
+    baseAngularVelocityPenaltyScale: -0.001 # -0.02
+    contactForcesPenaltyScale: -0.0001
+    bodyContactPenaltyScale: -0.0
+    targetPosDiffPenaltyScale: -0.01 # somewhat like action
 
     # normalization
     linearVelocityScale: 1.0
-    angularVelocityScale: 0.3183 # 1 / pi
+    angularVelocityScale: 0.25
     dofPositionScale: 1.0
     dofVelocityScale: 1.0 # 0.05
 
     # episode length in seconds
-    episodeLength_s: 15
-
-    # push robot
-    pushRobots: False
-    pushInterval_s: 4
+    episodeLength_s: 10
 
   # viewer cam:
   viewer:
     refEnv: 0
-    # pos: [-0.5, -0.5, 0.5]  # [m]
-    # lookat: [-0.5, 1.0, 0.2]  # [m]
-    pos: [-0.5, -0.5, 0.5]  # [m]
-    lookat: [1.0, 1.0, 0.2]  # [m]
+    pos: [1., 1., 1.]  # [m]
+    lookat: [0.3, 0.3, 0.5]  # [m]
 
   # set to True if you use camera sensors in the environment
   enableCameraSensors: False
 
 sim:
-  dt: 0.0025
+  dt: 0.02
   substeps: 2
   up_axis: "z"
   use_gpu_pipeline: ${eq:${...pipeline},"gpu"}

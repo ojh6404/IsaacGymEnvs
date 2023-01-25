@@ -1,5 +1,5 @@
 # used to create the object
-name: KHRRecovery
+name: KHRBalance
 
 physics_engine: ${..physics_engine}
 
@@ -7,7 +7,7 @@ env:
   numEnvs: ${resolve_default:4096,${...num_envs}}
   envSpacing: 1.  # [m]
   enableDebugVis: False
-  randomInitialize: True
+  randomInitialize: False
 
 
   # clipObservations: 5.0
@@ -19,14 +19,14 @@ env:
     restitution: 0.        # [-]
 
   baseInitState:
-    pos: [0.0, 0.0, 0.30] # x,y,z [m]
-    rot: [0.0, 0.7071068, 0.0, 0.7071068] # x,y,z,w [quat]
+    pos: [0.0, 0.0, 0.32] # x,y,z [m]
+    rot: [0.0, 0.0, 0.0, 1.0] # x,y,z,w [quat]
     vLinear: [0.0, 0.0, 0.0]  # x,y,z [m/s]
     vAngular: [0.0, 0.0, 0.0]  # x,y,z [rad/s]
-    initDroppingLength_s: 1.5
+    initDroppingStep: 0 # step
 
   baseTargetState:
-    pos: [0.0, 0.0, 0.25] # x,y,z [m]
+    pos: [0.0, 0.0, 0.303] # x,y,z [m]
     rot: [0.0, 0.0, 0.0, 1.0] # x,y,z,w [quat]
     vLinear: [0.0, 0.0, 0.0]  # x,y,z [m/s]
     vAngular: [0.0, 0.0, 0.0]  # x,y,z [rad/s]
@@ -36,6 +36,7 @@ env:
     stiffness: 10.0  # [N*m/rad]
     damping: 0.03     # [N*m*s/rad]
     actionScale: 0.279252  # 16 * pi / 180
+    # actionScale: 0.279252  # 16 * pi / 180
     controlFrequencyInv: 8 # 0.02, 50 Hz
     torqueLimit: 2.5 # N*m, spec sheet : 2.4525 N*m, 25.0 kgf * cm
     prevActionBuffer: 0
@@ -61,6 +62,26 @@ env:
     RLEG_JOINT3: -25.0  # [deg] -1.8236 ~ 2.3561
     RLEG_JOINT4: 0.0  # [deg]   0.0 ~ 0.5236
 
+    # LARM_JOINT0: 0.0  # [deg]
+    # LARM_JOINT1: 0.0  # [deg]
+    # LARM_JOINT2: 0.0  # [deg]
+
+    # LLEG_JOINT0: 0.0  # [deg]
+    # LLEG_JOINT1: 0.0  # [deg]
+    # LLEG_JOINT2: 0.0  # [deg]
+    # LLEG_JOINT3: 0.0  # [deg]
+    # LLEG_JOINT4: 0.0  # [deg]
+
+    # RARM_JOINT0: 0.0  # [deg]
+    # RARM_JOINT1: 0.0  # [deg]
+    # RARM_JOINT2: 0.0  # [deg]
+
+    # RLEG_JOINT0: 0.0  # [deg]
+    # RLEG_JOINT1: 0.0  # [deg]
+    # RLEG_JOINT2: 0.0  # [deg]
+    # RLEG_JOINT3: 0.0  # [deg]
+    # RLEG_JOINT4: 0.0  # [deg]
+
   urdfAsset:
     collapseFixedJoints: True
     fixBaseLink: False
@@ -81,12 +102,10 @@ env:
     uprightRewardScale: 0.3
     headingRewardScale: 0.3
     dofPosErrorRewardScale: 0.3
-    zHeightRewardScale: 0.3
 
     # penalty
     torques: 0.001
     linearVelocity: 0.1
-    angularVelocity: 0.1
 
     # normalization
     linearVelocityScale: 1.0
@@ -95,10 +114,10 @@ env:
     dofVelocityScale: 1.0 # 0.05
 
     # episode length in seconds
-    episodeLength_s: 15
+    episodeLength_s: 20
 
     # push robot
-    pushRobots: False
+    pushRobots: True
     pushInterval_s: 4
 
   # viewer cam:
@@ -134,7 +153,7 @@ sim:
     contact_collection: 1 # 0: CC_NEVER (don't collect contact info), 1: CC_LAST_SUBSTEP (collect only contacts on last substep), 2: CC_ALL_SUBSTEPS (default - all contacts)
 
 task:
-  randomize: False
+  randomize: True
   randomization_params:
     frequency: 600   # Define how many environment steps between generating new randomizations
     observations:
