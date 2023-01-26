@@ -19,7 +19,7 @@ env:
     restitution: 0.        # [-]
 
   baseInitState:
-    pos: [0.0, 0.0, 0.303] # x,y,z [m]
+    pos: [0.0, 0.0, 0.32] # x,y,z [m]
     rot: [0.0, 0.0, 0.0, 1.0] # x,y,z,w [quat]
     vLinear: [0.0, 0.0, 0.0]  # x,y,z [m/s]
     vAngular: [0.0, 0.0, 0.0]  # x,y,z [rad/s]
@@ -99,25 +99,26 @@ env:
 
   learn:
     # rewards
-    uprightRewardScale: 0.1
-    headingRewardScale: 0.1
-    xPositionRewardScale: 0.1
-    yPositionRewardScale: 0.1
-    zPositionRewardScale: 0.1
-    xVelocityRewardScale: 0.1
-    yVelocityRewardScale: 0.1
-    zVelocityRewardScale: 0.1
-    dofPosErrorRewardScale: 0.1
-    dofVelRewardScale: 0.1
+    uprightRewardScale: 0.3
+    headingRewardScale: 0.3
+    dofPosErrorRewardScale: 0.4
+
+    # penalty
+    torques: 0.001
+    linearVelocity: 0.1
 
     # normalization
     linearVelocityScale: 1.0
-    angularVelocityScale: 0.25
+    angularVelocityScale: 0.3183 # 1 / pi
     dofPositionScale: 1.0
     dofVelocityScale: 1.0 # 0.05
 
     # episode length in seconds
-    episodeLength_s: 10
+    episodeLength_s: 20
+
+    # push robot
+    pushRobots: True
+    pushInterval_s: 8
 
   # viewer cam:
   viewer:
@@ -152,7 +153,7 @@ sim:
     contact_collection: 1 # 0: CC_NEVER (don't collect contact info), 1: CC_LAST_SUBSTEP (collect only contacts on last substep), 2: CC_ALL_SUBSTEPS (default - all contacts)
 
 task:
-  randomize: False
+  randomize: True
   randomization_params:
     frequency: 600   # Define how many environment steps between generating new randomizations
     observations:

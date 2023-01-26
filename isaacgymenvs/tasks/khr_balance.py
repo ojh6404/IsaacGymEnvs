@@ -180,6 +180,8 @@ class KHRBalance(VecTask):
         self.initial_root_states = self.root_states.clone()
         self.initial_root_states[:] = to_torch(
             self.base_init_state, device=self.device, requires_grad=False)
+        self.initial_root_roll, self.initial_root_pitch, self.initial_root_yaw = get_euler_xyz(
+            self.initial_root_states[:, 3:7])
         self.actions = torch.zeros(self.num_envs, self.num_actions,
                                    dtype=torch.float, device=self.device, requires_grad=False)
         self.force_tensor = torch.zeros_like(
@@ -421,7 +423,9 @@ class KHRBalance(VecTask):
 
     def push_robots(self):
         self.root_states[:, 7:9] = torch_rand_float(
-            -1.0, 1.0, (self.num_envs, 2), device=self.device)  # lin vel x/y
+            -0.3, 0.3, (self.num_envs, 2), device=self.device)  # lin vel x/y
+        # self.root_states[:, 10:13] = torch_rand_float(
+        #     -0.1, 0.1, (self.num_envs, 3), device=self.device)  # ang vel
         self.gym.set_actor_root_state_tensor(
             self.sim, gymtorch.unwrap_tensor(self.root_states))
 
@@ -482,15 +486,17 @@ class KHRBalance(VecTask):
 
         # randomize initial quaternion states
         if self.random_initialize:
-            initial_root_quat_delta = torch_rand_float(
-                -0.1, 0.1, (self.num_envs, 4), device=self.device)
-            initial_root_quat_delta[:, 0] = torch_rand_float(
-                -0.05, 0.05, (self.num_envs, 1), device=self.device).squeeze()  # for roll
-            initial_root_quat_delta[:, 2:4] = 0.  # for yaw
-            initial_root_quat_rand = self.initial_root_states[:,
-                                                              3:7] + initial_root_quat_delta
+            initial_root_roll_pitch_delta = torch_rand_float(-torch.pi / 9., torch.pi / 9., (
+                self.num_envs, 2), device=self.device)
+
+            initial_root_roll = self.initial_root_roll + \
+                initial_root_roll_pitch_delta[:, 0]
+            initial_root_pitch = self.initial_root_pitch + \
+                initial_root_roll_pitch_delta[:, 1]
+            initial_root_yaw = self.initial_root_yaw
             initial_root_states = self.initial_root_states.detach()
-            initial_root_states[:, 3:7] = quat_unit(initial_root_quat_rand)
+            initial_root_states[:, 3:7] = quat_from_euler_xyz(
+                initial_root_roll, initial_root_pitch, initial_root_yaw)
         else:
             initial_root_states = self.initial_root_states
 
@@ -638,45 +644,6 @@ def compute_khr_balance_reward(
     dof_pos_error = torch.norm(target_dof_pos - dof_pos, dim=1)
 
     # from https://arxiv.org/pdf/1809.02074.pdf
-    alpha_phi = 5.
-    alpha_heading = 5.
-    alpha_root_x_pos = 2000.
-    alpha_root_y_pos = 2000.
-    alpha_root_z_pos = 2000.
-    alpha_root_x_vel = 5.
-    alpha_root_y_vel = 5.
-    alpha_root_z_vel = 5.
-    alpha_dof_pos_error = 1.
-    alpha_dof_vel = 1.
-
-    # upright root
-    # rew_upright_root = torch.exp(-alpha_phi * phi ** 2) * rew_scales["upright"]
-    # rew_heading_root = torch.exp(-alpha_heading *
-    # heading ** 2) * rew_scales["heading"]
-    # rew_root_x_pos = torch.exp(-alpha_root_x_pos *
-    #                            (base_pos[:, 0]) ** 2) * rew_scales["xPos"]
-    # rew_root_y_pos = torch.exp(-alpha_root_y_pos *
-    #                            (base_pos[:, 1]) ** 2) * rew_scales["yPos"]
-    # rew_root_z_pos = torch.exp(-alpha_root_z_pos *
-    # (target_z_height - base_pos[:, 2]) ** 2) * rew_scales["zPos"]
-    # rew_root_x_vel = torch.exp(-alpha_root_x_vel *
-    #                            (base_lin_vel[:, 0]) ** 2) * rew_scales["xVel"]
-    # rew_root_y_vel = torch.exp(-alpha_root_y_vel *
-    #                            (base_lin_vel[:, 1]) ** 2) * rew_scales["yVel"]
-    # rew_root_z_vel = torch.exp(-alpha_root_z_vel *
-    #                            (base_lin_vel[:, 2]) ** 2) * rew_scales["zVel"]
-    # rew_dof_pos_error = torch.exp(-alpha_dof_pos_error *
-    #                               dof_pos_error) * rew_scales["dofPosError"]
-    # rew_dof_vel = torch.exp(-alpha_dof_vel * dof_vel) * rew_scales["dofVel"]
-
-    # pen_torques = torch.sum(torch.square(torques), dim=1) * 0.001
-
-    # # calculate total reward
-    # total_reward = \
-    #     rew_upright_root + rew_heading_root + rew_root_x_pos + rew_root_y_pos + \
-    #     rew_root_z_pos + rew_root_x_vel + rew_root_y_vel + \
-    #     rew_root_z_vel + rew_dof_pos_error + rew_dof_vel - pen_torques
-    # total_reward = torch.clip(total_reward, 0., None)
 
     rew_upright_root = (torch.pi / 2. - phi) / \
         (torch.pi / 2.) * rew_scales["upright"]
@@ -706,6 +673,9 @@ def compute_khr_balance_reward(
     reset = time_out
     base_limit = base_pos[:, 2] < 0.20
     reset = reset | base_limit
+
+    # reset debug
+    reset = reset | (base_pos[:, 2] > 0.40)
 
     # print("debug")
     # print("rew_upright_root", rew_upright_root[0])

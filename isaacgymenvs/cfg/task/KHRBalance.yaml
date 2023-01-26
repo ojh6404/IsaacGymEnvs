@@ -7,7 +7,7 @@ env:
   numEnvs: ${resolve_default:4096,${...num_envs}}
   envSpacing: 1.  # [m]
   enableDebugVis: False
-  randomInitialize: False
+  randomInitialize: True
 
 
   # clipObservations: 5.0
@@ -101,7 +101,7 @@ env:
     # rewards
     uprightRewardScale: 0.3
     headingRewardScale: 0.3
-    dofPosErrorRewardScale: 0.3
+    dofPosErrorRewardScale: 0.4
 
     # penalty
     torques: 0.001
@@ -118,7 +118,7 @@ env:
 
     # push robot
     pushRobots: True
-    pushInterval_s: 4
+    pushInterval_s: 8
 
   # viewer cam:
   viewer:
