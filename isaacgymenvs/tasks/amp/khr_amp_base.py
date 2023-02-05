@@ -35,17 +35,21 @@ from isaacgym import gymtorch
 from isaacgym import gymapi
 from isaacgym.torch_utils import *
 
+from isaacgymenvs import ISAAC_GYM_ROOT_DIR
 from isaacgymenvs.utils.torch_jit_utils import *
 from ..base.vec_task import VecTask
 
+# DOF_BODY_IDS = [1, 2, 3, 4, 6, 7, 9, 10, 11, 12, 13, 14]
+# DOF_OFFSETS = [0, 3, 6, 9, 10, 13, 14, 17, 18, 21, 24, 25, 28]
 DOF_BODY_IDS = [1, 2, 3, 4, 6, 7, 9, 10, 11, 12, 13, 14]
 DOF_OFFSETS = [0, 3, 6, 9, 10, 13, 14, 17, 18, 21, 24, 25, 28]
 # [root_h, root_rot, root_vel, root_ang_vel, dof_pos, dof_vel, key_body_pos]
-NUM_OBS = 13 + 52 + 28 + 12  # TODO: modify it for khr
-NUM_ACTIONS = 16
+NUM_OBS = 1 + 6 + 3 + 3 + 16 + 16 + 12  # TODO: modify it for khr
+NUM_ACTIONS = 16  # head joint not included
 
 
-KEY_BODY_NAMES = ["RARM_LINK2", "LARM_LINK2", "RLEG_LINK4", "LLEG_LINK4"]
+# KEY_BODY_NAMES = ["RARM_LINK2", "LARM_LINK2", "RLEG_LINK4", "LLEG_LINK4"]
+KEY_BODY_NAMES = ["LARM_LINK2", "LLEG_LINK4", "RARM_LINK2", "RLEG_LINK4"]
 
 
 class KHRAMPBase(VecTask):
@@ -53,8 +57,7 @@ class KHRAMPBase(VecTask):
     def __init__(self, config, rl_device, sim_device, graphics_device_id, headless, virtual_screen_capture, force_render):
         self.cfg = config
 
-        self._pd_control = self.cfg["env"]["pdControl"]
-        self.power_scale = self.cfg["env"]["powerScale"]
+        # self.power_scale = self.cfg["env"]["powerScale"]
         self.randomize = self.cfg["task"]["randomize"]
 
         self.debug_viz = self.cfg["env"]["enableDebugVis"]
@@ -78,17 +81,25 @@ class KHRAMPBase(VecTask):
         dt = self.cfg["sim"]["dt"]
         self.dt = self.control_freq_inv * dt
 
+        # set control
+        self._pd_control = self.cfg["env"]["control"]["pdControl"]
+        self.Kp = self.cfg["env"]["control"]["Kp"]
+        self.Kd = self.cfg["env"]["control"]["Kd"]
+        self.action_scale = self.cfg["env"]["control"]["actionScale"]
+        self.torque_limit = self.cfg["env"]["control"]["torqueLimit"]
+
         # get gym GPU state tensors
         actor_root_state = self.gym.acquire_actor_root_state_tensor(self.sim)
         dof_state_tensor = self.gym.acquire_dof_state_tensor(self.sim)
-        sensor_tensor = self.gym.acquire_force_sensor_tensor(self.sim)
+        # sensor_tensor = self.gym.acquire_force_sensor_tensor(self.sim)
         rigid_body_state = self.gym.acquire_rigid_body_state_tensor(self.sim)
         contact_force_tensor = self.gym.acquire_net_contact_force_tensor(
             self.sim)
 
-        sensors_per_env = 2
-        self.vec_sensor_tensor = gymtorch.wrap_tensor(
-            sensor_tensor).view(self.num_envs, sensors_per_env * 6)
+        # TODO
+        # sensors_per_env = 2
+        # self.vec_sensor_tensor = gymtorch.wrap_tensor(
+        #     sensor_tensor).view(self.num_envs, sensors_per_env * 6)
 
         dof_force_tensor = self.gym.acquire_dof_force_tensor(self.sim)
         self.dof_force_tensor = gymtorch.wrap_tensor(
@@ -112,12 +123,12 @@ class KHRAMPBase(VecTask):
 
         self._initial_dof_pos = torch.zeros_like(
             self._dof_pos, device=self.device, dtype=torch.float)
-        right_shoulder_x_handle = self.gym.find_actor_dof_handle(
-            self.envs[0], self.khr_handles[0], "right_shoulder_x")
-        left_shoulder_x_handle = self.gym.find_actor_dof_handle(
-            self.envs[0], self.khr_handles[0], "left_shoulder_x")  # TODO: match humanoid shoulder to khr
-        self._initial_dof_pos[:, right_shoulder_x_handle] = 0.5 * np.pi
-        self._initial_dof_pos[:, left_shoulder_x_handle] = -0.5 * np.pi
+        # right_shoulder_x_handle = self.gym.find_actor_dof_handle(
+        #     self.envs[0], self.khr_handles[0], "right_shoulder_x")
+        # left_shoulder_x_handle = self.gym.find_actor_dof_handle(
+        #     self.envs[0], self.khr_handles[0], "left_shoulder_x")  # TODO: match humanoid shoulder to khr
+        # self._initial_dof_pos[:, right_shoulder_x_handle] = 0.5 * np.pi
+        # self._initial_dof_pos[:, left_shoulder_x_handle] = -0.5 * np.pi
 
         self._initial_dof_vel = torch.zeros_like(
             self._dof_vel, device=self.device, dtype=torch.float)
@@ -133,6 +144,16 @@ class KHRAMPBase(VecTask):
             self.num_envs, self.num_bodies, 13)[..., 10:13]
         self._contact_forces = gymtorch.wrap_tensor(
             contact_force_tensor).view(self.num_envs, self.num_bodies, 3)
+
+        # initilize some data used later on
+        self.target_pos = torch.zeros(
+            self.num_envs, self.num_actions, dtype=torch.float, device=self.device, requires_grad=False)
+        self.target_vel = torch.zeros_like(
+            self._dof_vel, dtype=torch.float, device=self.device, requires_grad=False)
+        self.prev_target_pos = torch.zeros_like(self.target_pos,
+                                                dtype=torch.float, device=self.device, requires_grad=False)
+        self.force_tensor = torch.zeros_like(
+            self.dof_force_tensor, dtype=torch.float, device=self.device, requires_grad=False)
 
         self._terminate_buf = torch.ones(
             self.num_envs, device=self.device, dtype=torch.long)
@@ -195,7 +216,8 @@ class KHRAMPBase(VecTask):
 
         asset_root = os.path.join(os.path.dirname(
             os.path.abspath(__file__)), '../../../assets')
-        asset_file = "urdf/khr/khr.urdf"
+        # asset_file = "urdf/khr/khr_set_limit_joint.urdf"
+        asset_file = "urdf/khr/khr_set_limit_joint_w_small_foot_ver1.urdf"
 
         if "asset" in self.cfg["env"]:
             #asset_root = self.cfg["env"]["asset"].get("assetRoot", asset_root)
@@ -204,32 +226,34 @@ class KHRAMPBase(VecTask):
 
         asset_options = gymapi.AssetOptions()
         asset_options.angular_damping = 0.01
-        asset_options.max_angular_velocity = 100.0
-        asset_options.max_linear_velocity = 100.0
+        asset_options.max_angular_velocity = 30.0  # TODO
+        asset_options.max_linear_velocity = 30.0  # TODO
         asset_options.collapse_fixed_joints = True
         asset_options.default_dof_drive_mode = gymapi.DOF_MODE_NONE
         khr_asset = self.gym.load_asset(
             self.sim, asset_root, asset_file, asset_options)
 
-        actuator_props = self.gym.get_asset_actuator_properties(khr_asset)
-        motor_efforts = [prop.motor_effort for prop in actuator_props]
+        # actuator_props = self.gym.get_asset_actuator_properties(khr_asset)
+        # motor_efforts = [prop.motor_effort for prop in actuator_props]
 
         # create force sensors at the feet
         right_foot_idx = self.gym.find_asset_rigid_body_index(
             khr_asset, "RLEG_LINK4")
         left_foot_idx = self.gym.find_asset_rigid_body_index(
             khr_asset, "LLEG_LINK4")
-        sensor_pose = gymapi.Transform()
+        # sensor_pose = gymapi.Transform()
 
-        self.gym.create_asset_force_sensor(
-            khr_asset, right_foot_idx, sensor_pose)
-        self.gym.create_asset_force_sensor(
-            khr_asset, left_foot_idx, sensor_pose)
+        # self.gym.create_asset_force_sensor(
+        #     khr_asset, right_foot_idx, sensor_pose)
+        # self.gym.create_asset_force_sensor(
+        #     khr_asset, left_foot_idx, sensor_pose)
 
-        self.max_motor_effort = max(motor_efforts)
-        self.motor_efforts = to_torch(motor_efforts, device=self.device)
+        # self.max_motor_effort = max(motor_efforts)
+        # self.motor_efforts = to_torch(motor_efforts, device=self.device)
 
-        self.torso_index = 0  # TODO: modify for khr
+        # self.torso_index = 0  # TODO: modify for khr
+        self.torso_index = self.gym.find_asset_rigid_body_index(
+            khr_asset, "BODY")
         self.num_bodies = self.gym.get_asset_rigid_body_count(khr_asset)
         self.num_dof = self.gym.get_asset_dof_count(khr_asset)
         self.num_joints = self.gym.get_asset_joint_count(khr_asset)
@@ -257,7 +281,7 @@ class KHRAMPBase(VecTask):
             handle = self.gym.create_actor(
                 env_ptr, khr_asset, start_pose, "khr", i, contact_filter, 0)
 
-            self.gym.enable_actor_dof_force_sensors(env_ptr, handle)
+            # self.gym.enable_actor_dof_force_sensors(env_ptr, handle)
 
             for j in range(self.num_bodies):
                 self.gym.set_rigid_body_color(
@@ -266,10 +290,14 @@ class KHRAMPBase(VecTask):
             self.envs.append(env_ptr)
             self.khr_handles.append(handle)
 
-            if (self._pd_control):
-                dof_prop = self.gym.get_asset_dof_properties(khr_asset)
-                dof_prop["driveMode"] = gymapi.DOF_MODE_POS
-                self.gym.set_actor_dof_properties(env_ptr, handle, dof_prop)
+            # if (self._pd_control):  # TODO
+            # dof_prop = self.gym.get_asset_dof_properties(khr_asset)
+            # dof_prop["driveMode"] = gymapi.DOF_MODE_POS
+            # self.gym.set_actor_dof_properties(env_ptr, handle, dof_prop)
+
+            dof_prop = self.gym.get_asset_dof_properties(khr_asset)
+            dof_prop["driveMode"] = gymapi.DOF_MODE_NONE
+            self.gym.set_actor_dof_properties(env_ptr, handle, dof_prop)
 
         dof_prop = self.gym.get_actor_dof_properties(env_ptr, handle)
         for j in range(self.num_dof):
@@ -285,51 +313,56 @@ class KHRAMPBase(VecTask):
         self.dof_limits_upper = to_torch(
             self.dof_limits_upper, device=self.device)
 
+        self.dof_pos_default = (
+            self.dof_limits_lower + self.dof_limits_upper) / 2.0
+
         self._key_body_ids = self._build_key_body_ids_tensor(env_ptr, handle)
         self._contact_body_ids = self._build_contact_body_ids_tensor(
             env_ptr, handle)
 
-        if (self._pd_control):
-            self._build_pd_action_offset_scale()
+        # TODO
+        # if (self._pd_control):
+        # self._build_pd_action_offset_scale()
 
         return
 
-    def _build_pd_action_offset_scale(self):  # TODO: modify
-        num_joints = len(DOF_OFFSETS) - 1
+    # def _build_pd_action_offset_scale(self):  # TODO: modify
+    #     num_joints = len(DOF_OFFSETS) - 1
 
-        lim_low = self.dof_limits_lower.cpu().numpy()
-        lim_high = self.dof_limits_upper.cpu().numpy()
+    #     lim_low = self.dof_limits_lower.cpu().numpy()
+    #     lim_high = self.dof_limits_upper.cpu().numpy()
 
-        for j in range(num_joints):
-            dof_offset = DOF_OFFSETS[j]
-            dof_size = DOF_OFFSETS[j + 1] - DOF_OFFSETS[j]
+    #     # for j in range(num_joints):
+    #     #     dof_offset = DOF_OFFSETS[j]
+    #     #     dof_size = DOF_OFFSETS[j + 1] - DOF_OFFSETS[j]
 
-            if (dof_size == 3):
-                lim_low[dof_offset:(dof_offset + dof_size)] = -np.pi
-                lim_high[dof_offset:(dof_offset + dof_size)] = np.pi
+    #     #     if (dof_size == 3):
+    #     #         lim_low[dof_offset:(dof_offset + dof_size)] = -np.pi
+    #     #         lim_high[dof_offset:(dof_offset + dof_size)] = np.pi
 
-            elif (dof_size == 1):
-                curr_low = lim_low[dof_offset]
-                curr_high = lim_high[dof_offset]
-                curr_mid = 0.5 * (curr_high + curr_low)
+    #     #     elif (dof_size == 1):
+    #     for j in range(num_joints):
+    #         curr_low = lim_low[j]
+    #         curr_high = lim_high[j]
+    #         curr_mid = 0.5 * (curr_high + curr_low)
 
-                # extend the action range to be a bit beyond the joint limits so that the motors
-                # don't lose their strength as they approach the joint limits
-                curr_scale = 0.7 * (curr_high - curr_low)
-                curr_low = curr_mid - curr_scale
-                curr_high = curr_mid + curr_scale
+    #         # extend the action range to be a bit beyond the joint limits so that the motors
+    #         # don't lose their strength as they approach the joint limits
+    #         curr_scale = 0.7 * (curr_high - curr_low)
+    #         curr_low = curr_mid - curr_scale
+    #         curr_high = curr_mid + curr_scale
 
-                lim_low[dof_offset] = curr_low
-                lim_high[dof_offset] = curr_high
+    #         lim_low[j] = curr_low
+    #         lim_high[j] = curr_high
 
-        self._pd_action_offset = 0.5 * (lim_high + lim_low)
-        self._pd_action_scale = 0.5 * (lim_high - lim_low)
-        self._pd_action_offset = to_torch(
-            self._pd_action_offset, device=self.device)
-        self._pd_action_scale = to_torch(
-            self._pd_action_scale, device=self.device)
+    #     self._pd_action_offset = 0.5 * (lim_high + lim_low)
+    #     self._pd_action_scale = 0.5 * (lim_high - lim_low)
+    #     self._pd_action_offset = to_torch(
+    #         self._pd_action_offset, device=self.device)
+    #     self._pd_action_scale = to_torch(
+    #         self._pd_action_scale, device=self.device)
 
-        return
+    #     return
 
     def _compute_reward(self, actions):
         self.rew_buf[:] = compute_khr_reward(self.obs_buf)
@@ -347,7 +380,7 @@ class KHRAMPBase(VecTask):
         self.gym.refresh_actor_root_state_tensor(self.sim)
         self.gym.refresh_rigid_body_state_tensor(self.sim)
 
-        self.gym.refresh_force_sensor_tensor(self.sim)
+        # self.gym.refresh_force_sensor_tensor(self.sim)
         self.gym.refresh_dof_force_tensor(self.sim)
         self.gym.refresh_net_contact_force_tensor(self.sim)
         return
@@ -399,23 +432,71 @@ class KHRAMPBase(VecTask):
         self._terminate_buf[env_ids] = 0
         return
 
+    # def pre_physics_step(self, actions):
+    #     self.actions = actions.to(self.device).clone()
+
+    #     if (self._pd_control):
+    #         pd_tar = self._action_to_pd_targets(self.actions)
+    #         pd_tar_tensor = gymtorch.unwrap_tensor(pd_tar)
+    #         self.gym.set_dof_position_target_tensor(self.sim, pd_tar_tensor)
+    #     else:
+    #         forces = self.actions * \
+    #             self.motor_efforts.unsqueeze(0) * self.power_scale
+    #         force_tensor = gymtorch.unwrap_tensor(forces)
+    #         self.gym.set_dof_actuation_force_tensor(self.sim, force_tensor)
+
+    #     return
+
     def pre_physics_step(self, actions):
-        self.actions = actions.to(self.device).clone()
+        self.actions = actions.clone().to(self.device)
 
-        if (self._pd_control):
-            pd_tar = self._action_to_pd_targets(self.actions)
-            pd_tar_tensor = gymtorch.unwrap_tensor(pd_tar)
-            self.gym.set_dof_position_target_tensor(self.sim, pd_tar_tensor)
-        else:
-            forces = self.actions * \
-                self.motor_efforts.unsqueeze(0) * self.power_scale
-            force_tensor = gymtorch.unwrap_tensor(forces)
-            self.gym.set_dof_actuation_force_tensor(self.sim, force_tensor)
+        # clip actions from output of mlp
+        target_pos = torch.clamp(self.actions, min=-1.0, max=1.0)
 
-        return
+        # scale actions and add prev_target_pos
+        target_pos = self.action_scale * target_pos + self.dof_pos_default
+        # target_pos = self.action_scale * target_pos + self.prev_target_pos
+
+        # target_pos = self.default_dof_pos
+
+        # clip target_pos for dof limits
+        self.target_pos = torch.clamp(
+            target_pos, self.dof_limits_lower, self.dof_limits_upper)
+
+        # if self.randomize_gain:
+        #     Kp = self.Kp + to_
+        #     Kd =
+        # else:
+        #     Kp = self.Kp
+        #     Kd = self.Kd
+
+        # calculate force tensor (torques) with torque limits
+        self.force_tensor[:] = set_pd_force_tensor_limit(
+            self.Kp,
+            self.Kd,
+            self.target_pos,
+            self._dof_pos,
+            self.target_vel,
+            self._dof_vel,
+            self.torque_limit)
+
+        print('debug')
+        print("max force:", torch.max(self.force_tensor),
+              "min force:", torch.min(self.force_tensor))
+
+        # test for zero action
+        # self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(
+        #     torch.zeros_like(force_tensor, dtype=torch.float, device=self.device, requires_grad=False)))
+
+        # apply force tensor
+        self.gym.set_dof_actuation_force_tensor(
+            self.sim, gymtorch.unwrap_tensor(self.force_tensor))  # apply actuator force
 
     def post_physics_step(self):
         self.progress_buf += 1
+
+        # set previous target position
+        self.prev_target_pos[:] = self.target_pos
 
         self._refresh_sim_tensors()
         self._compute_observations()
@@ -459,9 +540,9 @@ class KHRAMPBase(VecTask):
         body_ids = to_torch(body_ids, device=self.device, dtype=torch.long)
         return body_ids
 
-    def _action_to_pd_targets(self, action):  # TODO: modify for khr
-        pd_tar = self._pd_action_offset + self._pd_action_scale * action
-        return pd_tar
+    # def _action_to_pd_targets(self, action):  # TODO: modify for khr
+    #     pd_tar = self._pd_action_offset + self._pd_action_scale * action
+    #     return pd_tar
 
     def _init_camera(self):  # TODO: modify for khr
         self.gym.refresh_actor_root_state_tensor(self.sim)
@@ -504,38 +585,38 @@ class KHRAMPBase(VecTask):
 #####################################################################
 
 
-@torch.jit.script
-def dof_to_obs(pose):  # TODO: modify for khr
-    # type: (Tensor) -> Tensor
-    #dof_obs_size = 64
-    #dof_offsets = [0, 3, 6, 9, 12, 13, 16, 19, 20, 23, 24, 27, 30, 31, 34]
-    dof_obs_size = 52
-    dof_offsets = [0, 3, 6, 9, 10, 13, 14, 17, 18, 21, 24, 25, 28]
-    num_joints = len(dof_offsets) - 1
+# @torch.jit.script
+# def dof_to_obs(pose):  # TODO: modify for khr
+#     # type: (Tensor) -> Tensor
+#     #dof_obs_size = 64
+#     #dof_offsets = [0, 3, 6, 9, 12, 13, 16, 19, 20, 23, 24, 27, 30, 31, 34]
+#     dof_obs_size = 52
+#     dof_offsets = [0, 3, 6, 9, 10, 13, 14, 17, 18, 21, 24, 25, 28]
+#     num_joints = len(dof_offsets) - 1
 
-    dof_obs_shape = pose.shape[:-1] + (dof_obs_size,)
-    dof_obs = torch.zeros(dof_obs_shape, device=pose.device)
-    dof_obs_offset = 0
+#     dof_obs_shape = pose.shape[:-1] + (dof_obs_size,)
+#     dof_obs = torch.zeros(dof_obs_shape, device=pose.device)
+#     dof_obs_offset = 0
 
-    for j in range(num_joints):
-        dof_offset = dof_offsets[j]
-        dof_size = dof_offsets[j + 1] - dof_offsets[j]
-        joint_pose = pose[:, dof_offset:(dof_offset + dof_size)]
+#     for j in range(num_joints):
+#         dof_offset = dof_offsets[j]
+#         dof_size = dof_offsets[j + 1] - dof_offsets[j]
+#         joint_pose = pose[:, dof_offset:(dof_offset + dof_size)]
 
-        # assume this is a spherical joint
-        if (dof_size == 3):
-            joint_pose_q = exp_map_to_quat(joint_pose)
-            joint_dof_obs = quat_to_tan_norm(joint_pose_q)
-            dof_obs_size = 6
-        else:
-            joint_dof_obs = joint_pose
-            dof_obs_size = 1
+#         # assume this is a spherical joint
+#         if (dof_size == 3):
+#             joint_pose_q = exp_map_to_quat(joint_pose)
+#             joint_dof_obs = quat_to_tan_norm(joint_pose_q)
+#             dof_obs_size = 6
+#         else:
+#             joint_dof_obs = joint_pose
+#             dof_obs_size = 1
 
-        dof_obs[:, dof_obs_offset:(
-            dof_obs_offset + dof_obs_size)] = joint_dof_obs
-        dof_obs_offset += dof_obs_size
+#         dof_obs[:, dof_obs_offset:(
+#             dof_obs_offset + dof_obs_size)] = joint_dof_obs
+#         dof_obs_offset += dof_obs_size
 
-    return dof_obs
+#     return dof_obs
 
 
 @torch.jit.script
@@ -573,12 +654,35 @@ def compute_khr_observations(root_states, dof_pos, dof_vel, key_body_pos, local_
     flat_local_key_pos = local_end_pos.view(
         local_key_body_pos.shape[0], local_key_body_pos.shape[1] * local_key_body_pos.shape[2])
 
-    dof_obs = dof_to_obs(dof_pos)
+    # dof_obs = dof_to_obs(dof_pos)
 
+    # 1 + 6 + 3 + 3 + 16 + 16 + 12 = 57
     obs = torch.cat((root_h, root_rot_obs, local_root_vel,
-                    local_root_ang_vel, dof_obs, dof_vel, flat_local_key_pos), dim=-1)
+                    local_root_ang_vel, dof_pos, dof_vel, flat_local_key_pos), dim=-1)
     return obs
 
+
+# @torch.jit.script
+# def compute_khr_observations(dof_pos_scaled,
+#                              prev_target_pos_scaled,
+#                              root_states,
+#                              ang_vel_scale
+#                              ):
+
+#     # type: (Tensor, Tensor, Tensor, float) -> Tensor
+#     base_quat = root_states[:, 3:7]
+#     roll, pitch, yaw = get_euler_xyz(base_quat)
+#     base_ang_vel = quat_rotate_inverse(
+#         base_quat, root_states[:, 10:13]) * ang_vel_scale
+
+#     obs = torch.cat((
+#         dof_pos_scaled,
+#         prev_target_pos_scaled,
+#         roll.unsqueeze(1),
+#         pitch.unsqueeze(1),
+#         base_ang_vel
+#     ), dim=-1)
+#     return obs
 
 @torch.jit.script
 def compute_khr_reward(obs_buf):
@@ -616,3 +720,36 @@ def compute_khr_reset(reset_buf, progress_buf, contact_buf, contact_body_ids, ri
                         torch.ones_like(reset_buf), terminated)
 
     return reset, terminated
+
+
+@torch.jit.script
+def set_pd_force_tensor_limit(
+    Kp,
+    Kd,
+    target_pos,
+    current_pos,
+    target_vel,
+    current_vel,
+    torque_limit
+):
+    # type: (float, float, Tensor, Tensor, Tensor, Tensor, float) -> Tensor
+    force_tensor = Kp * (target_pos - current_pos) + \
+        Kd * (target_vel - current_vel)
+    force_tensor = torch.clamp(
+        force_tensor, min=-torque_limit, max=torque_limit)
+    return force_tensor
+
+
+@torch.jit.script
+def compute_dof_acceleration(dof_vel, prev_dof_vel, dt):
+    # type: (Tensor, Tensor, float) -> Tensor
+    dof_acc = (dof_vel - prev_dof_vel) / dt
+    return dof_acc
+
+
+@torch.jit.script
+def scale_joint_pos(dof_pos, dof_lower_limit, dof_upper_limit):
+    # type: (Tensor, Tensor, Tensor) -> Tensor
+    joint_pos_scaled = (2.0 * dof_pos - (dof_lower_limit +
+                                         dof_upper_limit)) / (dof_upper_limit - dof_lower_limit)
+    return joint_pos_scaled

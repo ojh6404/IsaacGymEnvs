@@ -6,27 +6,35 @@ physics_engine: ${..physics_engine}
 # if given, will override the device setting in gym.
 env: 
   numEnvs: ${resolve_default:4096,${...num_envs}}
-  envSpacing: 1
+  envSpacing: 1.0
+  # episodeLength: 300
   episodeLength: 300
-  cameraFollow: True # if the camera follows khr or not
+  cameraFollow: False # if the camera follows khr or not
   enableDebugVis: False
-  
-  pdControl: True
-  powerScale: 1.0
+
+  control:
+    pdControl: True
+    Kp: 10.0
+    Kd: 0.03
+    # actionScale: 0.279252  # 16 * pi / 180
+    actionScale: 2.0  # 16 * pi / 180
+    torqueLimit: 2.5 # N*m, spec sheet : 2.4525 N*m, 25.0 kgf * cm
+
   controlFrequencyInv: 2 # 30 Hz TODO: modify for khr control
+  # powerScale: 1.0
   stateInit: "Random"
   hybridInitProb: 0.5
   numAMPObsSteps: 2
 
   localRootObs: False
-  contactBodies: ["RLEG_LINK4", "LLEG_LINK4"]
+  contactBodies: ["LLEG_LINK4", "RLEG_LINK4"]
   terminationHeight: 0.1 # TODO: khr
-  enableEarlyTermination: True
+  enableEarlyTermination: True # TODO
 
   # animation files to learn from
   # these motions should use hyperparameters from KHRAMPPPO.yaml
   #motion_file: "amp_khr_walk.npy"
-  motion_file: "amp_khr_run.npy" # TODO: modify for khr
+  motion_file: "07_08.npz" # TODO: modify for khr
   #motion_file: "amp_khr_dance.npy"
 
   # these motions should use hyperparameters from KHRAMPPPOLowGP.yaml
@@ -34,7 +42,9 @@ env:
   #motion_file: "amp_khr_backflip.npy"
 
   asset:
-    assetFileName: "urdf/khr/khr.urdf"
+    # assetFileName: "urdf/khr/khr.urdf"
+    assetFileName: "urdf/khr/khr_set_limit_joint.urdf"
+    # assetFileName: "urdf/khr/khr_set_limit_joint_w_small_foot_ver1.urdf"
 
   plane:
     staticFriction: 1.0
@@ -56,7 +66,8 @@ sim:
     contact_offset: 0.02
     rest_offset: 0.0
     bounce_threshold_velocity: 0.2
-    max_depenetration_velocity: 10.0
+    # max_depenetration_velocity: 10.0 # TODO
+    max_depenetration_velocity: 1.0
     default_buffer_size_multiplier: 5.0
     max_gpu_contact_pairs: 8388608 # 8*1024*1024
     num_subscenes: ${....num_subscenes}

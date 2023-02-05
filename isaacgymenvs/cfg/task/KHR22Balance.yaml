@@ -1,5 +1,5 @@
 # used to create the object
-name: KHRBalance
+name: KHR22Balance
 
 physics_engine: ${..physics_engine}
 
@@ -7,7 +7,8 @@ env:
   numEnvs: ${resolve_default:4096,${...num_envs}}
   envSpacing: 1.  # [m]
   enableDebugVis: False
-  randomInitialize: True
+  randomInitialize: False
+  randomGain: True
 
 
   # clipObservations: 5.0
@@ -19,7 +20,7 @@ env:
     restitution: 0.        # [-]
 
   baseInitState:
-    pos: [0.0, 0.0, 0.31] # x,y,z [m]
+    pos: [0.0, 0.0, 0.30] # x,y,z [m]
     rot: [0.0, 0.0, 0.0, 1.0] # x,y,z,w [quat]
     vLinear: [0.0, 0.0, 0.0]  # x,y,z [m/s]
     vAngular: [0.0, 0.0, 0.0]  # x,y,z [rad/s]
@@ -42,25 +43,33 @@ env:
     prevActionBuffer: 0
 
   defaultJointAngles:  # = target angles when action = 0.0
+    LLEG_JOINT0: 0.0 # [deg]    -0.7854 ~ 1.5708
+    LLEG_JOINT1: 0.0  # [deg]   -0.2618 ~ 0.5236
+    LLEG_JOINT2: -25.0  # [deg] -1.5708 ~ 1.5708
+    LLEG_JOINT3: 50.0  # [deg]  0.0 ~ 2.6180
+    LLEG_JOINT4: -25.0  # [deg] -1.8236 ~ 2.3561
+    LLEG_JOINT5: 0.0  # [deg]   -0.5236 ~ 0.0
+
+    RLEG_JOINT0 : 0.0 # [deg]   -1.5708 ~ 0.7854
+    RLEG_JOINT1: 0.0  # [deg]   -0.5236 ~ 0.2518
+    RLEG_JOINT2: -25.0  # [deg] -1.5708 ~ 1.5708
+    RLEG_JOINT3: 50.0  # [deg]  0.0 ~ 2.6108
+    RLEG_JOINT4: -25.0  # [deg] -1.8236 ~ 2.3561
+    RLEG_JOINT5: 0.0  # [deg]   0.0 ~ 0.5236
+
+    TORSO_JOINT0: 0.0 # [deg] TODO
+
     LARM_JOINT0: 0.0  # [deg]   -3.1416 ~ 0.7854
     LARM_JOINT1: 0.0  # [deg]   -0.5236 ~ 3.1416
-    LARM_JOINT2: 0.0  # [deg]   -2.0944 ~ 0.0
-
-    LLEG_JOINT0: 0.0  # [deg]   -0.2618 ~ 0.5236
-    LLEG_JOINT1: -25.0  # [deg] -1.5708 ~ 1.5708
-    LLEG_JOINT2: 50.0  # [deg]  0.0 ~ 2.6180
-    LLEG_JOINT3: -25.0  # [deg] -1.8236 ~ 2.3561
-    LLEG_JOINT4: 0.0  # [deg]   -0.5236 ~ 0.0
+    LARM_JOINT2: 0.0  # [deg]   -2.3562 ~ 2.3562
+    LARM_JOINT3: 0.0  # [deg]   -2.0944 ~ 0.0
 
     RARM_JOINT0: 0.0  # [deg]   -3.1416 ~ 0.7854
     RARM_JOINT1: 0.0  # [deg]   -3.1416 ~ 0.5236
-    RARM_JOINT2: 0.0  # [deg]   -2.0944 ~ 0.0
+    RARM_JOINT2: 0.0  # [deg]   -2.3562 ~ 2.3562
+    RARM_JOINT3: 0.0  # [deg]   -2.0944 ~ 0.0
 
-    RLEG_JOINT0: 0.0  # [deg]   -0.5236 ~ 0.2518
-    RLEG_JOINT1: -25.0  # [deg] -1.5708 ~ 1.5708
-    RLEG_JOINT2: 50.0  # [deg]  0.0 ~ 2.6108
-    RLEG_JOINT3: -25.0  # [deg] -1.8236 ~ 2.3561
-    RLEG_JOINT4: 0.0  # [deg]   0.0 ~ 0.5236
+    # HEAD_JOINT0: 0.0 # [deg] TODO
 
     # LARM_JOINT0: 0.0  # [deg]
     # LARM_JOINT1: 0.0  # [deg]
@@ -99,10 +108,10 @@ env:
 
   learn:
     # rewards
-    uprightRewardScale: 0.3
+    uprightRewardScale: 0.2
     headingRewardScale: 0.3
-    dofPosErrorRewardScale: 0.4
-    # dofPosErrorRewardScale: 0.4
+    # dofPosErrorRewardScale: 0.5
+    dofPosErrorRewardScale: 1.0
 
     # penalty
     # torques: 0.005
@@ -120,8 +129,8 @@ env:
     episodeLength_s: 20
 
     # push robot
-    pushRobots: True
-    pushInterval_s: 8
+    pushRobots: False
+    pushInterval_s: 4
 
   # viewer cam:
   viewer:
@@ -175,7 +184,7 @@ task:
         schedule: "linear"  # "linear" will linearly interpolate between no rand and max rand
         schedule_steps: 3000
     actor_params:
-      khr:
+      khr22:
         color: True
         rigid_body_properties:
           mass: 

@@ -19,13 +19,13 @@ FILTER = True
 Y_SYMMETRIC = True
 Z_STABLE = True
 CLIPPING = 10
-Z_OFFSET = -0.5
+Z_OFFSET = 0.003
 
 # KHR_URDF = 'khr_set_limit_joint_w_virtual_joint.urdf'
 KHR_URDF = 'khr.urdf'
 
-MOTION_FILE = "07_06"
-MOTION_FILE_PATH = os.path.join("./result/output/good", MOTION_FILE+".npz")
+MOTION_FILE = "07_08"
+MOTION_FILE_PATH = os.path.join("./result/output", MOTION_FILE+".npz")
 OUTPUT_FILE_PATH = os.path.join(
     "./result/output/isaac_motion", MOTION_FILE+".txt")
 FRAME_DURATION = bvh_cfg.FRAME_DURATION
@@ -120,23 +120,46 @@ def output_motion(frames, out_filename):
 #----------------------------------------function----------------------------------------#
 
 
-# MOTION_FILE_PATH = "./result/output/77_17.npz"
-motion_data = np.load(MOTION_FILE_PATH)
+motion_data = np.load(MOTION_FILE_PATH, allow_pickle=True)
 retarget_frames = motion_data["retarget_frames"]
 ref_joint_pos = motion_data["ref_joint_pos"]
+robot_joint_indices = motion_data["robot_joint_indices"]
+non_fixed_joint_indices = motion_data["non_fixed_joint_indices"]
+dof_num = len(non_fixed_joint_indices)
+
+print('joint_indices')
+print(robot_joint_indices)
+print('non fixed joint indices')
+print(non_fixed_joint_indices)
+
+"""
+pybullet retarget frames :
+root pos x,y,z (m)
+root quat x,y,z,w (quat)
+dof_pos : angle (rad)
+"""
+
 
 num_frames = retarget_frames.shape[0]
 
-
 base_pos = retarget_frames[:, 0:3]
 base_quat = retarget_frames[:, 3:7]
-dof_pos = retarget_frames[:, 7:23]
+dof_pos = retarget_frames[:, 7:7+dof_num]
 
 if FILTER:
     for i in range(dof_pos.shape[-1]):
         dof_pos[:, i] = filters.gaussian_filter1d(
             dof_pos[:, i], 2, axis=-1, mode="nearest")
 
+"""
+reorder joint order from pybullet to isaac
+pybullet joint order : LARM, RARM, LLEG, RLEG
+
+if khr_set_limit_joint_w_virtual_joint.urdf is selected :
+isaac joint order : LLEG, RLEG, LARM, RARM
+elif khr.urdf :
+isaac joint order : LARM, LLEG, RARM, RLEG
+"""
 
 dof_larm = dof_pos[:, 0:3]
 dof_rarm = dof_pos[:, 3:6]
@@ -160,16 +183,6 @@ if FILTER:
             base_quat[:, i], 2, axis=-1, mode="nearest")
     base_quat = quat_unit(to_torch(base_quat, device='cpu')).numpy()
 
-
-"""
-reorder joint order from pybullet to isaac
-pybullet joint order : LARM, RARM, LLEG, RLEG
-
-if khr_set_limit_joint_w_virtual_joint.urdf is selected :
-isaac joint order : LLEG, RLEG, LARM, RARM
-elif khr.urdf :
-isaac joint order : LARM, LLEG, RARM, RLEG
-"""
 
 if KHR_URDF == 'khr.urdf':
     dof_pos = np.hstack([dof_larm, dof_lleg, dof_rarm, dof_rleg])
@@ -419,7 +432,6 @@ print(LLEG_END_EFFECTOR_INDEX)
 print("RLEG EFFECTOR INDEX")
 print(RLEG_END_EFFECTOR_INDEX)
 
-# input('wait')
 """
 LINK NAMES
 ['BODY', 'LARM_LINK0', 'LARM_LINK1', 'LARM_LINK2', 'LLEG_LINK0', 'LLEG_LINK1', 'LLEG_LINK2', 'LLEG_LINK3', 'LLEG_LINK4', 'RARM_LINK0', 'RARM_LINK1', 'RARM_LINK2', 'RLEG_LINK0', 'RLEG_LINK1', 'RLEG_LINK2', 'RLEG_LINK3', 'RLEG_LINK4']
@@ -430,10 +442,6 @@ DOF NAMES
 """
 
 frame = 0
-
-input('wait')
-
-# input('start visualizing')
 
 
 while not gym.query_viewer_has_closed(viewer):
@@ -457,8 +465,7 @@ while not gym.query_viewer_has_closed(viewer):
     for i in range(num_envs):
 
         state = gym.get_actor_rigid_body_states(
-            envs[i], actor_handles[i], gymapi.STATE_NONE)
-        print(len(state))
+            envs[i], actor_handles[i], gymapi.STATE_NONE)  # 'pose',
         state['pose']['p'].fill((root_pos.x, root_pos.y, root_pos.z))
         state['pose']['r'].fill(
             (root_quat.x, root_quat.y, root_quat.z, root_quat.w))
@@ -466,6 +473,8 @@ while not gym.query_viewer_has_closed(viewer):
             (root_lin_vel.x, root_lin_vel.y, root_lin_vel.z))
         state['vel']['angular'].fill(
             (root_ang_vel.x, root_ang_vel.y, root_ang_vel.z))
+
+        # TODO : debugging
         gym.set_actor_rigid_body_states(
             envs[i], actor_handles[i], state, gymapi.STATE_ALL)
 
@@ -522,10 +531,14 @@ while not gym.query_viewer_has_closed(viewer):
 # convert end effector pos and vel to base local frame
 end_effector_pos_world = to_torch(end_effector_pos, device='cpu')
 end_effector_pos_local = torch.zeros_like(end_effector_pos_world, device='cpu')
+
 for i in range(4):
+    # end_effector_pos_local[:, 3*i:3*(i+1)] = quat_rotate_inverse(
+    #     base_quat_world, end_effector_pos_world[:, 3*i:3*(i+1)])
     end_effector_pos_local[:, 3*i:3*(i+1)] = quat_rotate_inverse(
-        base_quat_world, end_effector_pos_world[:, 3*i:3*(i+1)])
+        base_quat_world, end_effector_pos_world[:, 3*i:3*(i+1)] - to_torch(base_pos, device='cpu'))
 end_effector_pos = end_effector_pos_local.numpy()
+
 
 end_effector_vel_world = to_torch(end_effector_vel, device='cpu')
 end_effector_vel_local = torch.zeros_like(end_effector_vel_world, device='cpu')

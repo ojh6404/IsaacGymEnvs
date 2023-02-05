@@ -134,14 +134,14 @@
       <!-- <origin xyz="0.0 0.0 0.0" rpy="0 -0 0"/> -->
       <origin xyz="0.019683 0.00825 -0.0385" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr22/mesh/LLEG_LINK5_mesh_sole_ver1.dae" scale="1 1 1" />
+        <mesh filename="khr22/mesh/LLEG_LINK5_mesh.dae" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <!-- <origin xyz="0.0 0.0 0.0" rpy="0 -0 0"/> -->
       <origin xyz="0.019683 0.00825 -0.0385" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr22/mesh/LLEG_LINK5_mesh_sole_ver1.dae" scale="1 1 1" />
+        <mesh filename="khr22/mesh/LLEG_LINK5_mesh.dae" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>
@@ -265,14 +265,14 @@
       <!-- <origin xyz="0.0 0.0 0.0" rpy="0 -0 0"/> -->
       <origin xyz="0.019683 -0.00825 -0.0385" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr22/mesh/RLEG_LINK5_mesh_sole_ver1.dae" scale="1 1 1" />
+        <mesh filename="khr22/mesh/RLEG_LINK5_mesh.dae" scale="1 1 1" />
       </geometry>
     </visual>
     <collision>
       <!-- <origin xyz="0.0 0.0 0.0" rpy="0 -0 0"/> -->
       <origin xyz="0.019683 -0.00825 -0.0385" rpy="0 -0 0"/>
       <geometry>
-        <mesh filename="khr22/mesh/RLEG_LINK5_mesh_sole_ver1.dae" scale="1 1 1" />
+        <mesh filename="khr22/mesh/RLEG_LINK5_mesh.dae" scale="1 1 1" />
       </geometry>
     </collision>
     <inertial>

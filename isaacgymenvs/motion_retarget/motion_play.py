@@ -109,7 +109,7 @@ def build_world():
 
     # create ground
     ground = pybullet.loadURDF(
-        khr_cfg.GROUND_URDF_FILENAME, basePosition=[0., 0., 0.])
+        "plane_implicit.urdf", basePosition=[0., 0., 0.])
 
     # create actor
     robot = pybullet.loadURDF(khr_cfg.ROBOT_URDF_FILENAME, basePosition=np.array(
@@ -132,7 +132,7 @@ def main():
         robot_joint_indices[joint_name] = i
 
     # load frame of retargeted motion and reference motion data
-    frames = np.load("./result/output/77_17.npz")
+    frames = np.load("./result/output/07_08.npz")
     retarget_pos = frames["retarget_frames"]
     ref_joint_pos = frames["ref_joint_pos"]
 

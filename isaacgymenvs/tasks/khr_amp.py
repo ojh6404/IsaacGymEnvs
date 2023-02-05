@@ -36,7 +36,7 @@ from gym import spaces
 from isaacgym import gymapi
 from isaacgym import gymtorch
 
-from isaacgymenvs.tasks.amp.khr_amp_base import KHRAMPBase, dof_to_obs
+from isaacgymenvs.tasks.amp.khr_amp_base import KHRAMPBase
 from isaacgymenvs.tasks.amp.utils_amp import gym_util
 from isaacgymenvs.tasks.amp.utils_amp.motion_lib_khr import MotionLib
 
@@ -45,7 +45,8 @@ from isaacgymenvs.utils.torch_jit_utils import *
 
 
 # [root_h, root_rot, root_vel, root_ang_vel, dof_pos, dof_vel, key_body_pos]
-NUM_AMP_OBS_PER_STEP = 13 + 52 + 28 + 12  # 105 TODO: modify for khr
+# NUM_AMP_OBS_PER_STEP = 13 + 52 + 28 + 12  # 105 TODO: modify for khr
+NUM_AMP_OBS_PER_STEP = 1 + 6 + 3 + 3 + 16 + 16 + 12  # 57
 
 
 class KHRAMP(KHRAMPBase):
@@ -62,7 +63,6 @@ class KHRAMP(KHRAMPBase):
         state_init = cfg["env"]["stateInit"]
         self._state_init = KHRAMP.StateInit[state_init]
         self._hybrid_init_prob = cfg["env"]["hybridInitProb"]
-        # TODO: why 2? just for from s to s` transition?
         self._num_amp_obs_steps = cfg["env"]["numAMPObsSteps"]
         assert(self._num_amp_obs_steps >= 2)
 
@@ -72,14 +72,14 @@ class KHRAMP(KHRAMPBase):
         super().__init__(config=self.cfg, rl_device=rl_device, sim_device=sim_device, graphics_device_id=graphics_device_id,
                          headless=headless, virtual_screen_capture=virtual_screen_capture, force_render=force_render)
 
+        # TODO : modify for khr
         motion_file = cfg['env'].get(
-            'motion_file', "amp_khr_backflip.npy")  # TODO: modify for khr
+            'motion_file', "07_08.npz")
         motion_file_path = os.path.join(os.path.dirname(
             os.path.abspath(__file__)), "../../assets/amp/motions/" + motion_file)
         self._load_motion(motion_file_path)
 
-        self.num_amp_obs = self._num_amp_obs_steps * \
-            NUM_AMP_OBS_PER_STEP  # TODO: s and s` ?
+        self.num_amp_obs = self._num_amp_obs_steps * NUM_AMP_OBS_PER_STEP
 
         self._amp_obs_space = spaces.Box(
             np.ones(self.num_amp_obs) * -np.Inf, np.ones(self.num_amp_obs) * np.Inf)
@@ -350,9 +350,10 @@ def build_amp_observations(root_states, dof_pos, dof_vel, key_body_pos, local_ro
     flat_local_key_pos = local_end_pos.view(
         local_key_body_pos.shape[0], local_key_body_pos.shape[1] * local_key_body_pos.shape[2])
 
-    dof_obs = dof_to_obs(dof_pos)
+    # dof_obs = dof_to_obs(dof_pos)
+    # dof_obs = dof_pos
 
-    # 1 + 6 + 3 + 3 + 52 + 28 + 12 = 105
+    # 1 + 6 + 3 + 3 + 16 + 16 + 12 = 57
     obs = torch.cat((root_h, root_rot_obs, local_root_vel,
-                    local_root_ang_vel, dof_obs, dof_vel, flat_local_key_pos), dim=-1)
+                    local_root_ang_vel, dof_pos, dof_vel, flat_local_key_pos), dim=-1)
     return obs

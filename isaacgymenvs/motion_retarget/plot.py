@@ -10,20 +10,19 @@ filtered_motion_data = np.load('./result/temp/filtered_motion_data.npy')
 raw_base_pos = raw_motion_data[:, 0:3]
 raw_base_quat = raw_motion_data[:, 3:7]
 raw_dof_pos = raw_motion_data[:, 7:23]
-raw_end_effector_pos = raw_motion_data[:, 23:35]
-raw_base_lin_vel = raw_motion_data[:, 35:38]
-raw_base_ang_vel = raw_motion_data[:, 38:41]
-raw_dof_vel = raw_motion_data[:, 41:57]
-raw_end_effector_vel = raw_motion_data[:, 57:69]
+raw_base_lin_vel = raw_motion_data[:, 23:26]
+raw_base_ang_vel = raw_motion_data[:, 26:29]
+raw_dof_vel = raw_motion_data[:, 29:45]
+raw_end_effector_pos = raw_motion_data[:, 45:57]
 
 filtered_base_pos = filtered_motion_data[:, 0:3]
 filtered_base_quat = filtered_motion_data[:, 3:7]
 filtered_dof_pos = filtered_motion_data[:, 7:23]
-filtered_end_effector_pos = filtered_motion_data[:, 23:35]
-filtered_base_lin_vel = filtered_motion_data[:, 35:38]
-filtered_base_ang_vel = filtered_motion_data[:, 38:41]
-filtered_dof_vel = filtered_motion_data[:, 41:57]
-filtered_end_effector_vel = filtered_motion_data[:, 57:69]
+filtered_base_lin_vel = filtered_motion_data[:, 23:26]
+filtered_base_ang_vel = filtered_motion_data[:, 26:29]
+filtered_dof_vel = filtered_motion_data[:, 29:45]
+filtered_end_effector_pos = filtered_motion_data[:, 45:57]
+# filtered_end_effector_vel = filtered_motion_data[:, 57:69]
 
 
 def main():
@@ -39,7 +38,7 @@ def main():
     plot_dof_vel(raw_dof_vel, filtered_dof_vel, t)
 
     plot_end_effector_pos(raw_end_effector_pos, filtered_end_effector_pos, t)
-    plot_end_effector_vel(raw_end_effector_vel, filtered_end_effector_vel, t)
+    # plot_end_effector_vel(raw_end_effector_vel, filtered_end_effector_vel, t)
 
     plt.show()
     return

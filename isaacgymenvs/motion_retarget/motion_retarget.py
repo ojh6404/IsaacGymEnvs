@@ -1,29 +1,20 @@
 import time
 import numpy as np
+from utils import BVH, Animation
+from utils import pose3d
+from utils.Quaternions import Quaternions
+
 import pybullet
 import pybullet_data as pd
 from pybullet_utils import transformations
 
 
-from utils import BVH, Animation
-from utils import pose3d
-from utils.Quaternions import Quaternions
-
 import config.bvh_cfg.bvh_cmu_config as bvh_cfg
-import config.robot_cfg.khr22_retarget_config_cmu as robot_cfg
+import config.robot_cfg.khr_retarget_config_cmu as khr_cfg
 
 
-"""
-Motion Retarget for humanoid robot
-Input : bvh_cfg file and robot_cfg.
-
-        bvh_cfg contains motion file path and joint configuration of bvh.
-
-        robot_cfg contains robot's urdf file path and configuration of joint and scale.
-
-Output : retargeted motion frames in .npy format
-        motion frames will contain : [root pos(3), root quat(4), dof pos(J)]
-"""
+# DEFAULT_JOINT_POS = [0.0, 0.0, 0.0, 0.0, 0.3, 0.0, -0.5,
+#                      0, 0.3, 0.0, -0.5, 0, 0, -0.4, 0.8, -0.4, 0, 0, -0.4, 0.8, -0.4, 0]
 
 
 def set_joint_pos_origin(joint_global_pos):
@@ -202,11 +193,12 @@ def pre_process_ref_joint_pos(ref_joint_pos):
             curr_pos = pose3d.QuaternionRotatePoint(
                 curr_pos, transformations.quaternion_from_euler(0.5 * np.pi, 0, 0.5 * np.pi, axes='sxyz'))
             # curr_pos = pose3d.QuaternionRotatePoint(curr_pos, transformations.quaternion_from_euler(0, 0, -0.5 * np.pi))
-            curr_pos = curr_pos * robot_cfg.REF_POS_SCALE
+            curr_pos = curr_pos * khr_cfg.REF_POS_SCALE
             proc_pos[i] = curr_pos
 
     else:
         raise NotImplementedError
+    # print("prepocess", proc_pos[0])
     return proc_pos
 
 
@@ -245,9 +237,10 @@ def retarget_root_pose(ref_joint_pos):
 
     # root_position = ref_joint_pos[0]
     root_position = ref_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index('Hips')]
-    root_height_scale = robot_cfg.KHR_ROOT_HEIGHT / bvh_cfg.BVH_ROOT_HEIGHT
+    # print("root_position",root_position)
+    root_height_scale = khr_cfg.KHR_ROOT_HEIGHT / bvh_cfg.BVH_ROOT_HEIGHT
     # root_position = root_position * root_height_scale  # TODO: scale z or scale x, y and z?
-    # root_position[-1] = root_position[-1] + robot_cfg.KHR_ROOT_HEIGHT
+    # root_position[-1] = root_position[-1] + khr_cfg.KHR_ROOT_HEIGHT
     return root_position, root_quaternion
 
 
@@ -349,15 +342,15 @@ def scale_ref_pos(robot, ref_joint_pos):
 
     # scale upper body
     scaled_hip_to_spine_pos_delta = ref_hip_to_spine_pos_delta * \
-        robot_cfg.HIP_TO_SPINE_SCALE
+        khr_cfg.HIP_TO_SPINE_SCALE
     scaled_spine_to_torso_pos_delta = ref_spine_to_torso_pos_delta * \
-        robot_cfg.SPINE_TO_TORSO_SCALE
+        khr_cfg.SPINE_TO_TORSO_SCALE
     scaled_torso_to_neck_pos_delta = ref_torso_to_neck_pos_delta * \
-        robot_cfg.TORSO_TO_NECK_SCALE
+        khr_cfg.TORSO_TO_NECK_SCALE
     scaled_neck_to_neck1_pos_delta = ref_neck_to_neck1_pos_delta * \
-        robot_cfg.NECK_TO_NECK1_SCALE
+        khr_cfg.NECK_TO_NECK1_SCALE
     scaled_neck1_to_head_pos_delta = ref_neck1_to_head_pos_delta * \
-        robot_cfg.NECK1_TO_HEAD_SCALED
+        khr_cfg.NECK1_TO_HEAD_SCALED
 
     scaled_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index(
         'Spine')] = ref_hip_pos + scaled_hip_to_spine_pos_delta
@@ -373,19 +366,19 @@ def scale_ref_pos(robot, ref_joint_pos):
         'Head')] = scaled_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index('Neck1')] + scaled_neck1_to_head_pos_delta
 
     scaled_torso_to_shoulder1_pos_delta = ref_torso_to_shoulder1_pos_delta * \
-        robot_cfg.TORSO_TO_SHOULDER1_SCALE
+        khr_cfg.TORSO_TO_SHOULDER1_SCALE
     scaled_shoulder1_to_shoulder2_pos_delta = ref_shoulder1_to_shoulder2_pos_delta * \
-        robot_cfg.SHOULDER1_TO_SHOULDER2_SCALE
+        khr_cfg.SHOULDER1_TO_SHOULDER2_SCALE
     scaled_shoulder2_to_elbow_pos_delta = ref_shoulder2_to_elbow_pos_delta * \
-        robot_cfg.SHOULDER2_TO_ELBOW_SCALE
+        khr_cfg.SHOULDER2_TO_ELBOW_SCALE
     scaled_elbow_to_hand_pos_delta = ref_elbow_to_hand_pos_delta * \
-        robot_cfg.ELBOW_TO_HAND_SCALE
+        khr_cfg.ELBOW_TO_HAND_SCALE
     scaled_hand_to_finger1_pos_delta = ref_hand_to_finger1_pos_delta * \
-        robot_cfg.HAND_TO_FINGER1_SCALE
+        khr_cfg.HAND_TO_FINGER1_SCALE
     scaled_finger1_to_finger2_pos_delta = ref_finger1_to_finger2_pos_delta * \
-        robot_cfg.FINGER1_TO_FINGER2_SCALE
+        khr_cfg.FINGER1_TO_FINGER2_SCALE
     scaled_finger2_to_thumb_pos_delta = ref_finger2_to_thumb_pos_delta * \
-        robot_cfg.FIGNER2_TO_THUMB_SCALE
+        khr_cfg.FIGNER2_TO_THUMB_SCALE
 
     scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
         'LeftShoulder'), bvh_cfg.BVH_JOINT_NAMES.index('RightShoulder')]] = scaled_joint_pos[bvh_cfg.BVH_JOINT_NAMES.index('Spine1')] + scaled_torso_to_shoulder1_pos_delta
@@ -409,12 +402,12 @@ def scale_ref_pos(robot, ref_joint_pos):
 
     # scale lower body (leg)
     scaled_hips_to_crotch_pos_delta = ref_hips_to_crotch_pos_delta * \
-        robot_cfg.HIPS_TO_CROTCH_SCALE
+        khr_cfg.HIPS_TO_CROTCH_SCALE
     scaled_crotch_to_knee_pos_delta = ref_crotch_to_knee_pos_delta * \
-        robot_cfg.CROTCH_TO_KNEE_SCALE
+        khr_cfg.CROTCH_TO_KNEE_SCALE
     scaled_knee_to_foot_pos_delta = ref_knee_to_foot_pos_delta * \
-        robot_cfg.KNEE_TO_FOOT_SCALE
-    scaled_foot_to_toe_pos_delta = ref_foot_to_toe_pos_delta * robot_cfg.FOOT_TO_TOE_SCALE
+        khr_cfg.KNEE_TO_FOOT_SCALE
+    scaled_foot_to_toe_pos_delta = ref_foot_to_toe_pos_delta * khr_cfg.FOOT_TO_TOE_SCALE
 
     scaled_joint_pos[[bvh_cfg.BVH_JOINT_NAMES.index(
         'LeftUpLeg'), bvh_cfg.BVH_JOINT_NAMES.index('RightUpLeg')]] = ref_hips_pos + scaled_hips_to_crotch_pos_delta
@@ -460,11 +453,6 @@ def retarget_pose(robot, ref_joint_pos):
         bvh_cfg.BVH_JOINT_NAMES.index('Neck')
     ]
 
-    target_shoulder_indices = [
-        bvh_cfg.BVH_JOINT_NAMES.index('LeftShoulder'),
-        bvh_cfg.BVH_JOINT_NAMES.index('RightShoulder')
-    ]
-
     target_elbow_indices = [
         bvh_cfg.BVH_JOINT_NAMES.index('LeftForeArm'),
         bvh_cfg.BVH_JOINT_NAMES.index('RightForeArm'),
@@ -475,12 +463,9 @@ def retarget_pose(robot, ref_joint_pos):
         bvh_cfg.BVH_JOINT_NAMES.index('RightHand')
     ]
 
-    target_knee_indices = [
-        bvh_cfg.BVH_JOINT_NAMES.index('LeftLeg'),
-        bvh_cfg.BVH_JOINT_NAMES.index('RightLeg')
-    ]
-
     target_foot_indices = [
+        bvh_cfg.BVH_JOINT_NAMES.index('LeftLeg'),
+        bvh_cfg.BVH_JOINT_NAMES.index('RightLeg'),
         bvh_cfg.BVH_JOINT_NAMES.index('LeftFoot'),
         bvh_cfg.BVH_JOINT_NAMES.index('RightFoot')
     ]
@@ -490,44 +475,35 @@ def retarget_pose(robot, ref_joint_pos):
     #     pybullet.resetJointState(
     #         robot, non_fixed_joint_indices[k], chest_joint_pose[k], 0.)
 
-    DEFAULT_JOINT_POS = np.array(
-        joint_lower_limit) + np.array(joint_upper_limit) / 2.
-
     target_neck_position = scaled_joint_pos[target_neck_indices]
-    target_shoulder_position = scaled_joint_pos[target_shoulder_indices]
     target_elbow_position = scaled_joint_pos[target_elbow_indices]
     target_hand_position = scaled_joint_pos[target_hand_indices]
-    target_knee_position = scaled_joint_pos[target_knee_indices]
     target_foot_position = scaled_joint_pos[target_foot_indices]
 
+    target_elbow_position
     # target_joint_indices = target_foot_indices
-    target_joint_indices = \
-        target_neck_indices + target_shoulder_indices + \
-        target_elbow_indices + target_hand_indices + \
-        target_knee_indices + target_foot_indices
+    target_joint_indices = target_elbow_indices + \
+        target_hand_indices + target_foot_indices
+    # target_joint_indices = target_neck_indices + \
+    #     target_hand_indices + target_foot_indices
 
     target_robot_joint_indices = [
-        # neck target
-        robot_joint_indices['HIP_VIRTUAL_JOINT'], robot_joint_indices['HEAD_JOINT0'],
-        # shoulder target
-        robot_joint_indices['LARM_VIRTUAL_JOINT1'], robot_joint_indices['RARM_VIRTUAL_JOINT1'],
-        # elbow target
+        # spine target
+        # robot_joint_indices['HIP_VIRTUAL_JOINT'], robot_joint_indices['HEAD_JOINT0'],
+        # arm target
+        # robot_joint_indices['LARM_VIRTUAL_JOINT2'], robot_joint_indices['RARM_VIRTUAL_JOINT2'],
         robot_joint_indices['LARM_JOINT2'], robot_joint_indices['RARM_JOINT2'],
-        # hand target
         robot_joint_indices['LHAND_VIRTUAL_JOINT'], robot_joint_indices['RHAND_VIRTUAL_JOINT'],
-        # knee target
-        robot_joint_indices['LLEG_VIRTUAL_JOINT3'], robot_joint_indices['RLEG_VIRTUAL_JOINT3'],
-        # foot target
-        robot_joint_indices['LLEG_VIRTUAL_JOINT4'], robot_joint_indices['RLEG_VIRTUAL_JOINT4']
+        # leg target
+        robot_joint_indices['LLEG_VIRTUAL_JOINT2'], robot_joint_indices['RLEG_VIRTUAL_JOINT2'],
+        robot_joint_indices['LLEG_VIRTUAL_JOINT3'], robot_joint_indices['RLEG_VIRTUAL_JOINT3']
     ]
 
     target_joint_position = np.vstack(
         [
-            target_neck_position,
-            target_shoulder_position,
+            # target_neck_position,
             target_elbow_position,
             target_hand_position,
-            target_knee_position,
             target_foot_position
         ])
 
@@ -537,7 +513,7 @@ def retarget_pose(robot, ref_joint_pos):
     target_joint_pose = pybullet.calculateInverseKinematics2(robot,
                                                              endEffectorLinkIndices=target_robot_joint_indices,
                                                              targetPositions=target_joint_position,
-                                                             jointDamping=robot_cfg.JOINT_DAMPING*robot_num_joints,
+                                                             jointDamping=khr_cfg.JOINT_DAMPING*robot_num_joints,
                                                              lowerLimits=joint_lower_limit,
                                                              upperLimits=joint_upper_limit,
                                                              jointRanges=joint_limit_range,
@@ -547,6 +523,42 @@ def retarget_pose(robot, ref_joint_pos):
     # root_pos : (3,) root_quat : (4,) joint_pose : (J,) end_pos_local (4 * 3,), base_lin_vel_local (3, ) base_ang_vel_local(3.) joint_vel (J,), end_vel_local(4 * 3)
     pose = np.concatenate([root_pos, root_quat, target_joint_pose])
     return pose, scaled_joint_pos
+
+
+def calculate_diff(f, dt):
+    dfdt = np.zeros_like(f)
+    df = f[1:, :] - f[0:-1, :]
+    dfdt[:-1, :] = df / dt
+    dfdt[-1, :] = dfdt[-2, :]
+
+    return dfdt
+
+
+#     return dfdt =
+
+
+# def reorder_quat(quat, order='wxyz'):
+#     _quat = np.zeros_like(quat)
+#     if order == 'wxyz':
+#         _quat[0] = quat[3]
+#         _quat[1] = quat[0]
+#         _quat[2] = quat[1]
+#         _quat[3] = quat[2]
+#     elif order == 'xyzw':
+#         _quat[0] = quat[1]
+#         _quat[1] = quat[2]
+#         _quat[2] = quat[3]
+#         _quat[3] = quat[0]
+#     else:
+#         raise NotImplementedError
+#     return _quat
+
+# def quat_rotate_inv(quat, vec):
+#     """
+#     rotation of vector by inverse of queaternion
+#     """
+
+#     quat_vec
 
 
 def retarget_motion(robot, ref_joint_pos):
@@ -595,12 +607,12 @@ def build_world():
     pybullet.setGravity(0, 0, -9.8)
 
     # create ground
-    ground = pybullet.loadURDF("plane_implicit.urdf",
-                               basePosition=[0., 0., 0.])
+    ground = pybullet.loadURDF(
+        "plane_implicit.urdf", basePosition=[0., 0., 0.])
 
     # create actor
-    robot = pybullet.loadURDF(robot_cfg.ROBOT_URDF_FILENAME, basePosition=np.array(
-        robot_cfg.INIT_POS), baseOrientation=robot_cfg.INIT_QUAT)
+    robot = pybullet.loadURDF(khr_cfg.ROBOT_URDF_FILENAME, basePosition=np.array(
+        [0, 0, 0.3]), baseOrientation=np.array([0, 0, 0, 1]))
 
     return robot, ground
 
@@ -622,7 +634,7 @@ def output_motion(frames, out_filename):
         f.write("\"FrameDuration\": " + str(bvh_cfg.FRAME_DURATION) + ",\n")
         f.write("\"EnableCycleOffsetPosition\": true,\n")
         f.write("\"EnableCycleOffsetRotation\": true,\n")
-        f.write("\"MotionWeight\": " + str(bvh_cfg.MOTION_WEIGHT) + "\n")
+        f.write("\"MotionWeight\": 1.0,\n")
         f.write("\n")
 
         f.write("\"Frames\":\n")
@@ -681,6 +693,7 @@ def main():
             robot, ref_joint_pos_frames)
 
         dof_pos = retarget_frames[:, 7:]
+        dof_vel = calculate_diff(dof_pos, dt=bvh_cfg.FRAME_DURATION)
 
         f = 0  # frame count for display
         num_frames = ref_joint_pos_frames.shape[0]  # frames for motion
@@ -691,17 +704,21 @@ def main():
             ref_joint_pos.append(
                 pre_process_ref_joint_pos(ref_joint_pos_frames[frame]))
 
-        save_path = bvh_cfg.OUT_FILE_DIR + bvh_cfg.FILE_LIST[i].split('.')[0]
+        motion_num = bvh_cfg.FILE_LIST[i].split('.')[0]
+        save_path = bvh_cfg.OUT_FILE_DIR + motion_num
 
         ref_joint_pos = np.array(ref_joint_pos)
-        np.savez(save_path, retarget_frames=retarget_frames,
-                 ref_joint_pos=ref_joint_pos)
+        np.savez(save_path,
+                 retarget_frames=retarget_frames,
+                 ref_joint_pos=ref_joint_pos,
+                 robot_joint_indices=robot_joint_indices,
+                 non_fixed_joint_indices=get_non_fixed_joint_indices(robot),
+                 frame_duration=bvh_cfg.FRAME_DURATION,
+                 allow_pickle=True)
 
-        output_file_name = bvh_cfg.OUT_FILE_DIR + \
-            bvh_file.split(".")[0] + '.txt'
-        output_motion(retarget_frames, output_file_name)
-
-        print(retarget_frames.shape)
+        # output_file_name = bvh_cfg.OUT_FILE_DIR + \
+        #     bvh_file.split(".")[0] + '.txt'
+        # output_motion(retarget_frames, output_file_name)
 
         while True:
             # pybullet.resetSimulation()
@@ -722,7 +739,7 @@ def main():
 
             time.sleep(sleep_dur)
             f += 1
-            input()
+            # input()
 
         pybullet.disconnect()
 

@@ -40,7 +40,7 @@ from isaacgymenvs.tasks.base.vec_task import VecTask
 from typing import Tuple, Dict
 
 
-class KHRBalance(VecTask):
+class KHR22Balance(VecTask):
 
     def __init__(self, cfg, rl_device, sim_device, graphics_device_id, headless, virtual_screen_capture, force_render):
 
@@ -64,6 +64,7 @@ class KHRBalance(VecTask):
         # randomization
         self.randomization_params = self.cfg["task"]["randomization_params"]
         self.randomize = self.cfg["task"]["randomize"]
+        self.randomize_gain = self.cfg["task"]["env"]["randomGain"]
 
         # debug
         self.debug_viz = self.cfg["env"]["enableDebugVis"]
@@ -94,9 +95,9 @@ class KHRBalance(VecTask):
         # default joint positions
         self.named_default_joint_angles = self.cfg["env"]["defaultJointAngles"]
 
-        # [joint_pos (16), prev_target_pos (16)] + roll-pitch(2) + ang_vel(3)
-        self.cfg["env"]["numObservations"] = 37
-        self.cfg["env"]["numActions"] = 16       # head joint not included
+        # [joint_pos (21), prev_target_pos (21)] + roll-pitch(2) + ang_vel(3)
+        self.cfg["env"]["numObservations"] = 47
+        self.cfg["env"]["numActions"] = 21       # head joint not included
 
         super().__init__(config=self.cfg, rl_device=rl_device, sim_device=sim_device, graphics_device_id=graphics_device_id,
                          headless=headless, virtual_screen_capture=virtual_screen_capture, force_render=force_render)
@@ -248,10 +249,11 @@ class KHRBalance(VecTask):
         asset_root = os.path.join(os.path.dirname(
             os.path.abspath(__file__)), '../../assets')
         # asset_file = "urdf/khr/khr_set_limit_joint.urdf"
-        asset_file = "urdf/khr/khr_set_limit_joint_w_small_foot.urdf"
+        # asset_file = "urdf/khr/khr22/khr22_refined_mesh_w_small_foot.urdf"
+        asset_file = "urdf/khr/khr22/khr22_refined_mesh_original_foot.urdf"
 
-        # dof_names : ['LARM_JOINT0', 'LARM_JOINT1', 'LARM_JOINT2', 'LLEG_JOINT0', 'LLEG_JOINT1', 'LLEG_JOINT2', 'LLEG_JOINT3', 'LLEG_JOINT4', 'RARM_JOINT0', 'RARM_JOINT1', 'RARM_JOINT2', 'RLEG_JOINT0', 'RLEG_JOINT1', 'RLEG_JOINT2', 'RLEG_JOINT3', 'RLEG_JOINT4']
-        # body_names : ['BODY', 'LARM_LINK0', 'LARM_LINK1', 'LARM_LINK2', 'LLEG_LINK0', 'LLEG_LINK1', 'LLEG_LINK2', 'LLEG_LINK3', 'LLEG_LINK4', 'RARM_LINK0', 'RARM_LINK1', 'RARM_LINK2', 'RLEG_LINK0', 'RLEG_LINK1', 'RLEG_LINK2', 'RLEG_LINK3', 'RLEG_LINK4']
+        # dof_names : ['LLEG_JOINT0', 'LLEG_JOINT1', 'LLEG_JOINT2', 'LLEG_JOINT3', 'LLEG_JOINT4', 'LLEG_JOINT5', 'RLEG_JOINT0', 'RLEG_JOINT1', 'RLEG_JOINT2', 'RLEG_JOINT3', 'RLEG_JOINT4', 'RLEG_JOINT5', 'TORSO_JOINT0', 'LARM_JOINT0', 'LARM_JOINT1', 'LARM_JOINT2', 'LARM_JOINT3', 'RARM_JOINT0', 'RARM_JOINT1', 'RARM_JOINT2', 'RARM_JOINT3']
+        # body_names : ['BODY', 'LLEG_LINK0', 'LLEG_LINK1', 'LLEG_LINK2', 'LLEG_LINK3', 'LLEG_LINK4', 'LLEG_LINK5', 'RLEG_LINK0', 'RLEG_LINK1', 'RLEG_LINK2', 'RLEG_LINK3', 'RLEG_LINK4', 'RLEG_LINK5', 'TORSO_LINK0', 'LARM_LINK0', 'LARM_LINK1', 'LARM_LINK2', 'LARM_LINK3', 'RARM_LINK0', 'RARM_LINK1', 'RARM_LINK2', 'RARM_LINK3']
 
         asset_options = gymapi.AssetOptions()
         asset_options.default_dof_drive_mode = gymapi.DOF_MODE_NONE
@@ -267,19 +269,19 @@ class KHRBalance(VecTask):
         # asset_options.replace_cylinder_with_capsule = True
         # asset_options.flip_visual_attachments = True
 
-        khr_asset = self.gym.load_asset(
+        khr22_asset = self.gym.load_asset(
             self.sim, asset_root, asset_file, asset_options)
-        self.num_dof = self.gym.get_asset_dof_count(khr_asset)
-        self.num_bodies = self.gym.get_asset_rigid_body_count(khr_asset)
-        self.num_shapes = self.gym.get_asset_rigid_shape_count(khr_asset)
+        self.num_dof = self.gym.get_asset_dof_count(khr22_asset)
+        self.num_bodies = self.gym.get_asset_rigid_body_count(khr22_asset)
+        self.num_shapes = self.gym.get_asset_rigid_shape_count(khr22_asset)
 
         start_pose = gymapi.Transform()
         start_pose.p = gymapi.Vec3(*self.base_init_state[:3])
 
         # link names, BODY, HEAD_LINK0, LARM_LINK0, ...
-        self.body_names = self.gym.get_asset_rigid_body_names(khr_asset)
-        self.dof_names = self.gym.get_asset_dof_names(khr_asset)
-        self.feet_names = ["LLEG_LINK4", "RLEG_LINK4"]
+        self.body_names = self.gym.get_asset_rigid_body_names(khr22_asset)
+        self.dof_names = self.gym.get_asset_dof_names(khr22_asset)
+        self.feet_names = ["LLEG_LINK5", "RLEG_LINK5"]
         self.other_names = [
             body_name for body_name in self.body_names if body_name not in self.feet_names]
         self.feet_indices = torch.zeros(
@@ -289,7 +291,7 @@ class KHRBalance(VecTask):
         self.other_indices = torch.zeros(
             len(self.other_names), dtype=torch.long, device=self.device, requires_grad=False)
 
-        dof_props = self.gym.get_asset_dof_properties(khr_asset)
+        dof_props = self.gym.get_asset_dof_properties(khr22_asset)
         for i in range(self.num_dof):
             dof_props['driveMode'][i] = gymapi.DOF_MODE_NONE
             # self.Kp
@@ -299,7 +301,7 @@ class KHRBalance(VecTask):
 
         env_lower = gymapi.Vec3(-spacing, -spacing, 0.0)
         env_upper = gymapi.Vec3(spacing, spacing, spacing)
-        self.khr_handles = []
+        self.khr22_handles = []
         self.envs = []
 
         for i in range(self.num_envs):
@@ -309,33 +311,35 @@ class KHRBalance(VecTask):
 
             # self.gym.begin_aggregate(env_ptr, self.num_bodies, self.num_shapes, True)
 
-            khr_handle = self.gym.create_actor(
-                env_ptr, khr_asset, start_pose, "khr", i, 0, 0)  # self-collision 1 to 0
-            self.gym.set_actor_dof_properties(env_ptr, khr_handle, dof_props)
-            self.gym.enable_actor_dof_force_sensors(env_ptr, khr_handle)
+            khr22_handle = self.gym.create_actor(
+                env_ptr, khr22_asset, start_pose, "khr22", i, 0, 0)  # self-collision 1 to 0
+            self.gym.set_actor_dof_properties(env_ptr, khr22_handle, dof_props)
+            self.gym.enable_actor_dof_force_sensors(env_ptr, khr22_handle)
 
             self.envs.append(env_ptr)
-            self.khr_handles.append(khr_handle)
+            self.khr22_handles.append(khr22_handle)
 
         for i in range(len(self.feet_names)):
             self.feet_indices[i] = self.gym.find_actor_rigid_body_handle(
-                self.envs[0], self.khr_handles[0], self.feet_names[i])
+                self.envs[0], self.khr22_handles[0], self.feet_names[i])
         for i in range(len(self.body_names)):
             self.body_indices[i] = self.gym.find_actor_rigid_body_handle(
-                self.envs[0], self.khr_handles[0], self.body_names[i])
+                self.envs[0], self.khr22_handles[0], self.body_names[i])
         for i in range(len(self.other_names)):
             self.other_indices[i] = self.gym.find_actor_rigid_body_handle(
-                self.envs[0], self.khr_handles[0], self.other_names[i])
+                self.envs[0], self.khr22_handles[0], self.other_names[i])
 
         self.base_index = self.gym.find_actor_rigid_body_handle(
-            self.envs[0], self.khr_handles[0], "BODY")
+            self.envs[0], self.khr22_handles[0], "BODY")
+        self.torso_index = self.gym.find_actor_rigid_body_handle(
+            self.envs[0], self.khr22_handles[0], "TORSO_LINK0")
 
         # Print DOF properties
         has_limits = dof_props['hasLimits']
         dof_lower_limits = dof_props['lower']
         dof_upper_limits = dof_props['upper']
         dof_types = [self.gym.get_asset_dof_type(
-            khr_asset, i) for i in range(self.num_dof)]
+            khr22_asset, i) for i in range(self.num_dof)]
         for i in range(self.num_dof):
             print("DOF %d" % i)
             print("  Name:     '%s'" % self.dof_names[i])
@@ -353,12 +357,13 @@ class KHRBalance(VecTask):
             dof_upper_limits, dtype=torch.float, device=self.device, requires_grad=False)
 
         # set init dof limits for avoidng self collision when initializing
+        # TODO
         self.init_dof_lower_limits = self.dof_lower_limits[:]
         self.init_dof_upper_limits = self.dof_upper_limits[:]
-        self.init_dof_lower_limits[3] = 0.
-        self.init_dof_upper_limits[11] = 0.
-        self.init_dof_lower_limits[1] = 0.
-        self.init_dof_upper_limits[9] = 0.
+        # self.init_dof_lower_limits[3] = 0.
+        # self.init_dof_upper_limits[11] = 0.
+        # self.init_dof_lower_limits[1] = 0.
+        # self.init_dof_upper_limits[9] = 0.
 
     def pre_physics_step(self, actions):
         self.actions = actions.clone().to(self.device)
@@ -376,10 +381,17 @@ class KHRBalance(VecTask):
         target_pos = torch.clamp(
             target_pos, self.dof_lower_limits, self.dof_upper_limits)
 
+        # if self.randomize_gain:
+        #     Kp = self.Kp + to_
+        #     Kd =
+        # else:
+        #     Kp = self.Kp
+        #     Kd = self.Kd
+
         # calculate force tensor (torques) with torque limits
         self.force_tensor[:] = set_pd_force_tensor_limit(
-            self.Kp,
-            self.Kd,
+            Kp,
+            Kd,
             target_pos,
             self.dof_pos,
             self.target_vel,
@@ -424,14 +436,16 @@ class KHRBalance(VecTask):
 
     def push_robots(self):
         self.root_states[:, 7:9] = torch_rand_float(
-            -0.3, 0.3, (self.num_envs, 2), device=self.device)  # lin vel x/y
+            -0.1, 0.1, (self.num_envs, 2), device=self.device)  # lin vel x/y
+        self.root_states[:, 12] = torch_rand_float(
+            -0.3, 0.3, (self.num_envs, 1), device=self.device).squeeze()  # ang vel y
         # self.root_states[:, 10:13] = torch_rand_float(
         #     -0.1, 0.1, (self.num_envs, 3), device=self.device)  # ang vel
         self.gym.set_actor_root_state_tensor(
             self.sim, gymtorch.unwrap_tensor(self.root_states))
 
     def compute_reward(self, actions):
-        self.rew_buf[:], self.reset_buf[:] = compute_khr_balance_reward(
+        self.rew_buf[:], self.reset_buf[:] = compute_khr22_balance_reward(
             # tensors
             self.obs_buf,
             self.root_states,
@@ -453,6 +467,7 @@ class KHRBalance(VecTask):
             self.rew_scales,
             # other
             self.base_index,
+            self.torso_index,
             self.num_actions,
             self.prev_state_buffer_step,
             self.max_episode_length,
@@ -470,7 +485,7 @@ class KHRBalance(VecTask):
         self.dof_acc = compute_dof_acceleration(
             self.dof_vel, self.prev_dof_vel, self.dt)
 
-        self.obs_buf[:] = compute_khr_balance_observations(  # tensors
+        self.obs_buf[:] = compute_khr22_balance_observations(  # tensors
             scale_joint_pos(self.dof_pos, self.dof_lower_limits,
                             self.dof_upper_limits),
             scale_joint_pos(self.prev_target_pos,
@@ -504,14 +519,18 @@ class KHRBalance(VecTask):
         # randomize dof_pos
         positions_offset = torch_rand_float(
             - torch.pi / 6., torch.pi / 6., (len(env_ids), self.num_dof), device=self.device)
-        # arm randomization
-        positions_offset[:, 0:3] = torch_rand_float(
-            - torch.pi, torch.pi, (len(env_ids), 3), device=self.device)
-        positions_offset[:, 8:11] = torch_rand_float(
-            - torch.pi, torch.pi, (len(env_ids), 3), device=self.device)
+        positions_offset[:] = 0.0
+
+        # arm randomization TODO
+        # positions_offset[:, 0:3] = torch_rand_float(
+        #     - torch.pi, torch.pi, (len(env_ids), 3), device=self.device)
+        # positions_offset[:, 8:11] = torch_rand_float(
+        #     - torch.pi, torch.pi, (len(env_ids), 3), device=self.device)
+
         # randomize dof_vel
         velocities = torch_rand_float(-1.0, 1.0,
                                       (len(env_ids), self.num_dof), device=self.device)
+        velocities = 0.0
         self.dof_pos[env_ids] = torch.clamp(
             positions_offset, min=self.init_dof_lower_limits, max=self.init_dof_upper_limits)
         self.dof_vel[env_ids] = velocities
@@ -598,7 +617,7 @@ class KHRBalance(VecTask):
 
 
 @torch.jit.script
-def compute_khr_balance_reward(
+def compute_khr22_balance_reward(
         # tensor
         obs_buf,
         root_states,
@@ -620,12 +639,13 @@ def compute_khr_balance_reward(
         rew_scales,
         # int
         base_index,
+        torso_index,
         num_actions,
         prev_state_buffer_step,
         max_episode_length,
     # (reward, reset, feet_in air, feet_air_time, episode sums)
 ):
-    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Dict[str, float], int, int, int, int) -> Tuple[Tensor, Tensor]
+    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Dict[str, float], int, int, int, int, int) -> Tuple[Tensor, Tensor]
 
     base_pos = root_states[:, :3]
     base_quat = root_states[:, 3:7]
@@ -644,6 +664,13 @@ def compute_khr_balance_reward(
     dof_pos_error = torch.norm(target_dof_pos - dof_pos, dim=1)
 
     # from https://arxiv.org/pdf/1809.02074.pdf
+
+    torso_quat = rb_states[:, torso_index, 3:7]
+    up_vec_torso = get_basis_vector(
+        torso_quat, up_vec).view(num_envs, 3)
+    up_vec_norm_xy_torso = torch.norm(up_vec_torso[:, :2], dim=1)
+    up_proj_torso = up_vec_torso[:, 2]
+    phi_torso = torch.atan2(up_vec_norm_xy_torso, up_proj_torso)
 
     # feet_quats = rb_states[:, feet_indices, 3:7]
     left_foot_quat = rb_states[:, feet_indices[0], 3:7]
@@ -669,6 +696,8 @@ def compute_khr_balance_reward(
         rew_scales["dofPosError"]
     rew_upright_foot = ((torch.pi / 2. - phi_left_foot) / (torch.pi / 2.) +
                         (torch.pi / 2. - phi_right_foot) / (torch.pi / 2.)) / 2. * 0.2
+    rew_upright_torso = (torch.pi / 2. - phi_torso) / \
+        (torch.pi / 2.) * rew_scales["upright"]
 
     # penalty
     pen_root_lin_vel = torch.sum(torch.square(
@@ -682,8 +711,9 @@ def compute_khr_balance_reward(
 
     # calculate total reward
     rewards = rew_upright_root + rew_heading_root + \
-        rew_dof_pos_error + rew_upright_foot
-    penalty = pen_root_lin_vel + pen_torques
+        rew_dof_pos_error + rew_upright_foot + rew_upright_torso
+    # penalty = pen_root_lin_vel + pen_torques
+    penalty = pen_torques
     total_reward = rewards - penalty
 
     total_reward = torch.clip(total_reward, 0., None)
@@ -691,7 +721,7 @@ def compute_khr_balance_reward(
     time_out = episode_lengths >= max_episode_length - \
         1
     reset = time_out
-    base_limit = base_pos[:, 2] < 0.20
+    base_limit = base_pos[:, 2] < 0.25
     reset = reset | base_limit
 
     # reset debug
@@ -731,11 +761,11 @@ def compute_khr_balance_reward(
 
 
 @ torch.jit.script
-def compute_khr_balance_observations(dof_pos_scaled,
-                                     prev_target_pos_scaled,
-                                     root_states,
-                                     ang_vel_scale
-                                     ):
+def compute_khr22_balance_observations(dof_pos_scaled,
+                                       prev_target_pos_scaled,
+                                       root_states,
+                                       ang_vel_scale
+                                       ):
 
     # type: (Tensor, Tensor, Tensor, float) -> Tensor
     base_quat = root_states[:, 3:7]

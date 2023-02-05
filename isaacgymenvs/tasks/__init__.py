@@ -51,7 +51,8 @@ from .humanoid_amp import HumanoidAMP
 from .khr_recovery import KHRRecovery
 from .khr_locomotion import KHRLocomotion
 from .khr_balance import KHRBalance
-# from .khr_amp import KHRAMP
+from .khr22_balance import KHR22Balance
+from .khr_amp import KHRAMP
 
 # Mappings from strings to environments
 isaacgym_task_map = {
@@ -79,5 +80,6 @@ isaacgym_task_map = {
     "KHRRecovery": KHRRecovery,
     "KHRLocomotion": KHRLocomotion,
     "KHRBalance": KHRBalance,
-    # "KHRAMP": KHRAMP,
+    "KHR22Balance": KHR22Balance,
+    "KHRAMP": KHRAMP,
 }
