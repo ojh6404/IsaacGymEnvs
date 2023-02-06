@@ -474,12 +474,13 @@ class KHRAMPBase(VecTask):
         self.actions[:] = actions.clone().to(self.device)
 
         # clip actions from output of mlp
-        target_pos = torch.clamp(self.actions, min=-1.0, max=1.0)
+        actions_clipped = torch.clamp(self.actions, min=-1.0, max=1.0)
 
         # scale actions and add prev_target_pos
-        target_pos = self.action_scale * target_pos + self.target_pos
+        # target_pos = self.action_scale * actions_clipped + self.target_pos
+        target_pos = unscale_dof_pos(
+            actions_clipped, self.dof_limits_lower, self.dof_limits_upper)
         # target_pos = self.action_scale * target_pos + self.prev_target_pos
-        # target_pos = self.default_dof_pos
 
         # clip target_pos for dof limits
         self.target_pos = torch.clamp(
@@ -612,11 +613,36 @@ class KHRAMPBase(VecTask):
 
 
 @torch.jit.script
+def set_pd_force_tensor_limit(
+    Kp,
+    Kd,
+    target_pos,
+    current_pos,
+    target_vel,
+    current_vel,
+    torque_limit
+):
+    # type: (float, float, Tensor, Tensor, Tensor, Tensor, float) -> Tensor
+    force_tensor = Kp * (target_pos - current_pos) + \
+        Kd * (target_vel - current_vel)
+    force_tensor = torch.clamp(
+        force_tensor, min=-torque_limit, max=torque_limit)
+    return force_tensor
+
+
+@torch.jit.script
 def scale_dof_pos(dof_pos, dof_limits_lower, dof_limits_upper):
     # type: (Tensor, Tensor, Tensor) -> Tensor
-    joint_pos_scaled = (2.0 * dof_pos - (dof_limits_lower +
-                                         dof_limits_upper)) / (dof_limits_upper - dof_limits_lower)
-    return joint_pos_scaled
+    scaled_dof_pos = (2.0 * dof_pos - (dof_limits_lower +
+                                       dof_limits_upper)) / (dof_limits_upper - dof_limits_lower)
+    return scaled_dof_pos
+
+
+@torch.jit.script
+def unscale_dof_pos(scaled_dof_pos, dof_limits_lower, dof_limits_upper):
+    unscaled_dof_pos = (dof_limits_upper + dof_limits_lower +
+                        scaled_dof_pos * (dof_limits_upper - dof_limits_lower)) / 2.0
+    return unscaled_dof_pos
 
 # @torch.jit.script
 # def dof_to_obs(pose):  # TODO: modify for khr
@@ -747,6 +773,9 @@ def compute_khr_reward(root_states, dof_vel, prev_dof_vel, actions, prev_actions
     # sum rewards and penalties
     total_rewards = rewards - penalties
 
+    # clip
+    total_rewards = torch.clip(total_rewards, min=0.)
+
     # reward = torch.ones_like(obs_buf[:, 0])
     return total_rewards
 
@@ -786,26 +815,8 @@ def compute_khr_reset(reset_buf, progress_buf, contact_buf, contact_body_ids, ri
     return reset, terminated
 
 
-@torch.jit.script
-def set_pd_force_tensor_limit(
-    Kp,
-    Kd,
-    target_pos,
-    current_pos,
-    target_vel,
-    current_vel,
-    torque_limit
-):
-    # type: (float, float, Tensor, Tensor, Tensor, Tensor, float) -> Tensor
-    force_tensor = Kp * (target_pos - current_pos) + \
-        Kd * (target_vel - current_vel)
-    force_tensor = torch.clamp(
-        force_tensor, min=-torque_limit, max=torque_limit)
-    return force_tensor
-
-
-@torch.jit.script
-def compute_dof_acceleration(dof_vel, prev_dof_vel, dt):
-    # type: (Tensor, Tensor, float) -> Tensor
-    dof_acc = (dof_vel - prev_dof_vel) / dt
-    return dof_acc
+# @torch.jit.script
+# def compute_dof_acceleration(dof_vel, prev_dof_vel, dt):
+#     # type: (Tensor, Tensor, float) -> Tensor
+#     dof_acc = (dof_vel - prev_dof_vel) / dt
+#     return dof_acc

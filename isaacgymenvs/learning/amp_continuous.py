@@ -540,10 +540,10 @@ class AMPAgent(common_agent.CommonAgent):
     def _calc_disc_rewards(self, amp_obs):
         with torch.no_grad():
             disc_logits = self._eval_disc(amp_obs)
-            # prob = 1 / (1 + torch.exp(-disc_logits))
-            # disc_r = -torch.log(torch.maximum(1 - prob,
-            #                     torch.tensor(0.0001, device=self.ppo_device)))
-            disc_r = torch.sigmoid(disc_logits)
+            prob = 1 / (1 + torch.exp(-disc_logits))
+            disc_r = -torch.log(torch.maximum(1 - prob,
+                                torch.tensor(0.0001, device=self.ppo_device)))
+            # disc_r = torch.sigmoid(disc_logits)
             disc_r *= self._disc_reward_scale
         return disc_r
 
