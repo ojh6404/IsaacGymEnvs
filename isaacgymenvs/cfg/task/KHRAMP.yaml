@@ -24,7 +24,7 @@ env:
   # powerScale: 1.0
   stateInit: "Random"
   hybridInitProb: 0.5
-  numAMPObsSteps: 3
+  numAMPObsSteps: 2
 
   localRootObs: False
   contactBodies: ["LLEG_LINK3", "LLEG_LINK4","RLEG_LINK3", "RLEG_LINK4"]

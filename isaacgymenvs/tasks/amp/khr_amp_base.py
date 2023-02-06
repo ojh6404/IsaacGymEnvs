@@ -238,8 +238,8 @@ class KHRAMPBase(VecTask):
 
         asset_options = gymapi.AssetOptions()
         asset_options.angular_damping = 0.01
-        asset_options.max_angular_velocity = 100.0  # TODO
-        asset_options.max_linear_velocity = 100.0  # TODO
+        asset_options.max_angular_velocity = 30.0  # TODO
+        asset_options.max_linear_velocity = 30.0  # TODO
         asset_options.collapse_fixed_joints = True
         asset_options.default_dof_drive_mode = gymapi.DOF_MODE_NONE
         khr_asset = self.gym.load_asset(
