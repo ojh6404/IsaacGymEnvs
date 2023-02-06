@@ -16,19 +16,19 @@ env:
     pdControl: True
     Kp: 10.0
     Kd: 0.03
-    # actionScale: 0.279252  # 16 * pi / 180
-    actionScale: 2.0  # 16 * pi / 180
+    actionScale: 0.279252  # 16 * pi / 180
+    # actionScale: 2.0  # 16 * pi / 180
     torqueLimit: 2.5 # N*m, spec sheet : 2.4525 N*m, 25.0 kgf * cm
 
   controlFrequencyInv: 2 # 30 Hz TODO: modify for khr control
   # powerScale: 1.0
   stateInit: "Random"
   hybridInitProb: 0.5
-  numAMPObsSteps: 2
+  numAMPObsSteps: 3
 
   localRootObs: False
-  contactBodies: ["LLEG_LINK4", "RLEG_LINK4"]
-  terminationHeight: 0.1 # TODO: khr
+  contactBodies: ["LLEG_LINK3", "LLEG_LINK4","RLEG_LINK3", "RLEG_LINK4"]
+  terminationHeight: 0.075 # TODO: khr
   enableEarlyTermination: True # TODO
 
   # animation files to learn from

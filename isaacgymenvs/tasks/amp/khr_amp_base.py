@@ -44,7 +44,8 @@ from ..base.vec_task import VecTask
 DOF_BODY_IDS = [1, 2, 3, 4, 6, 7, 9, 10, 11, 12, 13, 14]
 DOF_OFFSETS = [0, 3, 6, 9, 10, 13, 14, 17, 18, 21, 24, 25, 28]
 # [root_h, root_rot, root_vel, root_ang_vel, dof_pos, dof_vel, key_body_pos]
-NUM_OBS = 1 + 6 + 3 + 3 + 16 + 16 + 12  # TODO: modify it for khr
+# NUM_OBS = 1 + 6 + 3 + 3 + 16 + 16 + 12  # TODO: modify it for khr
+NUM_OBS = 70
 NUM_ACTIONS = 16  # head joint not included
 
 
@@ -152,8 +153,18 @@ class KHRAMPBase(VecTask):
             self._dof_vel, dtype=torch.float, device=self.device, requires_grad=False)
         self.prev_target_pos = torch.zeros_like(self.target_pos,
                                                 dtype=torch.float, device=self.device, requires_grad=False)
-        self.force_tensor = torch.zeros_like(
+        self.torques = torch.zeros_like(
             self.dof_force_tensor, dtype=torch.float, device=self.device, requires_grad=False)
+        self.actions = torch.zeros(self.num_envs, self.num_actions,
+                                   dtype=torch.float, device=self.device, requires_grad=False)
+        self.prev_actions = torch.zeros_like(
+            self.actions, dtype=torch.float, device=self.device, requires_grad=False)
+        self.prev_dof_vel = torch.zeros_like(
+            self._dof_vel, dtype=torch.float, device=self.device, requires_grad=False)
+        self.gravity_vec = to_torch(
+            get_axis_params(-1., self.up_axis_idx), device=self.device).repeat((self.num_envs, 1))
+        self.projected_gravity_vec = torch.zeros_like(
+            self.gravity_vec, dtype=torch.float, device=self.device, requires_grad=False)
 
         self._terminate_buf = torch.ones(
             self.num_envs, device=self.device, dtype=torch.long)
@@ -188,6 +199,7 @@ class KHRAMPBase(VecTask):
         self._reset_actors(env_ids)
         self._refresh_sim_tensors()
         self._compute_observations(env_ids)
+
         return
 
     def set_char_color(self, col):
@@ -226,8 +238,8 @@ class KHRAMPBase(VecTask):
 
         asset_options = gymapi.AssetOptions()
         asset_options.angular_damping = 0.01
-        asset_options.max_angular_velocity = 30.0  # TODO
-        asset_options.max_linear_velocity = 30.0  # TODO
+        asset_options.max_angular_velocity = 100.0  # TODO
+        asset_options.max_linear_velocity = 100.0  # TODO
         asset_options.collapse_fixed_joints = True
         asset_options.default_dof_drive_mode = gymapi.DOF_MODE_NONE
         khr_asset = self.gym.load_asset(
@@ -365,7 +377,8 @@ class KHRAMPBase(VecTask):
     #     return
 
     def _compute_reward(self, actions):
-        self.rew_buf[:] = compute_khr_reward(self.obs_buf)
+        self.rew_buf[:] = compute_khr_reward(
+            self._root_states, self._dof_vel, self.prev_dof_vel, self.actions, self.prev_actions, self.torques, self.dt)
         return
 
     def _compute_reset(self):
@@ -400,16 +413,22 @@ class KHRAMPBase(VecTask):
             root_states = self._root_states
             dof_pos = self._dof_pos
             dof_vel = self._dof_vel
-            key_body_pos = self._rigid_body_pos[:, self._key_body_ids, :]
+            target_pos = self.target_pos
+            actions = self.actions
+            projected_gravity_vec = self.projected_gravity_vec
+            # key_body_pos = self._rigid_body_pos[:, self._key_body_ids, :]
         else:
             root_states = self._root_states[env_ids]
             dof_pos = self._dof_pos[env_ids]
             dof_vel = self._dof_vel[env_ids]
-            key_body_pos = self._rigid_body_pos[env_ids][:,
-                                                         self._key_body_ids, :]
+            target_pos = self.target_pos[env_ids]
+            actions = self.actions[env_ids]
+            projected_gravity_vec = self.projected_gravity_vec[env_ids]
+            # key_body_pos = self._rigid_body_pos[env_ids][:,
+            # self._key_body_ids, :]
 
         obs = compute_khr_observations(root_states, dof_pos, dof_vel,
-                                       key_body_pos, self._local_root_obs)
+                                       target_pos, actions, projected_gravity_vec, self.dof_limits_lower, self.dof_limits_upper)
         return obs
 
     def _reset_actors(self, env_ids):
@@ -426,6 +445,9 @@ class KHRAMPBase(VecTask):
                                               gymtorch.unwrap_tensor(
                                                   self._dof_state),
                                               gymtorch.unwrap_tensor(env_ids_int32), len(env_ids_int32))
+
+        self.prev_actions[env_ids] = 0.
+        self.prev_dof_vel[env_ids] = 0.
 
         self.progress_buf[env_ids] = 0
         self.reset_buf[env_ids] = 0
@@ -448,15 +470,15 @@ class KHRAMPBase(VecTask):
     #     return
 
     def pre_physics_step(self, actions):
-        self.actions = actions.clone().to(self.device)
+
+        self.actions[:] = actions.clone().to(self.device)
 
         # clip actions from output of mlp
         target_pos = torch.clamp(self.actions, min=-1.0, max=1.0)
 
         # scale actions and add prev_target_pos
-        target_pos = self.action_scale * target_pos + self.dof_pos_default
+        target_pos = self.action_scale * target_pos + self.target_pos
         # target_pos = self.action_scale * target_pos + self.prev_target_pos
-
         # target_pos = self.default_dof_pos
 
         # clip target_pos for dof limits
@@ -471,7 +493,7 @@ class KHRAMPBase(VecTask):
         #     Kd = self.Kd
 
         # calculate force tensor (torques) with torque limits
-        self.force_tensor[:] = set_pd_force_tensor_limit(
+        self.torques[:] = set_pd_force_tensor_limit(
             self.Kp,
             self.Kd,
             self.target_pos,
@@ -480,9 +502,9 @@ class KHRAMPBase(VecTask):
             self._dof_vel,
             self.torque_limit)
 
-        print('debug')
-        print("max force:", torch.max(self.force_tensor),
-              "min force:", torch.min(self.force_tensor))
+        # print('debug')
+        # print("max force:", torch.max(self.dof_force_tensor),
+        #       "min force:", torch.min(self.dof_force_tensor))
 
         # test for zero action
         # self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(
@@ -490,20 +512,24 @@ class KHRAMPBase(VecTask):
 
         # apply force tensor
         self.gym.set_dof_actuation_force_tensor(
-            self.sim, gymtorch.unwrap_tensor(self.force_tensor))  # apply actuator force
+            self.sim, gymtorch.unwrap_tensor(self.torques))  # apply actuator force
 
     def post_physics_step(self):
+        self._refresh_sim_tensors()
         self.progress_buf += 1
 
-        # set previous target position
-        self.prev_target_pos[:] = self.target_pos
+        self.projected_gravity = quat_rotate_inverse(
+            self._root_states[:, 3:7], self.gravity_vec)
 
-        self._refresh_sim_tensors()
         self._compute_observations()
         self._compute_reward(self.actions)
         self._compute_reset()
 
         self.extras["terminate"] = self._terminate_buf
+
+        # set prev buffer tensor
+        self.prev_actions[:] = self.actions
+        self.prev_dof_vel[:] = self._dof_vel
 
         # debug viz
         if self.viewer and self.debug_viz:
@@ -585,6 +611,13 @@ class KHRAMPBase(VecTask):
 #####################################################################
 
 
+@torch.jit.script
+def scale_dof_pos(dof_pos, dof_limits_lower, dof_limits_upper):
+    # type: (Tensor, Tensor, Tensor) -> Tensor
+    joint_pos_scaled = (2.0 * dof_pos - (dof_limits_lower +
+                                         dof_limits_upper)) / (dof_limits_upper - dof_limits_lower)
+    return joint_pos_scaled
+
 # @torch.jit.script
 # def dof_to_obs(pose):  # TODO: modify for khr
 #     # type: (Tensor) -> Tensor
@@ -619,76 +652,103 @@ class KHRAMPBase(VecTask):
 #     return dof_obs
 
 
-@torch.jit.script
+# @torch.jit.script
 # TODO: modify for khr
-def compute_khr_observations(root_states, dof_pos, dof_vel, key_body_pos, local_root_obs):
-    # type: (Tensor, Tensor, Tensor, Tensor, bool) -> Tensor
-    root_pos = root_states[:, 0:3]
+# def compute_khr_observations(root_states, dof_pos, dof_vel, key_body_pos, local_root_obs):
+#     # type: (Tensor, Tensor, Tensor, Tensor, bool) -> Tensor
+#     root_pos = root_states[:, 0:3]
+#     root_rot = root_states[:, 3:7]
+#     root_vel = root_states[:, 7:10]
+#     root_ang_vel = root_states[:, 10:13]
+#     root_h = root_pos[:, 2:3]
+#     heading_rot = calc_heading_quat_inv(root_rot)
+#     if (local_root_obs):
+#         root_rot_obs = quat_mul(heading_rot, root_rot)
+#     else:
+#         root_rot_obs = root_rot
+#     root_rot_obs = quat_to_tan_norm(root_rot_obs)
+#     local_root_vel = my_quat_rotate(heading_rot, root_vel)
+#     local_root_ang_vel = my_quat_rotate(heading_rot, root_ang_vel)
+#     root_pos_expand = root_pos.unsqueeze(-2)
+#     local_key_body_pos = key_body_pos - root_pos_expand
+#     heading_rot_expand = heading_rot.unsqueeze(-2)
+#     heading_rot_expand = heading_rot_expand.repeat(
+#         (1, local_key_body_pos.shape[1], 1))
+#     flat_end_pos = local_key_body_pos.view(
+#         local_key_body_pos.shape[0] * local_key_body_pos.shape[1], local_key_body_pos.shape[2])
+#     flat_heading_rot = heading_rot_expand.view(heading_rot_expand.shape[0] * heading_rot_expand.shape[1],
+#                                                heading_rot_expand.shape[2])
+#     local_end_pos = my_quat_rotate(flat_heading_rot, flat_end_pos)
+#     flat_local_key_pos = local_end_pos.view(
+#         local_key_body_pos.shape[0], local_key_body_pos.shape[1] * local_key_body_pos.shape[2])
+#     # dof_obs = dof_to_obs(dof_pos)
+#     # 1 + 6 + 3 + 3 + 16 + 16 + 12 = 57
+#     obs = torch.cat((root_h, root_rot_obs, local_root_vel,
+#                     local_root_ang_vel, dof_pos, dof_vel, flat_local_key_pos), dim=-1)
+#     return obs
+@torch.jit.script
+def compute_khr_observations(root_states,
+                             dof_pos,
+                             dof_vel,
+                             target_pos,
+                             actions,
+                             projected_gravity_vec,
+                             dof_limits_lower,
+                             dof_limits_upper
+                             ):
+
+    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor) -> Tensor
     root_rot = root_states[:, 3:7]
-    root_vel = root_states[:, 7:10]
     root_ang_vel = root_states[:, 10:13]
+    # roll, pitch, yaw = get_euler_xyz(base_quat)
 
-    root_h = root_pos[:, 2:3]
-    heading_rot = calc_heading_quat_inv(root_rot)
+    scaled_dof_pos = scale_dof_pos(
+        dof_pos, dof_limits_lower=dof_limits_lower, dof_limits_upper=dof_limits_upper)
+    scaled_target_pos = scale_dof_pos(
+        target_pos, dof_limits_lower=dof_limits_lower, dof_limits_upper=dof_limits_upper)
+    root_ang_vel = quat_rotate_inverse(
+        root_rot, root_states[:, 10:13])
 
-    if (local_root_obs):
-        root_rot_obs = quat_mul(heading_rot, root_rot)
-    else:
-        root_rot_obs = root_rot
-    root_rot_obs = quat_to_tan_norm(root_rot_obs)
-
-    local_root_vel = my_quat_rotate(heading_rot, root_vel)
-    local_root_ang_vel = my_quat_rotate(heading_rot, root_ang_vel)
-
-    root_pos_expand = root_pos.unsqueeze(-2)
-    local_key_body_pos = key_body_pos - root_pos_expand
-
-    heading_rot_expand = heading_rot.unsqueeze(-2)
-    heading_rot_expand = heading_rot_expand.repeat(
-        (1, local_key_body_pos.shape[1], 1))
-    flat_end_pos = local_key_body_pos.view(
-        local_key_body_pos.shape[0] * local_key_body_pos.shape[1], local_key_body_pos.shape[2])
-    flat_heading_rot = heading_rot_expand.view(heading_rot_expand.shape[0] * heading_rot_expand.shape[1],
-                                               heading_rot_expand.shape[2])
-    local_end_pos = my_quat_rotate(flat_heading_rot, flat_end_pos)
-    flat_local_key_pos = local_end_pos.view(
-        local_key_body_pos.shape[0], local_key_body_pos.shape[1] * local_key_body_pos.shape[2])
-
-    # dof_obs = dof_to_obs(dof_pos)
-
-    # 1 + 6 + 3 + 3 + 16 + 16 + 12 = 57
-    obs = torch.cat((root_h, root_rot_obs, local_root_vel,
-                    local_root_ang_vel, dof_pos, dof_vel, flat_local_key_pos), dim=-1)
+    obs = torch.cat((
+        scaled_dof_pos,
+        dof_vel,
+        scaled_target_pos,
+        projected_gravity_vec,
+        actions,
+        root_ang_vel,
+    ), dim=-1)
     return obs
 
 
-# @torch.jit.script
-# def compute_khr_observations(dof_pos_scaled,
-#                              prev_target_pos_scaled,
-#                              root_states,
-#                              ang_vel_scale
-#                              ):
-
-#     # type: (Tensor, Tensor, Tensor, float) -> Tensor
-#     base_quat = root_states[:, 3:7]
-#     roll, pitch, yaw = get_euler_xyz(base_quat)
-#     base_ang_vel = quat_rotate_inverse(
-#         base_quat, root_states[:, 10:13]) * ang_vel_scale
-
-#     obs = torch.cat((
-#         dof_pos_scaled,
-#         prev_target_pos_scaled,
-#         roll.unsqueeze(1),
-#         pitch.unsqueeze(1),
-#         base_ang_vel
-#     ), dim=-1)
-#     return obs
-
 @torch.jit.script
-def compute_khr_reward(obs_buf):
-    # type: (Tensor) -> Tensor
-    reward = torch.ones_like(obs_buf[:, 0])
-    return reward
+def compute_khr_reward(root_states, dof_vel, prev_dof_vel, actions, prev_actions, torques, dt):
+    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, float) -> Tensor
+
+    # set parameters to calculate rewards and penalties
+    root_lin_vel = root_states[:, 7:10]
+    lin_vel_x = root_lin_vel[:, 0] / 0.3
+
+    # define rewards
+    rew_lin_vel_x = torch.clamp(lin_vel_x, min=0.0, max=1.0)
+
+    rewards = rew_lin_vel_x
+
+    # define penalties
+    pen_action_rate = torch.sum(torch.square(
+        actions - prev_actions), dim=1) * 5e-3
+    pen_dof_acc = torch.sum(torch.square(
+        prev_dof_vel - dof_vel), dim=1) * 5e-4
+    pen_torques = torch.sum(torch.square(
+        torques), dim=1) * 0.0001
+    pen_lin_vel_y = root_lin_vel[:, 1] * 0.001
+
+    penalties = pen_action_rate + pen_dof_acc + pen_torques + pen_lin_vel_y
+
+    # sum rewards and penalties
+    total_rewards = rewards - penalties
+
+    # reward = torch.ones_like(obs_buf[:, 0])
+    return total_rewards
 
 
 @torch.jit.script
@@ -706,9 +766,13 @@ def compute_khr_reset(reset_buf, progress_buf, contact_buf, contact_body_ids, ri
         body_height = rigid_body_pos[..., 2]
         fall_height = body_height < termination_height
         fall_height[:, contact_body_ids] = False
+
+        debug_height = body_height > 0.45
+        debug_height = torch.any(debug_height, dim=-1)
         fall_height = torch.any(fall_height, dim=-1)
 
         has_fallen = torch.logical_and(fall_contact, fall_height)
+        has_fallen = torch.logical_or(debug_height, has_fallen)
 
         # first timestep can sometimes still have nonzero contact forces
         # so only check after first couple of steps
@@ -745,11 +809,3 @@ def compute_dof_acceleration(dof_vel, prev_dof_vel, dt):
     # type: (Tensor, Tensor, float) -> Tensor
     dof_acc = (dof_vel - prev_dof_vel) / dt
     return dof_acc
-
-
-@torch.jit.script
-def scale_joint_pos(dof_pos, dof_lower_limit, dof_upper_limit):
-    # type: (Tensor, Tensor, Tensor) -> Tensor
-    joint_pos_scaled = (2.0 * dof_pos - (dof_lower_limit +
-                                         dof_upper_limit)) / (dof_upper_limit - dof_lower_limit)
-    return joint_pos_scaled
