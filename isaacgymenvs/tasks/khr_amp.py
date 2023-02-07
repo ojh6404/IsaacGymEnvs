@@ -178,6 +178,10 @@ class KHRAMP(KHRAMPBase):
         self.reset_buf[env_ids] = 0
         self._terminate_buf[env_ids] = 0
 
+        # # TODO
+        # print('init debug')
+        # print(torch.max(self._root_states[env_ids, 2]))
+
         return
 
     def _reset_default(self, env_ids):

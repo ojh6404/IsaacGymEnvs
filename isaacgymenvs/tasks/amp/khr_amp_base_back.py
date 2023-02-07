@@ -237,19 +237,19 @@ class KHRAMPBase(VecTask):
                 "assetFileName", asset_file)
 
         asset_options = gymapi.AssetOptions()
-        # asset_options.angular_damping = 0.01  # TODO
-        asset_options.angular_damping = 0.0
-        asset_options.linear_damping = 0.0  # TODO
-        asset_options.armature = 1.0e-5
+        asset_options.angular_damping = 0.01  # TODO
+        # asset_options.armature = 0.0001  # TODO
+        # asset_options.angular_damping = 0.0
+        # asset_options.linear_damping = 0.0  # TODO
         asset_options.max_angular_velocity = 100.0  # TODO
         asset_options.max_linear_velocity = 100.0  # TODO
         asset_options.collapse_fixed_joints = True
         asset_options.default_dof_drive_mode = gymapi.DOF_MODE_NONE
+        # asset_options.thickness = 0.001  # TODO
+        # asset_options.enable_gyroscopic_forces = True  # TODO
+        # asset_options.replace_cylinder_with_capsule = True  # TODO
         khr_asset = self.gym.load_asset(
             self.sim, asset_root, asset_file, asset_options)
-        asset_options.thickness = 1.0e-4  # TODO
-        asset_options.enable_gyroscopic_forces = True  # TODO
-        asset_options.replace_cylinder_with_capsule = True  # TODO
 
         # actuator_props = self.gym.get_asset_actuator_properties(khr_asset)
         # motor_efforts = [prop.motor_effort for prop in actuator_props]
@@ -510,12 +510,12 @@ class KHRAMPBase(VecTask):
             self.torque_limit)
 
         # print('debug')
-        # print("max force:", torch.max(self.torques),
-        #       "min force:", torch.min(self.torques))
+        # print("max force:", torch.max(self.dof_force_tensor),
+        #       "min force:", torch.min(self.dof_force_tensor))
 
-        # test for zero action TODO
+        # test for zero action
         # self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(
-        #     torch.zeros_like(self.torques, dtype=torch.float, device=self.device, requires_grad=False)))
+        #     torch.zeros_like(force_tensor, dtype=torch.float, device=self.device, requires_grad=False)))
 
         # apply force tensor
         self.gym.set_dof_actuation_force_tensor(
@@ -537,12 +537,6 @@ class KHRAMPBase(VecTask):
         # set prev buffer tensor
         self.prev_actions[:] = self.actions
         self.prev_dof_vel[:] = self._dof_vel
-
-        print('debug')
-        print('max root height', torch.max(self._root_states[:, 2]))
-        print('max ang vel ', torch.max(self._rigid_body_ang_vel))
-        print('root lin vel', self._root_states[0, 7:10])
-        print('root ang vel', self._root_states[0, 10:13])
 
         # debug viz
         if self.viewer and self.debug_viz:
@@ -782,11 +776,6 @@ def compute_khr_reward(root_states, dof_vel, prev_dof_vel, actions, prev_actions
 
     penalties = pen_action_rate + pen_dof_acc + pen_torques + pen_lin_vel_y
 
-    # print('pen torques')
-    # print(torch.mean(pen_torques))
-    # print('pen actions')
-    # print(torch.mean(pen_action_rate))
-
     # sum rewards and penalties
     total_rewards = rewards - penalties
 
@@ -813,11 +802,8 @@ def compute_khr_reset(reset_buf, progress_buf, contact_buf, contact_body_ids, ri
         fall_height = body_height < termination_height
         fall_height[:, contact_body_ids] = False
 
-        # debug_height = body_height > 0.7
+        # debug_height = body_height > 0.45
         # debug_height = torch.any(debug_height, dim=-1)
-        # if torch.any(debug_height):
-        #     print('debug needed')
-        #     print(torch.max(body_height))
         fall_height = torch.any(fall_height, dim=-1)
 
         has_fallen = torch.logical_and(fall_contact, fall_height)

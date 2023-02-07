@@ -8,7 +8,7 @@ env:
   numEnvs: ${resolve_default:4096,${...num_envs}}
   envSpacing: 1.0
   # episodeLength: 300
-  episodeLength: 1000
+  episodeLength: 300
   cameraFollow: False # if the camera follows khr or not
   enableDebugVis: False
 
@@ -24,7 +24,7 @@ env:
   # powerScale: 1.0
   stateInit: "Random"
   hybridInitProb: 0.5
-  numAMPObsSteps: 4
+  numAMPObsSteps: 8
 
   localRootObs: False
   contactBodies: ["LLEG_LINK3", "LLEG_LINK4","RLEG_LINK3", "RLEG_LINK4"]
@@ -49,8 +49,7 @@ env:
   plane:
     staticFriction: 1.0
     dynamicFriction: 1.0
-    # restitution: 0.0 #TODO
-    restitution: 0.3
+    restitution: 0.3 #TODO
 
 sim:
   dt: 0.0166 # 1/60 s # TODO: modify
@@ -63,14 +62,15 @@ sim:
     solver_type: ${....solver_type}
     use_gpu: ${contains:"cuda",${....sim_device}} # set to False to run on CPU
     num_position_iterations: 6
-    num_velocity_iterations: 0
-    # contact_offset: 0.02 #TODO
+    num_velocity_iterations: 0 # TODO
+    # num_velocity_iterations: 1
+    # contact_offset: 0.02 # TODO
     contact_offset: 0.001
     rest_offset: 0.0
-    bounce_threshold_velocity: 0.2 # TODO
-    # bounce_threshold_velocity: 0.05
-    # max_depenetration_velocity: 10.0 # TODO
-    max_depenetration_velocity: 5.0
+    # bounce_threshold_velocity: 0.2 # TODO
+    bounce_threshold_velocity: 0.05
+    max_depenetration_velocity: 5.0 # TODO
+    # max_depenetration_velocity: 1.0
     default_buffer_size_multiplier: 5.0
     max_gpu_contact_pairs: 8388608 # 8*1024*1024
     num_subscenes: ${....num_subscenes}

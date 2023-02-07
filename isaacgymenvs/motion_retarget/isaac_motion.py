@@ -18,13 +18,13 @@ import config.bvh_cfg.bvh_cmu_config as bvh_cfg
 urdf model with virtual joint to real model
 """
 
-FILTER = False
-Y_SYMMETRIC = False
-Z_STABLE = False
-VEL_SCALE = 0.7
+FILTER = True
+Y_SYMMETRIC = True
+Z_STABLE = True
+VEL_SCALE = 1.0
 CLIPPING = 10
-Z_OFFSET = 0.067
-# Z_OFFSET = 0.06
+# Z_OFFSET = 0.067
+Z_OFFSET = 0.073
 # Z_OFFSET = 0.1
 
 # KHR_URDF = 'khr_set_limit_joint_w_virtual_joint.urdf'
@@ -101,6 +101,7 @@ def main(urdf_model,
     motion_data = np.load(motion_file_path, allow_pickle=True)
     retarget_frames = motion_data["retarget_frames"]
     frame_duration = motion_data["frame_duration"]
+    non_fixed_joint_indices = motion_data["non_fixed_joint_indices"]
 
     dof_num = len(non_fixed_joint_indices)
     fps = int(1.0 / frame_duration)
