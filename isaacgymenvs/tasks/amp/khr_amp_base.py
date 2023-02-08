@@ -525,7 +525,7 @@ class KHRAMPBase(VecTask):
         self._refresh_sim_tensors()
         self.progress_buf += 1
 
-        self.projected_gravity = quat_rotate_inverse(
+        self.projected_gravity_vec = quat_rotate_inverse(
             self._root_states[:, 3:7], self.gravity_vec)
 
         self._compute_observations()
