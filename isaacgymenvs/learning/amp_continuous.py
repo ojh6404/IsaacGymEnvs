@@ -408,6 +408,10 @@ class AMPAgent(common_agent.CommonAgent):
         self._disc_weight_decay = config['disc_weight_decay']
         self._disc_reward_scale = config['disc_reward_scale']
         self._normalize_amp_input = config.get('normalize_amp_input', True)
+
+        # wasserstein
+        self._wasserstein_loss = config.get('wasserstein_loss', False)
+
         return
 
     def _build_net_config(self):
@@ -422,11 +426,13 @@ class AMPAgent(common_agent.CommonAgent):
 
     def _disc_loss(self, disc_agent_logit, disc_demo_logit, obs_demo):
         # prediction loss
-        # disc_loss_agent = self._disc_loss_neg(disc_agent_logit)
-        # disc_loss_demo = self._disc_loss_pos(disc_demo_logit)
-        # disc_loss = 0.5 * (disc_loss_agent + disc_loss_demo)
-        disc_loss = torch.mean(torch.tanh(disc_agent_logit)) - \
-            torch.mean(torch.tanh(disc_demo_logit))
+        if self._wasserstein_loss:
+            disc_loss = torch.mean(torch.tanh(disc_agent_logit)) - \
+                torch.mean(torch.tanh(disc_demo_logit))
+        else:
+            disc_loss_agent = self._disc_loss_neg(disc_agent_logit)
+            disc_loss_demo = self._disc_loss_pos(disc_demo_logit)
+            disc_loss = 0.5 * (disc_loss_agent + disc_loss_demo)
 
         # logit reg
         logit_weights = self.model.a2c_network.get_disc_logit_weights()
@@ -543,7 +549,6 @@ class AMPAgent(common_agent.CommonAgent):
             prob = 1 / (1 + torch.exp(-disc_logits))
             disc_r = -torch.log(torch.maximum(1 - prob,
                                 torch.tensor(0.0001, device=self.ppo_device)))
-            # disc_r = torch.sigmoid(disc_logits)
             disc_r *= self._disc_reward_scale
         return disc_r
 

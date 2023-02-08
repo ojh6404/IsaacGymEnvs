@@ -16,6 +16,7 @@ env:
     pdControl: True
     Kp: 10.0
     Kd: 0.03
+    randomizeGain: False
     actionScale: 0.279252  # 16 * pi / 180
     # actionScale: 2.0  # 16 * pi / 180
     torqueLimit: 2.5 # N*m, spec sheet : 2.4525 N*m, 25.0 kgf * cm
@@ -43,8 +44,8 @@ env:
 
   asset:
     # assetFileName: "urdf/khr/khr.urdf"
-    assetFileName: "urdf/khr/khr_set_limit_joint.urdf"
-    # assetFileName: "urdf/khr/khr_set_limit_joint_w_small_foot_ver1.urdf"
+    # assetFileName: "urdf/khr/khr_set_limit_joint.urdf"
+    assetFileName: "urdf/khr/khr_set_limit_joint_w_small_foot_ver1.urdf"
 
   plane:
     staticFriction: 1.0
