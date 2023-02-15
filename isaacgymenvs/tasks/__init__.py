@@ -30,15 +30,15 @@
 # from .ant import Ant
 # from .anymal import Anymal
 # from .anymal_terrain import AnymalTerrain
-# from .ball_balance import BallBalance
+from .ball_balance import BallBalance
 # from .cartpole import Cartpole
 # from .factory.factory_task_gears import FactoryTaskGears
 # from .factory.factory_task_insertion import FactoryTaskInsertion
 # from .factory.factory_task_nut_bolt_pick import FactoryTaskNutBoltPick
 # from .factory.factory_task_nut_bolt_place import FactoryTaskNutBoltPlace
 # from .factory.factory_task_nut_bolt_screw import FactoryTaskNutBoltScrew
-# from .franka_cabinet import FrankaCabinet
-# from .franka_cube_stack import FrankaCubeStack
+from .franka_cabinet import FrankaCabinet
+from .franka_cube_stack import FrankaCubeStack
 # from .humanoid import Humanoid
 from .humanoid_amp import HumanoidAMP
 # from .ingenuity import Ingenuity
@@ -53,6 +53,7 @@ from .khr_locomotion import KHRLocomotion
 from .khr_balance import KHRBalance
 from .khr22_balance import KHR22Balance
 from .khr_amp import KHRAMP
+# from .khr_amp_test import KHRAMPTest
 
 # Mappings from strings to environments
 isaacgym_task_map = {
@@ -60,15 +61,15 @@ isaacgym_task_map = {
     # "Ant": Ant,
     # "Anymal": Anymal,
     # "AnymalTerrain": AnymalTerrain,
-    # "BallBalance": BallBalance,
+    "BallBalance": BallBalance,
     # "Cartpole": Cartpole,
     # "FactoryTaskGears": FactoryTaskGears,
     # "FactoryTaskInsertion": FactoryTaskInsertion,
     # "FactoryTaskNutBoltPick": FactoryTaskNutBoltPick,
     # "FactoryTaskNutBoltPlace": FactoryTaskNutBoltPlace,
     # "FactoryTaskNutBoltScrew": FactoryTaskNutBoltScrew,
-    # "FrankaCabinet": FrankaCabinet,
-    # "FrankaCubeStack": FrankaCubeStack,
+    "FrankaCabinet": FrankaCabinet,
+    "FrankaCubeStack": FrankaCubeStack,
     # "Humanoid": Humanoid,
     "HumanoidAMP": HumanoidAMP,
     # "Ingenuity": Ingenuity,
@@ -82,4 +83,5 @@ isaacgym_task_map = {
     "KHRBalance": KHRBalance,
     "KHR22Balance": KHR22Balance,
     "KHRAMP": KHRAMP,
+    # "KHRAMPTest": KHRAMPTest,
 }

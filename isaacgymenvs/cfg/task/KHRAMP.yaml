@@ -44,8 +44,8 @@ env:
 
   asset:
     # assetFileName: "urdf/khr/khr.urdf"
-    # assetFileName: "urdf/khr/khr_set_limit_joint.urdf"
-    assetFileName: "urdf/khr/khr_set_limit_joint_w_small_foot_ver1.urdf"
+    assetFileName: "urdf/khr/khr_set_limit_joint.urdf"
+    # assetFileName: "urdf/khr/khr_set_limit_joint_w_small_foot_ver1.urdf"
 
   plane:
     staticFriction: 1.0

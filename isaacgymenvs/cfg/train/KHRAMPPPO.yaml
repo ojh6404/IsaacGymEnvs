@@ -60,7 +60,7 @@ params:
     gamma: 0.99
     tau: 0.95
     # learning_rate: 5e-5 #TODO
-    learning_rate: 2e-4
+    learning_rate: 5e-5
     lr_schedule: constant
     kl_threshold: 0.008
     score_to_win: 20000
@@ -99,7 +99,8 @@ params:
     disc_weight_decay: 0.0001
     normalize_amp_input: True
 
-    wasserstein_loss: False
+    # wasserstein_loss: False
+    wasserstein_loss: True
 
     # task_reward_w: 0.3
     task_reward_w: 0.0

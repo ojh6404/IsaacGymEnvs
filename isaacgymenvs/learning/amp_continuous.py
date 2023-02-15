@@ -427,8 +427,10 @@ class AMPAgent(common_agent.CommonAgent):
     def _disc_loss(self, disc_agent_logit, disc_demo_logit, obs_demo):
         # prediction loss
         if self._wasserstein_loss:
-            disc_loss = torch.mean(torch.tanh(disc_agent_logit)) - \
-                torch.mean(torch.tanh(disc_demo_logit))
+            disc_loss = 0.5 * (torch.mean(torch.tanh(disc_agent_logit)) -
+                               torch.mean(torch.tanh(disc_demo_logit)))
+            # disc_loss = 0.5 * (torch.mean(disc_agent_logit) -
+            #                    torch.mean(disc_demo_logit))
         else:
             disc_loss_agent = self._disc_loss_neg(disc_agent_logit)
             disc_loss_demo = self._disc_loss_pos(disc_demo_logit)

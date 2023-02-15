@@ -21,7 +21,7 @@ urdf model with virtual joint to real model
 FILTER = True
 Y_SYMMETRIC = True
 Z_STABLE = True
-VEL_SCALE = 1.0
+X_POS_SCALE = 0.8
 CLIPPING = 10
 # Z_OFFSET = 0.067
 Z_OFFSET = 0.073
@@ -118,13 +118,13 @@ def main(urdf_model,
     base_quat = retarget_frames[:, 3:7]
     dof_pos = retarget_frames[:, 7:7+dof_num]
 
+    if X_POS_SCALE is not None:
+        base_pos[:, 0] = base_pos[:, 0] * X_POS_SCALE
+
     if FILTER:
         for i in range(dof_pos.shape[-1]):
             dof_pos[:, i] = filters.gaussian_filter1d(
                 dof_pos[:, i], 2, axis=-1, mode="nearest")
-
-    if VEL_SCALE is not None:
-        base_pos[:, 0] = base_pos[:, 0] * VEL_SCALE
 
     """
     reorder joint order from pybullet to isaac

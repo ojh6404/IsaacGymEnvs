@@ -88,11 +88,11 @@ env:
     defaultDofDriveMode: 0 # see GymDofDriveModeFlags (0 is none, 1 is pos tgt, 2 is vel tgt, 4 effort)
 
   assetOptions:
-    maxLinearVelocity: 10.0
-    maxAngularVelocity: 10.0
+    maxLinearVelocity: 100.0
+    maxAngularVelocity: 100.0
     linearDamping: 0.0
     angularDamping: 0.0
-    armature: 0.0
+    armature: 1e-5
     thickness: 0.0001
     disableGravity: False
 

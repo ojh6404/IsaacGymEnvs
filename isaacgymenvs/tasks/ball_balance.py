@@ -81,15 +81,19 @@ class BallBalance(VecTask):
         # Actions: target velocities for the 3 actuated DOFs
         self.cfg["env"]["numActions"] = 3
 
-        super().__init__(config=self.cfg, rl_device=rl_device, sim_device=sim_device, graphics_device_id=graphics_device_id, headless=headless, virtual_screen_capture=virtual_screen_capture, force_render=force_render)
+        super().__init__(config=self.cfg, rl_device=rl_device, sim_device=sim_device, graphics_device_id=graphics_device_id,
+                         headless=headless, virtual_screen_capture=virtual_screen_capture, force_render=force_render)
 
         self.root_tensor = self.gym.acquire_actor_root_state_tensor(self.sim)
         self.dof_state_tensor = self.gym.acquire_dof_state_tensor(self.sim)
         self.sensor_tensor = self.gym.acquire_force_sensor_tensor(self.sim)
 
-        vec_root_tensor = gymtorch.wrap_tensor(self.root_tensor).view(self.num_envs, actors_per_env, 13)
-        vec_dof_tensor = gymtorch.wrap_tensor(self.dof_state_tensor).view(self.num_envs, dofs_per_env, 2)
-        vec_sensor_tensor = gymtorch.wrap_tensor(self.sensor_tensor).view(self.num_envs, sensors_per_env, 6)
+        vec_root_tensor = gymtorch.wrap_tensor(
+            self.root_tensor).view(self.num_envs, actors_per_env, 13)
+        vec_dof_tensor = gymtorch.wrap_tensor(
+            self.dof_state_tensor).view(self.num_envs, dofs_per_env, 2)
+        vec_sensor_tensor = gymtorch.wrap_tensor(
+            self.sensor_tensor).view(self.num_envs, sensors_per_env, 6)
 
         self.root_states = vec_root_tensor
         self.tray_positions = vec_root_tensor[..., 0, 0:3]
@@ -111,10 +115,13 @@ class BallBalance(VecTask):
         self.initial_dof_states = self.dof_states.clone()
         self.initial_root_states = vec_root_tensor.clone()
 
-        self.dof_position_targets = torch.zeros((self.num_envs, dofs_per_env), dtype=torch.float32, device=self.device, requires_grad=False)
+        self.dof_position_targets = torch.zeros(
+            (self.num_envs, dofs_per_env), dtype=torch.float32, device=self.device, requires_grad=False)
 
-        self.all_actor_indices = torch.arange(actors_per_env * self.num_envs, dtype=torch.int32, device=self.device).view(self.num_envs, actors_per_env)
-        self.all_bbot_indices = actors_per_env * torch.arange(self.num_envs, dtype=torch.int32, device=self.device)
+        self.all_actor_indices = torch.arange(
+            actors_per_env * self.num_envs, dtype=torch.int32, device=self.device).view(self.num_envs, actors_per_env)
+        self.all_bbot_indices = actors_per_env * \
+            torch.arange(self.num_envs, dtype=torch.int32, device=self.device)
 
         # vis
         self.axes_geom = gymutil.AxesGeometry(0.2)
@@ -126,11 +133,13 @@ class BallBalance(VecTask):
         self.sim_params.gravity.y = 0
         self.sim_params.gravity.z = -9.81
 
-        self.sim = super().create_sim(self.device_id, self.graphics_device_id, self.physics_engine, self.sim_params)
+        self.sim = super().create_sim(self.device_id, self.graphics_device_id,
+                                      self.physics_engine, self.sim_params)
 
         self._create_balance_bot_asset()
         self._create_ground_plane()
-        self._create_envs(self.num_envs, self.cfg["env"]['envSpacing'], int(np.sqrt(self.num_envs)))
+        self._create_envs(
+            self.num_envs, self.cfg["env"]['envSpacing'], int(np.sqrt(self.num_envs)))
 
     def _create_balance_bot_asset(self):
         # there is an asset balance_bot.xml, here we override some features.
@@ -142,7 +151,8 @@ class BallBalance(VecTask):
         leg_length = leg_outer_offset - 2 * leg_radius
         leg_inner_offset = leg_outer_offset - leg_length / math.sqrt(2)
 
-        tray_height = leg_length * math.sqrt(2) + 2 * leg_radius + 0.5 * tray_thickness
+        tray_height = leg_length * \
+            math.sqrt(2) + 2 * leg_radius + 0.5 * tray_thickness
 
         root = ET.Element('mujoco')
         root.attrib["model"] = "BalanceBot"
@@ -160,7 +170,8 @@ class BallBalance(VecTask):
         tray_joint.attrib["type"] = "free"
         tray_geom = ET.SubElement(tray, "geom")
         tray_geom.attrib["type"] = "cylinder"
-        tray_geom.attrib["size"] = "%g %g" % (tray_radius, 0.5 * tray_thickness)
+        tray_geom.attrib["size"] = "%g %g" % (
+            tray_radius, 0.5 * tray_thickness)
         tray_geom.attrib["pos"] = "0 0 0"
         tray_geom.attrib["density"] = "100"
 
@@ -177,19 +188,24 @@ class BallBalance(VecTask):
             upper_leg_to.y = leg_inner_offset * math.sin(angle)
             upper_leg_to.z = upper_leg_from.z - leg_length / math.sqrt(2)
             upper_leg_pos = (upper_leg_from + upper_leg_to) * 0.5
-            upper_leg_quat = gymapi.Quat.from_euler_zyx(0, -0.75 * math.pi, angle)
+            upper_leg_quat = gymapi.Quat.from_euler_zyx(
+                0, -0.75 * math.pi, angle)
             upper_leg = ET.SubElement(tray, "body")
             upper_leg.attrib["name"] = "upper_leg" + str(i)
-            upper_leg.attrib["pos"] = "%g %g %g" % (upper_leg_pos.x, upper_leg_pos.y, upper_leg_pos.z)
-            upper_leg.attrib["quat"] = "%g %g %g %g" % (upper_leg_quat.w, upper_leg_quat.x, upper_leg_quat.y, upper_leg_quat.z)
+            upper_leg.attrib["pos"] = "%g %g %g" % (
+                upper_leg_pos.x, upper_leg_pos.y, upper_leg_pos.z)
+            upper_leg.attrib["quat"] = "%g %g %g %g" % (
+                upper_leg_quat.w, upper_leg_quat.x, upper_leg_quat.y, upper_leg_quat.z)
             upper_leg_geom = ET.SubElement(upper_leg, "geom")
             upper_leg_geom.attrib["type"] = "capsule"
-            upper_leg_geom.attrib["size"] = "%g %g" % (leg_radius, 0.5 * leg_length)
+            upper_leg_geom.attrib["size"] = "%g %g" % (
+                leg_radius, 0.5 * leg_length)
             upper_leg_geom.attrib["density"] = "1000"
             upper_leg_joint = ET.SubElement(upper_leg, "joint")
             upper_leg_joint.attrib["name"] = "upper_leg_joint" + str(i)
             upper_leg_joint.attrib["type"] = "hinge"
-            upper_leg_joint.attrib["pos"] = "%g %g %g" % (0, 0, -0.5 * leg_length)
+            upper_leg_joint.attrib["pos"] = "%g %g %g" % (
+                0, 0, -0.5 * leg_length)
             upper_leg_joint.attrib["axis"] = "0 1 0"
             upper_leg_joint.attrib["limited"] = "true"
             upper_leg_joint.attrib["range"] = "-45 45"
@@ -198,16 +214,20 @@ class BallBalance(VecTask):
             lower_leg_quat = gymapi.Quat.from_euler_zyx(0, -0.5 * math.pi, 0)
             lower_leg = ET.SubElement(upper_leg, "body")
             lower_leg.attrib["name"] = "lower_leg" + str(i)
-            lower_leg.attrib["pos"] = "%g %g %g" % (lower_leg_pos.x, lower_leg_pos.y, lower_leg_pos.z)
-            lower_leg.attrib["quat"] = "%g %g %g %g" % (lower_leg_quat.w, lower_leg_quat.x, lower_leg_quat.y, lower_leg_quat.z)
+            lower_leg.attrib["pos"] = "%g %g %g" % (
+                lower_leg_pos.x, lower_leg_pos.y, lower_leg_pos.z)
+            lower_leg.attrib["quat"] = "%g %g %g %g" % (
+                lower_leg_quat.w, lower_leg_quat.x, lower_leg_quat.y, lower_leg_quat.z)
             lower_leg_geom = ET.SubElement(lower_leg, "geom")
             lower_leg_geom.attrib["type"] = "capsule"
-            lower_leg_geom.attrib["size"] = "%g %g" % (leg_radius, 0.5 * leg_length)
+            lower_leg_geom.attrib["size"] = "%g %g" % (
+                leg_radius, 0.5 * leg_length)
             lower_leg_geom.attrib["density"] = "1000"
             lower_leg_joint = ET.SubElement(lower_leg, "joint")
             lower_leg_joint.attrib["name"] = "lower_leg_joint" + str(i)
             lower_leg_joint.attrib["type"] = "hinge"
-            lower_leg_joint.attrib["pos"] = "%g %g %g" % (0, 0, -0.5 * leg_length)
+            lower_leg_joint.attrib["pos"] = "%g %g %g" % (
+                0, 0, -0.5 * leg_length)
             lower_leg_joint.attrib["axis"] = "0 1 0"
             lower_leg_joint.attrib["limited"] = "true"
             lower_leg_joint.attrib["range"] = "-70 90"
@@ -241,7 +261,8 @@ class BallBalance(VecTask):
         bbot_options = gymapi.AssetOptions()
         bbot_options.fix_base_link = False
         bbot_options.slices_per_cylinder = 40
-        bbot_asset = self.gym.load_asset(self.sim, asset_root, asset_file, bbot_options)
+        bbot_asset = self.gym.load_asset(
+            self.sim, asset_root, asset_file, bbot_options)
 
         # printed view of asset built
         # self.gym.debug_print_asset(bbot_asset)
@@ -255,25 +276,30 @@ class BallBalance(VecTask):
             self.bbot_dof_lower_limits.append(bbot_dof_props['lower'][i])
             self.bbot_dof_upper_limits.append(bbot_dof_props['upper'][i])
 
-        self.bbot_dof_lower_limits = to_torch(self.bbot_dof_lower_limits, device=self.device)
-        self.bbot_dof_upper_limits = to_torch(self.bbot_dof_upper_limits, device=self.device)
+        self.bbot_dof_lower_limits = to_torch(
+            self.bbot_dof_lower_limits, device=self.device)
+        self.bbot_dof_upper_limits = to_torch(
+            self.bbot_dof_upper_limits, device=self.device)
 
         bbot_pose = gymapi.Transform()
         bbot_pose.p.z = self.tray_height
 
         # create force sensors attached to the tray body
-        bbot_tray_idx = self.gym.find_asset_rigid_body_index(bbot_asset, "tray")
+        bbot_tray_idx = self.gym.find_asset_rigid_body_index(
+            bbot_asset, "tray")
         for angle in self.leg_angles:
             sensor_pose = gymapi.Transform()
             sensor_pose.p.x = self.leg_outer_offset * math.cos(angle)
             sensor_pose.p.y = self.leg_outer_offset * math.sin(angle)
-            self.gym.create_asset_force_sensor(bbot_asset, bbot_tray_idx, sensor_pose)
+            self.gym.create_asset_force_sensor(
+                bbot_asset, bbot_tray_idx, sensor_pose)
 
         # create ball asset
         self.ball_radius = 0.1
         ball_options = gymapi.AssetOptions()
         ball_options.density = 200
-        ball_asset = self.gym.create_sphere(self.sim, self.ball_radius, ball_options)
+        ball_asset = self.gym.create_sphere(
+            self.sim, self.ball_radius, ball_options)
 
         self.envs = []
         self.bbot_handles = []
@@ -283,7 +309,8 @@ class BallBalance(VecTask):
             env_ptr = self.gym.create_env(
                 self.sim, lower, upper, num_per_row
             )
-            bbot_handle = self.gym.create_actor(env_ptr, bbot_asset, bbot_pose, "bbot", i, 0, 0)
+            bbot_handle = self.gym.create_actor(
+                env_ptr, bbot_asset, bbot_pose, "bbot", i, 0, 0)
 
             actuated_dofs = np.array([1, 3, 5])
             free_dofs = np.array([0, 2, 4])
@@ -298,9 +325,12 @@ class BallBalance(VecTask):
             self.gym.set_actor_dof_properties(env_ptr, bbot_handle, dof_props)
 
             lower_leg_handles = []
-            lower_leg_handles.append(self.gym.find_actor_rigid_body_handle(env_ptr, bbot_handle, "lower_leg0"))
-            lower_leg_handles.append(self.gym.find_actor_rigid_body_handle(env_ptr, bbot_handle, "lower_leg1"))
-            lower_leg_handles.append(self.gym.find_actor_rigid_body_handle(env_ptr, bbot_handle, "lower_leg2"))
+            lower_leg_handles.append(self.gym.find_actor_rigid_body_handle(
+                env_ptr, bbot_handle, "lower_leg0"))
+            lower_leg_handles.append(self.gym.find_actor_rigid_body_handle(
+                env_ptr, bbot_handle, "lower_leg1"))
+            lower_leg_handles.append(self.gym.find_actor_rigid_body_handle(
+                env_ptr, bbot_handle, "lower_leg2"))
 
             # create attractors to hold the feet in place
             attractor_props = gymapi.AttractorProperties()
@@ -311,9 +341,11 @@ class BallBalance(VecTask):
                 angle = self.leg_angles[j]
                 attractor_props.rigid_handle = lower_leg_handles[j]
                 # attractor world pose to keep the feet in place
-                attractor_props.target.p.x = self.leg_outer_offset * math.cos(angle)
+                attractor_props.target.p.x = self.leg_outer_offset * \
+                    math.cos(angle)
                 attractor_props.target.p.z = self.leg_radius
-                attractor_props.target.p.y = self.leg_outer_offset * math.sin(angle)
+                attractor_props.target.p.y = self.leg_outer_offset * \
+                    math.sin(angle)
                 # attractor local pose in lower leg body
                 attractor_props.offset.p.z = 0.5 * self.leg_length
                 self.gym.create_rigid_body_attractor(env_ptr, attractor_props)
@@ -321,14 +353,18 @@ class BallBalance(VecTask):
             ball_pose = gymapi.Transform()
             ball_pose.p.x = 0.2
             ball_pose.p.z = 2.0
-            ball_handle = self.gym.create_actor(env_ptr, ball_asset, ball_pose, "ball", i, 0, 0)
+            ball_handle = self.gym.create_actor(
+                env_ptr, ball_asset, ball_pose, "ball", i, 0, 0)
             self.obj_handles.append(ball_handle)
 
             # pretty colors
-            self.gym.set_rigid_body_color(env_ptr, ball_handle, 0, gymapi.MESH_VISUAL, gymapi.Vec3(0.99, 0.66, 0.25))
-            self.gym.set_rigid_body_color(env_ptr, bbot_handle, 0, gymapi.MESH_VISUAL, gymapi.Vec3(0.48, 0.65, 0.8))
+            self.gym.set_rigid_body_color(
+                env_ptr, ball_handle, 0, gymapi.MESH_VISUAL, gymapi.Vec3(0.99, 0.66, 0.25))
+            self.gym.set_rigid_body_color(
+                env_ptr, bbot_handle, 0, gymapi.MESH_VISUAL, gymapi.Vec3(0.48, 0.65, 0.8))
             for j in range(1, 7):
-                self.gym.set_rigid_body_color(env_ptr, bbot_handle, j, gymapi.MESH_VISUAL, gymapi.Vec3(0.15, 0.2, 0.3))
+                self.gym.set_rigid_body_color(
+                    env_ptr, bbot_handle, j, gymapi.MESH_VISUAL, gymapi.Vec3(0.15, 0.2, 0.3))
 
             self.envs.append(env_ptr)
             self.bbot_handles.append(bbot_handle)
@@ -343,10 +379,14 @@ class BallBalance(VecTask):
         self.obs_buf[..., 3:6] = self.dof_velocities[..., actuated_dof_indices]
         self.obs_buf[..., 6:9] = self.ball_positions
         self.obs_buf[..., 9:12] = self.ball_linvels
-        self.obs_buf[..., 12:15] = self.sensor_forces[..., 0] / 20  # !!! lousy normalization
-        self.obs_buf[..., 15:18] = self.sensor_torques[..., 0] / 20  # !!! lousy normalization
-        self.obs_buf[..., 18:21] = self.sensor_torques[..., 1] / 20  # !!! lousy normalization
-        self.obs_buf[..., 21:24] = self.sensor_torques[..., 2] / 20  # !!! lousy normalization
+        self.obs_buf[..., 12:15] = self.sensor_forces[..., 0] / \
+            20  # !!! lousy normalization
+        self.obs_buf[..., 15:18] = self.sensor_torques[..., 0] / \
+            20  # !!! lousy normalization
+        self.obs_buf[..., 18:21] = self.sensor_torques[..., 1] / \
+            20  # !!! lousy normalization
+        self.obs_buf[..., 21:24] = self.sensor_torques[..., 2] / \
+            20  # !!! lousy normalization
 
         return self.obs_buf
 
@@ -377,12 +417,15 @@ class BallBalance(VecTask):
         hpos = dists * dirs
 
         speedscales = (dists - min_d) / (max_d - min_d)
-        hspeeds = torch_rand_float(min_horizontal_speed, max_horizontal_speed, (num_resets, 1), self.device)
+        hspeeds = torch_rand_float(
+            min_horizontal_speed, max_horizontal_speed, (num_resets, 1), self.device)
         hvels = -speedscales * hspeeds * dirs
-        vspeeds = -torch_rand_float(5.0, 5.0, (num_resets, 1), self.device).squeeze()
+        vspeeds = -torch_rand_float(5.0, 5.0,
+                                    (num_resets, 1), self.device).squeeze()
 
         self.ball_positions[env_ids, 0] = hpos[..., 0]
-        self.ball_positions[env_ids, 2] = torch_rand_float(min_height, max_height, (num_resets, 1), self.device).squeeze()
+        self.ball_positions[env_ids, 2] = torch_rand_float(
+            min_height, max_height, (num_resets, 1), self.device).squeeze()
         self.ball_positions[env_ids, 1] = hpos[..., 1]
         self.ball_orientations[env_ids, 0:3] = 0
         self.ball_orientations[env_ids, 3] = 1
@@ -393,12 +436,14 @@ class BallBalance(VecTask):
 
         # reset root state for bbots and balls in selected envs
         actor_indices = self.all_actor_indices[env_ids].flatten()
-        self.gym.set_actor_root_state_tensor_indexed(self.sim, self.root_tensor, gymtorch.unwrap_tensor(actor_indices), len(actor_indices))
+        self.gym.set_actor_root_state_tensor_indexed(
+            self.sim, self.root_tensor, gymtorch.unwrap_tensor(actor_indices), len(actor_indices))
 
         # reset DOF states for bbots in selected envs
         bbot_indices = self.all_bbot_indices[env_ids].flatten()
         self.dof_states[env_ids] = self.initial_dof_states[env_ids]
-        self.gym.set_dof_state_tensor_indexed(self.sim, self.dof_state_tensor, gymtorch.unwrap_tensor(bbot_indices), len(bbot_indices))
+        self.gym.set_dof_state_tensor_indexed(
+            self.sim, self.dof_state_tensor, gymtorch.unwrap_tensor(bbot_indices), len(bbot_indices))
 
         self.reset_buf[env_ids] = 0
         self.progress_buf[env_ids] = 0
@@ -415,13 +460,16 @@ class BallBalance(VecTask):
         actuated_indices = torch.LongTensor([1, 3, 5])
 
         # update position targets from actions
-        self.dof_position_targets[..., actuated_indices] += self.dt * self.action_speed_scale * actions
-        self.dof_position_targets[:] = tensor_clamp(self.dof_position_targets, self.bbot_dof_lower_limits, self.bbot_dof_upper_limits)
+        self.dof_position_targets[..., actuated_indices] += self.dt * \
+            self.action_speed_scale * actions
+        self.dof_position_targets[:] = tensor_clamp(
+            self.dof_position_targets, self.bbot_dof_lower_limits, self.bbot_dof_upper_limits)
 
         # reset position targets for reset envs
         self.dof_position_targets[reset_env_ids] = 0
 
-        self.gym.set_dof_position_target_tensor(self.sim, gymtorch.unwrap_tensor(self.dof_position_targets))
+        self.gym.set_dof_position_target_tensor(
+            self.sim, gymtorch.unwrap_tensor(self.dof_position_targets))
 
     def post_physics_step(self):
 
@@ -441,13 +489,17 @@ class BallBalance(VecTask):
                 env = self.envs[i]
                 bbot_handle = self.bbot_handles[i]
                 body_handles = []
-                body_handles.append(self.gym.find_actor_rigid_body_handle(env, bbot_handle, "upper_leg0"))
-                body_handles.append(self.gym.find_actor_rigid_body_handle(env, bbot_handle, "upper_leg1"))
-                body_handles.append(self.gym.find_actor_rigid_body_handle(env, bbot_handle, "upper_leg2"))
+                body_handles.append(self.gym.find_actor_rigid_body_handle(
+                    env, bbot_handle, "upper_leg0"))
+                body_handles.append(self.gym.find_actor_rigid_body_handle(
+                    env, bbot_handle, "upper_leg1"))
+                body_handles.append(self.gym.find_actor_rigid_body_handle(
+                    env, bbot_handle, "upper_leg2"))
 
                 for lhandle in body_handles:
                     lpose = self.gym.get_rigid_transform(env, lhandle)
-                    gymutil.draw_lines(self.axes_geom, self.gym, self.viewer, env, lpose)
+                    gymutil.draw_lines(
+                        self.axes_geom, self.gym, self.viewer, env, lpose)
 
 
 #####################################################################
@@ -469,7 +521,9 @@ def compute_bbot_reward(tray_positions, ball_positions, ball_velocities, ball_ra
     speed_reward = 1.0 / (1.0 + ball_speed)
     reward = pos_reward * speed_reward
 
-    reset = torch.where(progress_buf >= max_episode_length - 1, torch.ones_like(reset_buf), reset_buf)
-    reset = torch.where(ball_positions[..., 2] < ball_radius * 1.5, torch.ones_like(reset_buf), reset)
+    reset = torch.where(progress_buf >= max_episode_length -
+                        1, torch.ones_like(reset_buf), reset_buf)
+    reset = torch.where(
+        ball_positions[..., 2] < ball_radius * 1.5, torch.ones_like(reset_buf), reset)
 
     return reward, reset
