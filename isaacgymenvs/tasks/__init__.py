@@ -54,6 +54,7 @@ from .khr_balance import KHRBalance
 from .khr22_balance import KHR22Balance
 from .khr_amp import KHRAMP
 # from .khr_amp_test import KHRAMPTest
+from .kinova_cabinet import KinovaCabinet
 
 # Mappings from strings to environments
 isaacgym_task_map = {
@@ -83,5 +84,6 @@ isaacgym_task_map = {
     "KHRBalance": KHRBalance,
     "KHR22Balance": KHR22Balance,
     "KHRAMP": KHRAMP,
+    "KinovaCabinet": KinovaCabinet,
     # "KHRAMPTest": KHRAMPTest,
 }

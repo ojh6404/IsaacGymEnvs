@@ -36,13 +36,13 @@ class AssetDesc:
 asset_descriptors = [
     # AssetDesc("urdf/khr/khr22/khr22_refined_mesh_w_small_foot.urdf", False),
     # AssetDesc("urdf/kinova/gen3.urdf", False),
-    # AssetDesc("urdf/kinova/gen3_robotiq_2f_140.urdf", False),
-    AssetDesc("urdf/kinova/gen3_table_tennis_pad.urdf", False),
-    AssetDesc("mjcf/nv_ant.xml", False),
-    AssetDesc("urdf/cartpole.urdf", False),
-    AssetDesc("urdf/sektion_cabinet_model/urdf/sektion_cabinet.urdf", False),
+    AssetDesc("urdf/kinova/gen3_robotiq_2f_140.urdf", False),
+    # AssetDesc("urdf/kinova/gen3_table_tennis_pad.urdf", False),
+    # AssetDesc("mjcf/nv_ant.xml", False),
+    # AssetDesc("urdf/cartpole.urdf", False),
+    # AssetDesc("urdf/sektion_cabinet_model/urdf/sektion_cabinet.urdf", False),
     AssetDesc("urdf/franka_description/robots/franka_panda.urdf", True),
-    AssetDesc("urdf/anymal_c/urdf/anymal.urdf", False),
+    # AssetDesc("urdf/anymal_c/urdf/anymal.urdf", False),
 ]
 
 

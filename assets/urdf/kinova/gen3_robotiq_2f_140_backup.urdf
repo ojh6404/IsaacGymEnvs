@@ -49,12 +49,12 @@
       </geometry>
     </collision>
   </link>
-  <joint name="joint_1" type="revolute">
+  <joint name="joint_1" type="continuous">
     <origin rpy="3.1416 2.7629E-18 -4.9305E-36" xyz="0 0 0.15643"/>
     <parent link="base_link"/>
     <child link="shoulder_link"/>
     <axis xyz="0 0 1"/>
-    <limit effort="39" velocity="1.3963" lower="-3.141592" upper="3.14152"  />
+    <limit effort="39" velocity="1.3963"/>
   </joint>
   <link name="half_arm_1_link">
     <inertial>
@@ -107,12 +107,12 @@
       </geometry>
     </collision>
   </link>
-  <joint name="joint_3" type="revolute">
+  <joint name="joint_3" type="continuous">
     <origin rpy="-1.5708 1.2326E-32 -2.9122E-16" xyz="0 -0.21038 -0.006375"/>
     <parent link="half_arm_1_link"/>
     <child link="half_arm_2_link"/>
     <axis xyz="0 0 1"/>
-    <limit effort="39" velocity="1.3963" lower="-3.141592" upper="3.141592"/>
+    <limit effort="39" velocity="1.3963"/>
   </joint>
   <link name="forearm_link">
     <inertial>
@@ -165,12 +165,12 @@
       </geometry>
     </collision>
   </link>
-  <joint name="joint_5" type="revolute">
+  <joint name="joint_5" type="continuous">
     <origin rpy="-1.5708 2.2204E-16 -6.373E-17" xyz="0 -0.20843 -0.006375"/>
     <parent link="forearm_link"/>
     <child link="spherical_wrist_1_link"/>
     <axis xyz="0 0 1"/>
-    <limit effort="9" velocity="1.2218" lower="-3.141592" upper="3.141592"/>
+    <limit effort="9" velocity="1.2218"/>
   </joint>
   <link name="spherical_wrist_2_link">
     <inertial>
@@ -223,12 +223,12 @@
       </geometry>
     </collision>
   </link>
-  <joint name="joint_7" type="revolute">
+  <joint name="joint_7" type="continuous">
     <origin rpy="-1.5708 -5.5511E-17 9.6396E-17" xyz="0 -0.10593 -0.00017505"/>
     <parent link="spherical_wrist_2_link"/>
     <child link="bracelet_link"/>
     <axis xyz="0 0 1"/>
-    <limit effort="9" velocity="1.2218" lower="-3.141592" upper="3.141592"/>
+    <limit effort="9" velocity="1.2218"/>
   </joint>
   <link name="end_effector_link"/>
   <joint name="end_effector" type="fixed">
@@ -564,8 +564,7 @@
     <parent link="robotiq_arg2f_base_link"/>
     <child link="left_inner_knuckle"/>
     <axis xyz="1 0 0"/>
-    <!-- <limit effort="1000" lower="-0.8757" upper="0.8757" velocity="2.0"/> -->
-    <limit effort="1000" lower="-0.8757" upper="0" velocity="2.0"/>
+    <limit effort="1000" lower="-0.8757" upper="0.8757" velocity="2.0"/>
     <mimic joint="finger_joint" multiplier="-1" offset="0"/>
   </joint>
   <joint name="left_inner_finger_joint" type="revolute">
@@ -573,8 +572,7 @@
     <parent link="left_outer_finger"/>
     <child link="left_inner_finger"/>
     <axis xyz="1 0 0"/>
-    <!-- <limit effort="1000" lower="-0.8757" upper="0.8757" velocity="2.0"/> -->
-    <limit effort="1000" lower="0" upper="0.8757" velocity="2.0"/>
+    <limit effort="1000" lower="-0.8757" upper="0.8757" velocity="2.0"/>
     <mimic joint="finger_joint" multiplier="1" offset="0"/>
   </joint>
   <joint name="left_inner_finger_pad_joint" type="fixed">
@@ -588,8 +586,7 @@
     <parent link="robotiq_arg2f_base_link"/>
     <child link="right_outer_knuckle"/>
     <axis xyz="1 0 0"/>
-    <!-- <limit effort="1000" lower="-0.725" upper="0.725" velocity="2.0"/> -->
-    <limit effort="1000" lower="-0.725" upper="0" velocity="2.0"/>
+    <limit effort="1000" lower="-0.725" upper="0.725" velocity="2.0"/>
     <mimic joint="finger_joint" multiplier="-1" offset="0"/>
   </joint>
   <joint name="right_outer_finger_joint" type="fixed">
@@ -603,8 +600,7 @@
     <parent link="robotiq_arg2f_base_link"/>
     <child link="right_inner_knuckle"/>
     <axis xyz="1 0 0"/>
-    <!-- <limit effort="1000" lower="-0.8757" upper="0.8757" velocity="2.0"/> -->
-    <limit effort="1000" lower="-0.8757" upper="0" velocity="2.0"/>
+    <limit effort="1000" lower="-0.8757" upper="0.8757" velocity="2.0"/>
     <mimic joint="finger_joint" multiplier="-1" offset="0"/>
   </joint>
   <joint name="right_inner_finger_joint" type="revolute">
@@ -612,8 +608,7 @@
     <parent link="right_outer_finger"/>
     <child link="right_inner_finger"/>
     <axis xyz="1 0 0"/>
-    <!-- <limit effort="1000" lower="-0.8757" upper="0.8757" velocity="2.0"/> -->
-    <limit effort="1000" lower="0" upper="0.8757" velocity="2.0"/>
+    <limit effort="1000" lower="-0.8757" upper="0.8757" velocity="2.0"/>
     <mimic joint="finger_joint" multiplier="1" offset="0"/>
   </joint>
   <joint name="right_inner_finger_pad_joint" type="fixed">
