@@ -24,6 +24,7 @@ import os
 def clamp(x, min_value, max_value):
     return max(min(x, max_value), min_value)
 
+
 # simple asset descriptor for selecting from a list
 
 
@@ -34,8 +35,8 @@ class AssetDesc:
 
 
 asset_descriptors = [
-    # AssetDesc("urdf/khr/khr22/khr22_refined_mesh_w_small_foot.urdf", False),
     # AssetDesc("urdf/kinova/gen3.urdf", False),
+    AssetDesc("urdf/a0b/A0B.urdf", False),
     AssetDesc("urdf/kinova/gen3_robotiq_2f_140.urdf", False),
     # AssetDesc("urdf/kinova/gen3_table_tennis_pad.urdf", False),
     # AssetDesc("mjcf/nv_ant.xml", False),
@@ -50,15 +51,27 @@ asset_descriptors = [
 args = gymutil.parse_arguments(
     description="Joint monkey: Animate degree-of-freedom ranges",
     custom_parameters=[
-        {"name": "--asset_id", "type": int, "default": 0,
-            "help": "Asset id (0 - %d)" % (len(asset_descriptors) - 1)},
-        {"name": "--speed_scale", "type": float,
-            "default": 1.0, "help": "Animation speed scale"},
-        {"name": "--show_axis", "action": "store_true", "help": "Visualize DOF axis"}])
+        {
+            "name": "--asset_id",
+            "type": int,
+            "default": 0,
+            "help": "Asset id (0 - %d)" % (len(asset_descriptors) - 1),
+        },
+        {
+            "name": "--speed_scale",
+            "type": float,
+            "default": 1.0,
+            "help": "Animation speed scale",
+        },
+        {"name": "--show_axis", "action": "store_true", "help": "Visualize DOF axis"},
+    ],
+)
 
 if args.asset_id < 0 or args.asset_id >= len(asset_descriptors):
-    print("*** Invalid asset_id specified.  Valid range is 0 to %d" %
-          (len(asset_descriptors) - 1))
+    print(
+        "*** Invalid asset_id specified.  Valid range is 0 to %d"
+        % (len(asset_descriptors) - 1)
+    )
     quit()
 
 
@@ -81,8 +94,9 @@ sim_params.use_gpu_pipeline = False
 if args.use_gpu_pipeline:
     print("WARNING: Forcing CPU pipeline.")
 
-sim = gym.create_sim(args.compute_device_id,
-                     args.graphics_device_id, args.physics_engine, sim_params)
+sim = gym.create_sim(
+    args.compute_device_id, args.graphics_device_id, args.physics_engine, sim_params
+)
 if sim is None:
     print("*** Failed to create sim")
     quit()
@@ -103,7 +117,9 @@ asset_file = asset_descriptors[args.asset_id].file_name
 
 asset_options = gymapi.AssetOptions()
 asset_options.fix_base_link = True
-asset_options.flip_visual_attachments = asset_descriptors[args.asset_id].flip_visual_attachments
+asset_options.flip_visual_attachments = asset_descriptors[
+    args.asset_id
+].flip_visual_attachments
 asset_options.use_mesh_materials = True
 
 print("Loading asset '%s' from '%s'" % (asset_file, asset_root))
@@ -123,15 +139,15 @@ dof_states = np.zeros(num_dofs, dtype=gymapi.DofState.dtype)
 dof_types = [gym.get_asset_dof_type(asset, i) for i in range(num_dofs)]
 
 # get the position slice of the DOF state array
-dof_positions = dof_states['pos']
+dof_positions = dof_states["pos"]
 
 # get the limit-related slices of the DOF properties array
-stiffnesses = dof_props['stiffness']
-dampings = dof_props['damping']
-armatures = dof_props['armature']
-has_limits = dof_props['hasLimits']
-lower_limits = dof_props['lower']
-upper_limits = dof_props['upper']
+stiffnesses = dof_props["stiffness"]
+dampings = dof_props["damping"]
+armatures = dof_props["armature"]
+has_limits = dof_props["hasLimits"]
+lower_limits = dof_props["lower"]
+upper_limits = dof_props["upper"]
 
 # initialize default positions, limits, and speeds (make sure they are in reasonable ranges)
 defaults = np.zeros(num_dofs)
@@ -160,12 +176,13 @@ for i in range(num_dofs):
     dof_positions[i] = defaults[i]
     # set speed depending on DOF type and range of motion
     if dof_types[i] == gymapi.DOF_ROTATION:
-        speeds[i] = args.speed_scale * \
-            clamp(2 * (upper_limits[i] - lower_limits[i]),
-                  0.25 * math.pi, 3.0 * math.pi)
+        speeds[i] = args.speed_scale * clamp(
+            2 * (upper_limits[i] - lower_limits[i]), 0.25 * math.pi, 3.0 * math.pi
+        )
     else:
-        speeds[i] = args.speed_scale * \
-            clamp(2 * (upper_limits[i] - lower_limits[i]), 0.1, 7.0)
+        speeds[i] = args.speed_scale * clamp(
+            2 * (upper_limits[i] - lower_limits[i]), 0.1, 7.0
+        )
 
 # Print DOF properties
 for i in range(num_dofs):
@@ -225,7 +242,6 @@ current_dof = 0
 print("Animating DOF %d ('%s')" % (current_dof, dof_names[current_dof]))
 
 while not gym.query_viewer_has_closed(viewer):
-
     # step the physics
     gym.simulate(sim)
     gym.fetch_results(sim, True)
@@ -252,8 +268,7 @@ while not gym.query_viewer_has_closed(viewer):
         dof_positions[current_dof] = defaults[current_dof]
         current_dof = (current_dof + 1) % num_dofs
         anim_state = ANIM_SEEK_LOWER
-        print("Animating DOF %d ('%s')" %
-              (current_dof, dof_names[current_dof]))
+        print("Animating DOF %d ('%s')" % (current_dof, dof_names[current_dof]))
 
     if args.show_axis:
         gym.clear_lines(viewer)
@@ -261,12 +276,14 @@ while not gym.query_viewer_has_closed(viewer):
     # clone actor state in all of the environments
     for i in range(num_envs):
         gym.set_actor_dof_states(
-            envs[i], actor_handles[i], dof_states, gymapi.STATE_POS)
+            envs[i], actor_handles[i], dof_states, gymapi.STATE_POS
+        )
 
         if args.show_axis:
             # get the DOF frame (origin and axis)
             dof_handle = gym.get_actor_dof_handle(
-                envs[i], actor_handles[i], current_dof)
+                envs[i], actor_handles[i], current_dof
+            )
             frame = gym.get_dof_frame(envs[i], dof_handle)
 
             # draw a line from DOF origin along the DOF axis

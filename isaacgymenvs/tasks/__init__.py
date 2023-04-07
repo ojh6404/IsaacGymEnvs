@@ -31,6 +31,7 @@
 # from .anymal import Anymal
 # from .anymal_terrain import AnymalTerrain
 from .ball_balance import BallBalance
+
 # from .cartpole import Cartpole
 # from .factory.factory_task_gears import FactoryTaskGears
 # from .factory.factory_task_insertion import FactoryTaskInsertion
@@ -39,8 +40,10 @@ from .ball_balance import BallBalance
 # from .factory.factory_task_nut_bolt_screw import FactoryTaskNutBoltScrew
 from .franka_cabinet import FrankaCabinet
 from .franka_cube_stack import FrankaCubeStack
+
 # from .humanoid import Humanoid
 from .humanoid_amp import HumanoidAMP
+
 # from .ingenuity import Ingenuity
 # from .quadcopter import Quadcopter
 # from .shadow_hand import ShadowHand
@@ -53,8 +56,10 @@ from .khr_locomotion import KHRLocomotion
 from .khr_balance import KHRBalance
 from .khr22_balance import KHR22Balance
 from .khr_amp import KHRAMP
+
 # from .khr_amp_test import KHRAMPTest
 from .kinova_cabinet import KinovaCabinet
+from .a0b_throw import A0BThrow
 
 # Mappings from strings to environments
 isaacgym_task_map = {
@@ -85,5 +90,6 @@ isaacgym_task_map = {
     "KHR22Balance": KHR22Balance,
     "KHRAMP": KHRAMP,
     "KinovaCabinet": KinovaCabinet,
+    # "A0BThrow": A0BThrow,
     # "KHRAMPTest": KHRAMPTest,
 }
