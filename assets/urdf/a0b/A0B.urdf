@@ -1,0 +1,261 @@
+<?xml version="1.0"?>
+<robot name="A0B"
+       xmlns:xi="http://www.w3.org/2001/XInclude">
+  <link name="BODY">
+    <visual>
+      <origin xyz="0.16 0 0" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://a0b/urdf/A0B_meshes/BODY_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.16 0 0" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://a0b/urdf/A0B_meshes/BODY_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="7.25615" />
+      <origin xyz="-0.1825 0 -0.0336" rpy="0 -0 0"/>
+      <inertia ixx="0.030081" ixy="2.96916e-17" ixz="0.055333" iyy="0.285362" iyz="4.22818e-19" izz="0.278745"/>
+    </inertial>
+  </link>
+  <gazebo reference="BODY">
+    <mu1>0.9</mu1>
+    <mu2>0.9</mu2>
+  </gazebo>
+  <link name="RARM_LINK0">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://a0b/urdf/A0B_meshes/RARM_LINK0_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://a0b/urdf/A0B_meshes/RARM_LINK0_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="1.25859" />
+      <origin xyz="0.00761 0.01398 0.00204" rpy="0 -0 0"/>
+      <inertia ixx="0.002068" ixy="-4.1e-05" ixz="-9e-06" iyy="0.002353" iyz="8.9e-05" izz="0.002763"/>
+    </inertial>
+  </link>
+  <gazebo reference="RARM_LINK0">
+    <mu1>0.9</mu1>
+    <mu2>0.9</mu2>
+  </gazebo>
+  <link name="RARM_LINK1">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://a0b/urdf/A0B_meshes/RARM_LINK1_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://a0b/urdf/A0B_meshes/RARM_LINK1_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="1.66751" />
+      <origin xyz="0.17253 0 0.01555" rpy="0 -0 0"/>
+      <inertia ixx="0.003373" ixy="-3.56619e-17" ixz="0.006518" iyy="0.066458" iyz="2.89725e-17" izz="0.064434"/>
+    </inertial>
+  </link>
+  <gazebo reference="RARM_LINK1">
+    <mu1>0.9</mu1>
+    <mu2>0.9</mu2>
+  </gazebo>
+  <link name="RARM_LINK2">
+    <visual>
+      <origin xyz="0.3 0 0" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://a0b/urdf/A0B_meshes/RARM_LINK2_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.3 0 0" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://a0b/urdf/A0B_meshes/RARM_LINK2_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="1.25859" />
+      <origin xyz="0.00761 0.01398 0.00204" rpy="0 -0 0"/>
+      <inertia ixx="0.002068" ixy="-4.1e-05" ixz="-9e-06" iyy="0.002353" iyz="8.9e-05" izz="0.002763"/>
+    </inertial>
+  </link>
+  <gazebo reference="RARM_LINK2">
+    <mu1>0.9</mu1>
+    <mu2>0.9</mu2>
+  </gazebo>
+  <link name="RARM_LINK3">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://a0b/urdf/A0B_meshes/RARM_LINK3_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://a0b/urdf/A0B_meshes/RARM_LINK3_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="1.66751" />
+      <origin xyz="0.17253 0 0.01555" rpy="0 -0 0"/>
+      <inertia ixx="0.003373" ixy="-3.56619e-17" ixz="0.006518" iyy="0.066458" iyz="2.89725e-17" izz="0.064434"/>
+    </inertial>
+  </link>
+  <gazebo reference="RARM_LINK3">
+    <mu1>0.9</mu1>
+    <mu2>0.9</mu2>
+  </gazebo>
+  <link name="RARM_LINK4">
+    <visual>
+      <origin xyz="0.3 0 0" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://a0b/urdf/A0B_meshes/RARM_LINK4_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.3 0 0" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://a0b/urdf/A0B_meshes/RARM_LINK4_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="1.25859" />
+      <origin xyz="0.00761 0.01398 0.00204" rpy="0 -0 0"/>
+      <inertia ixx="0.002068" ixy="-4.1e-05" ixz="-9e-06" iyy="0.002353" iyz="8.9e-05" izz="0.002763"/>
+    </inertial>
+  </link>
+  <gazebo reference="RARM_LINK4">
+    <mu1>0.9</mu1>
+    <mu2>0.9</mu2>
+  </gazebo>
+  <link name="RARM_LINK5">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://a0b/urdf/A0B_meshes/RARM_LINK5_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://a0b/urdf/A0B_meshes/RARM_LINK5_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="2.83285" />
+      <origin xyz="0.15593 4e-05 2e-05" rpy="0 -0 0"/>
+      <inertia ixx="0.005208" ixy="1.6e-05" ixz="7e-06" iyy="0.078777" iyz="1e-06" izz="0.080014"/>
+    </inertial>
+  </link>
+  <gazebo reference="RARM_LINK5">
+    <mu1>0.9</mu1>
+    <mu2>0.9</mu2>
+  </gazebo>
+  <joint name="RARM_JOINT0" type="revolute">
+    <parent link="BODY"/>
+    <child  link="RARM_LINK0"/>
+    <origin xyz="0 0 0" rpy="0 -0 0 "/>
+    <axis   xyz="0 0 1"/>
+    <limit lower="-2.35" upper="2.35" effort="283.392" velocity="4" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <transmission type="pr2_mechanism_model/SimpleTransmission" name="RARM_JOINT0_trans" >
+    <actuator name="RARM_JOINT0_motor" />
+    <joint name="RARM_JOINT0" />
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <gazebo reference="RARM_JOINT0">
+    <cfmDamping>0.4</cfmDamping>
+  </gazebo>
+  <joint name="RARM_JOINT1" type="revolute">
+    <parent link="RARM_LINK0"/>
+    <child  link="RARM_LINK1"/>
+    <origin xyz="0 0 0" rpy="0 -0 0 "/>
+    <axis   xyz="1 0 0"/>
+    <limit lower="-3.14" upper="3.14" effort="283.392" velocity="4" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <transmission type="pr2_mechanism_model/SimpleTransmission" name="RARM_JOINT1_trans" >
+    <actuator name="RARM_JOINT1_motor" />
+    <joint name="RARM_JOINT1" />
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <gazebo reference="RARM_JOINT1">
+    <cfmDamping>0.4</cfmDamping>
+  </gazebo>
+  <joint name="RARM_JOINT2" type="revolute">
+    <parent link="RARM_LINK1"/>
+    <child  link="RARM_LINK2"/>
+    <origin xyz="0.3 0 0" rpy="0 -0 0 "/>
+    <axis   xyz="0 0 1"/>
+    <limit lower="-2.35" upper="2.35" effort="283.392" velocity="4" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <transmission type="pr2_mechanism_model/SimpleTransmission" name="RARM_JOINT2_trans" >
+    <actuator name="RARM_JOINT2_motor" />
+    <joint name="RARM_JOINT2" />
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <gazebo reference="RARM_JOINT2">
+    <cfmDamping>0.4</cfmDamping>
+  </gazebo>
+  <joint name="RARM_JOINT3" type="revolute">
+    <parent link="RARM_LINK2"/>
+    <child  link="RARM_LINK3"/>
+    <origin xyz="0 0 0" rpy="0 -0 0 "/>
+    <axis   xyz="1 0 0"/>
+    <limit lower="-3.14" upper="3.14" effort="283.392" velocity="4" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <transmission type="pr2_mechanism_model/SimpleTransmission" name="RARM_JOINT3_trans" >
+    <actuator name="RARM_JOINT3_motor" />
+    <joint name="RARM_JOINT3" />
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <gazebo reference="RARM_JOINT3">
+    <cfmDamping>0.4</cfmDamping>
+  </gazebo>
+  <joint name="RARM_JOINT4" type="revolute">
+    <parent link="RARM_LINK3"/>
+    <child  link="RARM_LINK4"/>
+    <origin xyz="0.3 0 0" rpy="0 -0 0 "/>
+    <axis   xyz="0 0 1"/>
+    <limit lower="-2.35" upper="2.35" effort="283.392" velocity="4" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <transmission type="pr2_mechanism_model/SimpleTransmission" name="RARM_JOINT4_trans" >
+    <actuator name="RARM_JOINT4_motor" />
+    <joint name="RARM_JOINT4" />
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <gazebo reference="RARM_JOINT4">
+    <cfmDamping>0.4</cfmDamping>
+  </gazebo>
+  <joint name="RARM_JOINT5" type="revolute">
+    <parent link="RARM_LINK4"/>
+    <child  link="RARM_LINK5"/>
+    <origin xyz="0 0 0" rpy="0 -0 0 "/>
+    <axis   xyz="1 0 0"/>
+    <limit lower="-3.14" upper="3.14" effort="283.392" velocity="4" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <transmission type="pr2_mechanism_model/SimpleTransmission" name="RARM_JOINT5_trans" >
+    <actuator name="RARM_JOINT5_motor" />
+    <joint name="RARM_JOINT5" />
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <gazebo reference="RARM_JOINT5">
+    <cfmDamping>0.4</cfmDamping>
+  </gazebo>
+</robot>

@@ -1,0 +1,18 @@
+rarm:
+  - RARM_JOINT0 : rarm-shoulder0
+  - RARM_JOINT1 : rarm-shoulder1
+  - RARM_JOINT2 : rarm-elbow0
+  - RARM_JOINT3 : rarm-elbow1
+  - RARM_JOINT4 : rarm-wrist0
+  - RARM_JOINT5 : rarm-wrist1
+
+rarm-end-coords:
+  parent: RARM_LINK5
+  translate: [0.22675, 0.0, 0.0]
+
+angle-vector:
+  init-pose : [
+  0.0, 45.0, 0.0, 0.0, 0.0, 0.0,  # arm
+  ]
+
+#TODO: add force sensor
