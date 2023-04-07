@@ -1,0 +1,318 @@
+<mujoco model="A0B">
+  <compiler angle="radian" meshdir="assets" autolimits="true"/>
+
+  <option impratio="10"/>
+
+  <default>
+    <default class="visual">
+      <geom type="mesh" contype="0" conaffinity="0" group="2"/>
+    </default>
+    <default class="collision_arm">
+      <geom type="mesh" group="3"/>
+    </default>
+    <site type="box" size=".001 .02 .02" rgba="0.5 0.5 0.5 0.3" group="1"/>
+
+    <default class="maxon">
+      <joint axis="1 0 0" range="-3.1416 3.1416" armature="0.1" damping="80"/>
+      <position kp="3000" ctrlrange="-3.1416 3.1416" forcerange="-44 44"/>
+      <default class="maxon_limited">
+        <joint axis="0 0 1" range="-2.35 2.35"/>
+        <position ctrlrange="-2.35 2.35"/>
+      </default>
+    </default>
+  </default>
+
+  <asset>
+    <material name="black" specular="0.5" shininess="0.25" rgba="0.033 0.033 0.033 1"/>
+    <material name="linkgray" specular="0.5" shininess="0.25" rgba="0.7 0.7 0.7 1"/>
+    <material name="geargray" specular="0.5" shininess="0.25" rgba="0.5 0.5 0.6 1"/>
+    <material name="cream" specular="0.5" shininess="0.25" rgba="0.91 0.89 0.80 1"/>
+    <material name="red" specular="0.5" shininess="0.25" rgba="0.33 0 0 1"/>
+    <material name="yellow" specular="0.5" shininess="0.25" rgba="0.7 0.6 0 1"/>
+
+    <mesh file="BODY_mesh_0.obj"/>
+    <mesh file="BODY_mesh_1.obj"/>
+    <mesh file="BODY_mesh_2.obj"/>
+    <mesh file="BODY_mesh_3.obj"/>
+    <mesh file="BODY_mesh_4.obj"/>
+    <mesh file="BODY_mesh_5.obj"/>
+    <mesh file="BODY_mesh_6.obj"/>
+    <mesh file="BODY_mesh_7.obj"/>
+    <mesh file="BODY_mesh_8.obj"/>
+    <mesh file="BODY_mesh_9.obj"/>
+    <mesh file="BODY_mesh_10.obj"/>
+    <mesh file="BODY_mesh_11.obj"/>
+    <mesh file="BODY_mesh_12.obj"/>
+    <mesh file="BODY_mesh_13.obj"/>
+    <mesh file="BODY_mesh_14.obj"/>
+
+    <mesh file="RARM_LINK0_mesh_0.obj"/>
+    <mesh file="RARM_LINK0_mesh_1.obj"/>
+    <mesh file="RARM_LINK0_mesh_2.obj"/>
+    <mesh file="RARM_LINK0_mesh_3.obj"/>
+    <mesh file="RARM_LINK0_mesh_4.obj"/>
+    <mesh file="RARM_LINK0_mesh_5.obj"/>
+    <mesh file="RARM_LINK0_mesh_6.obj"/>
+    <mesh file="RARM_LINK0_mesh_7.obj"/>
+    <mesh file="RARM_LINK0_mesh_8.obj"/>
+    <mesh file="RARM_LINK0_mesh_9.obj"/>
+    <mesh file="RARM_LINK0_mesh_10.obj"/>
+    <mesh file="RARM_LINK0_mesh_11.obj"/>
+    <mesh file="RARM_LINK0_mesh_12.obj"/>
+    <mesh file="RARM_LINK0_mesh_13.obj"/>
+    <mesh file="RARM_LINK0_mesh_14.obj"/>
+
+    <mesh file="RARM_LINK1_mesh_0.obj"/>
+    <mesh file="RARM_LINK1_mesh_1.obj"/>
+    <mesh file="RARM_LINK1_mesh_2.obj"/>
+    <mesh file="RARM_LINK1_mesh_3.obj"/>
+    <mesh file="RARM_LINK1_mesh_4.obj"/>
+    <mesh file="RARM_LINK1_mesh_5.obj"/>
+    <mesh file="RARM_LINK1_mesh_6.obj"/>
+    <mesh file="RARM_LINK1_mesh_7.obj"/>
+    <mesh file="RARM_LINK1_mesh_8.obj"/>
+    <mesh file="RARM_LINK1_mesh_9.obj"/>
+    <mesh file="RARM_LINK1_mesh_10.obj"/>
+    <mesh file="RARM_LINK1_mesh_11.obj"/>
+    <mesh file="RARM_LINK1_mesh_12.obj"/>
+    <mesh file="RARM_LINK1_mesh_13.obj"/>
+    <mesh file="RARM_LINK1_mesh_14.obj"/>
+    <mesh file="RARM_LINK1_mesh_15.obj"/>
+    <mesh file="RARM_LINK1_mesh_16.obj"/>
+
+    <mesh file="RARM_LINK2_mesh_0.obj"/>
+    <mesh file="RARM_LINK2_mesh_1.obj"/>
+    <mesh file="RARM_LINK2_mesh_2.obj"/>
+    <mesh file="RARM_LINK2_mesh_3.obj"/>
+    <mesh file="RARM_LINK2_mesh_4.obj"/>
+    <mesh file="RARM_LINK2_mesh_5.obj"/>
+    <mesh file="RARM_LINK2_mesh_6.obj"/>
+    <mesh file="RARM_LINK2_mesh_7.obj"/>
+    <mesh file="RARM_LINK2_mesh_8.obj"/>
+    <mesh file="RARM_LINK2_mesh_9.obj"/>
+    <mesh file="RARM_LINK2_mesh_10.obj"/>
+    <mesh file="RARM_LINK2_mesh_11.obj"/>
+    <mesh file="RARM_LINK2_mesh_12.obj"/>
+    <mesh file="RARM_LINK2_mesh_13.obj"/>
+    <mesh file="RARM_LINK2_mesh_14.obj"/>
+
+    <mesh file="RARM_LINK3_mesh_0.obj"/>
+    <mesh file="RARM_LINK3_mesh_1.obj"/>
+    <mesh file="RARM_LINK3_mesh_2.obj"/>
+    <mesh file="RARM_LINK3_mesh_3.obj"/>
+    <mesh file="RARM_LINK3_mesh_4.obj"/>
+    <mesh file="RARM_LINK3_mesh_5.obj"/>
+    <mesh file="RARM_LINK3_mesh_6.obj"/>
+    <mesh file="RARM_LINK3_mesh_7.obj"/>
+    <mesh file="RARM_LINK3_mesh_8.obj"/>
+    <mesh file="RARM_LINK3_mesh_9.obj"/>
+    <mesh file="RARM_LINK3_mesh_10.obj"/>
+    <mesh file="RARM_LINK3_mesh_11.obj"/>
+    <mesh file="RARM_LINK3_mesh_12.obj"/>
+    <mesh file="RARM_LINK3_mesh_13.obj"/>
+    <mesh file="RARM_LINK3_mesh_14.obj"/>
+    <mesh file="RARM_LINK3_mesh_15.obj"/>
+    <mesh file="RARM_LINK3_mesh_16.obj"/>
+
+    <mesh file="RARM_LINK4_mesh_0.obj"/>
+    <mesh file="RARM_LINK4_mesh_1.obj"/>
+    <mesh file="RARM_LINK4_mesh_2.obj"/>
+    <mesh file="RARM_LINK4_mesh_3.obj"/>
+    <mesh file="RARM_LINK4_mesh_4.obj"/>
+    <mesh file="RARM_LINK4_mesh_5.obj"/>
+    <mesh file="RARM_LINK4_mesh_6.obj"/>
+    <mesh file="RARM_LINK4_mesh_7.obj"/>
+    <mesh file="RARM_LINK4_mesh_8.obj"/>
+    <mesh file="RARM_LINK4_mesh_9.obj"/>
+    <mesh file="RARM_LINK4_mesh_10.obj"/>
+    <mesh file="RARM_LINK4_mesh_11.obj"/>
+    <mesh file="RARM_LINK4_mesh_12.obj"/>
+    <mesh file="RARM_LINK4_mesh_13.obj"/>
+    <mesh file="RARM_LINK4_mesh_14.obj"/>
+
+    <mesh file="RARM_LINK5_mesh_0.obj"/>
+    <mesh file="RARM_LINK5_mesh_1.obj"/>
+    <mesh file="RARM_LINK5_mesh_2.obj"/>
+    <mesh file="RARM_LINK5_mesh_3.obj"/>
+    <mesh file="RARM_LINK5_mesh_5.obj"/>
+    <mesh file="RARM_LINK5_mesh_6.obj"/>
+    <mesh file="RARM_LINK5_mesh_7.obj"/>
+    <mesh file="RARM_LINK5_mesh_8.obj"/>
+    <mesh file="RARM_LINK5_mesh_12.obj"/>
+    <mesh file="RARM_LINK5_mesh_13.obj"/>
+    <mesh file="RARM_LINK5_mesh_14.obj"/>
+    <mesh file="RARM_LINK5_mesh_15.obj"/>
+
+    <mesh name="col_arm_link0" file="RARM_LINK0_mesh.stl"/>
+    <mesh name="col_arm_link1" file="RARM_LINK1_mesh.stl"/>
+    <mesh name="col_arm_link2" file="RARM_LINK2_mesh.stl"/>
+    <mesh name="col_arm_link3" file="RARM_LINK3_mesh.stl"/>
+    <mesh name="col_arm_link4" file="RARM_LINK4_mesh.stl"/>
+    <mesh name="col_arm_link5" file="RARM_LINK5_mesh_simp.stl"/>
+  </asset>
+
+  <worldbody>
+    <light name="spotlight" mode="targetbodycom" target="RARM_LINK5" pos="0 -1 2"/>
+
+    <body name="base_arm" quat="1 0 0 0" gravcomp="1">
+      <inertial mass="7.25615" pos="-0.1825 0 -0.0336" diaginertia="0.030081 0.285362 0.278745"/>
+      <geom mesh="BODY_mesh_0" pos="0.16 0 0" material="black" class="visual"/>
+      <geom mesh="BODY_mesh_1" pos="0.16 0 0" material="black" class="visual"/>
+      <geom mesh="BODY_mesh_2" pos="0.16 0 0" material="yellow" class="visual"/>
+      <geom mesh="BODY_mesh_3" pos="0.16 0 0" material="yellow" class="visual"/>
+      <geom mesh="BODY_mesh_4" pos="0.16 0 0" material="black" class="visual"/>
+      <geom mesh="BODY_mesh_5" pos="0.16 0 0" material="black" class="visual"/>
+      <geom mesh="BODY_mesh_6" pos="0.16 0 0" material="geargray" class="visual"/>
+      <geom mesh="BODY_mesh_7" pos="0.16 0 0" material="black" class="visual"/>
+      <geom mesh="BODY_mesh_8" pos="0.16 0 0" material="linkgray" class="visual"/>
+      <geom mesh="BODY_mesh_9" pos="0.16 0 0" material="geargray" class="visual"/>
+      <geom mesh="BODY_mesh_10" pos="0.16 0 0" material="black" class="visual"/>
+      <geom mesh="BODY_mesh_11" pos="0.16 0 0" material="black" class="visual"/>
+      <geom mesh="BODY_mesh_12" pos="0.16 0 0" material="black" class="visual"/>
+      <geom mesh="BODY_mesh_13" pos="0.16 0 0" material="black" class="visual"/>
+      <geom mesh="BODY_mesh_14" pos="0.16 0 0" material="linkgray" class="visual"/>
+
+      <!-- no collision on base -->
+
+      <body name="RARM_LINK0" pos="0 0 0" gravcomp="1">
+        <inertial pos="0.00761 0.01398 0.00204" quat="0.0234572 0.69813 0.123374 0.704871" mass="1.25859" diaginertia="0.0027819 0.0023399 0.0020622"/>
+        <joint name="RARM_JOINT0" pos="0 0 0" class="maxon_limited"/>
+        <geom mesh="RARM_LINK0_mesh_0" material="linkgray" class="visual"/>
+        <geom mesh="RARM_LINK0_mesh_1" material="geargray" class="visual"/>
+        <geom mesh="RARM_LINK0_mesh_2" material="black" class="visual"/>
+        <geom mesh="RARM_LINK0_mesh_3" material="black" class="visual"/>
+        <geom mesh="RARM_LINK0_mesh_4" material="black" class="visual"/>
+        <geom mesh="RARM_LINK0_mesh_5" material="geargray" class="visual"/>
+        <geom mesh="RARM_LINK0_mesh_6" material="linkgray" class="visual"/>
+        <geom mesh="RARM_LINK0_mesh_7" material="black" class="visual"/>
+        <geom mesh="RARM_LINK0_mesh_8" material="black" class="visual"/>
+        <geom mesh="RARM_LINK0_mesh_9" material="black" class="visual"/>
+        <geom mesh="RARM_LINK0_mesh_10" material="black" class="visual"/>
+        <geom mesh="RARM_LINK0_mesh_11" material="black" class="visual"/>
+        <geom mesh="RARM_LINK0_mesh_12" material="black" class="visual"/>
+        <geom mesh="RARM_LINK0_mesh_13" material="black" class="visual"/>
+        <geom mesh="RARM_LINK0_mesh_14" material="black" class="visual"/>
+        <geom class="collision_arm" mesh="col_arm_link0"/>
+
+        <body name="RARM_LINK1" pos="0 0 0" gravcomp="1">
+          <inertial pos="0.17253 0 0.01555" quat="0.473029 0.525589 0.525589 0.473029" mass="1.66751" diaginertia="0.066458 0.065122 0.00268498"/>
+          <joint name="RARM_JOINT1" pos="0 0 0" class="maxon"/>
+          <geom mesh="RARM_LINK1_mesh_0" material="black" class="visual"/>
+          <geom mesh="RARM_LINK1_mesh_1" material="black" class="visual"/>
+          <geom mesh="RARM_LINK1_mesh_2" material="linkgray" class="visual"/>
+          <geom mesh="RARM_LINK1_mesh_3" material="black" class="visual"/>
+          <geom mesh="RARM_LINK1_mesh_4" material="black" class="visual"/>
+          <geom mesh="RARM_LINK1_mesh_5" material="yellow" class="visual"/>
+          <geom mesh="RARM_LINK1_mesh_6" material="yellow" class="visual"/>
+          <geom mesh="RARM_LINK1_mesh_7" material="black" class="visual"/>
+          <geom mesh="RARM_LINK1_mesh_8" material="black" class="visual"/>
+          <geom mesh="RARM_LINK1_mesh_9" material="geargray" class="visual"/>
+          <geom mesh="RARM_LINK1_mesh_10" material="black" class="visual"/>
+          <geom mesh="RARM_LINK1_mesh_11" material="linkgray" class="visual"/>
+          <geom mesh="RARM_LINK1_mesh_12" material="geargray" class="visual"/>
+          <geom mesh="RARM_LINK1_mesh_13" material="black" class="visual"/>
+          <geom mesh="RARM_LINK1_mesh_14" material="black" class="visual"/>
+          <geom mesh="RARM_LINK1_mesh_15" material="black" class="visual"/>
+          <geom mesh="RARM_LINK1_mesh_16" material="black" class="visual"/>
+          <geom class="collision_arm" mesh="col_arm_link1"/>
+
+          <body name="RARM_LINK2" pos="0.3 0 0" gravcomp="1">
+            <inertial pos="0.00761 0.01398 0.00204" quat="0.0234572 0.69813 0.123374 0.704871" mass="1.25859" diaginertia="0.0027819 0.0023399 0.0020622"/>
+            <joint name="RARM_JOINT2" pos="0 0 0" class="maxon_limited"/>
+            <geom mesh="RARM_LINK2_mesh_0" pos="0.3 0 0" material="black" class="visual"/>
+            <geom mesh="RARM_LINK2_mesh_1" pos="0.3 0 0" material="geargray" class="visual"/>
+            <geom mesh="RARM_LINK2_mesh_2" pos="0.3 0 0" material="black" class="visual"/>
+            <geom mesh="RARM_LINK2_mesh_3" pos="0.3 0 0" material="black" class="visual"/>
+            <geom mesh="RARM_LINK2_mesh_4" pos="0.3 0 0" material="black" class="visual"/>
+            <geom mesh="RARM_LINK2_mesh_5" pos="0.3 0 0" material="geargray" class="visual"/>
+            <geom mesh="RARM_LINK2_mesh_6" pos="0.3 0 0" material="linkgray" class="visual"/>
+            <geom mesh="RARM_LINK2_mesh_7" pos="0.3 0 0" material="black" class="visual"/>
+            <geom mesh="RARM_LINK2_mesh_8" pos="0.3 0 0" material="black" class="visual"/>
+            <geom mesh="RARM_LINK2_mesh_9" pos="0.3 0 0" material="black" class="visual"/>
+            <geom mesh="RARM_LINK2_mesh_10" pos="0.3 0 0" material="black" class="visual"/>
+            <geom mesh="RARM_LINK2_mesh_11" pos="0.3 0 0" material="black" class="visual"/>
+            <geom mesh="RARM_LINK2_mesh_12" pos="0.3 0 0" material="black" class="visual"/>
+            <geom mesh="RARM_LINK2_mesh_13" pos="0.3 0 0" material="black" class="visual"/>
+            <geom mesh="RARM_LINK2_mesh_14" pos="0.3 0 0" material="black" class="visual"/>
+            <geom class="collision_arm" pos="0.3 0 0" mesh="col_arm_link2"/>
+
+            <body name="RARM_LINK3" pos="0 0 0" gravcomp="1">
+              <inertial pos="0.17253 0 0.01555" quat="0.473029 0.525589 0.525589 0.473029" mass="1.66751" diaginertia="0.066458 0.065122 0.00268498"/>
+              <joint name="RARM_JOINT3" pos="0 0 0" class="maxon"/>
+              <geom mesh="RARM_LINK3_mesh_0" material="black" class="visual"/>
+              <geom mesh="RARM_LINK3_mesh_1" material="black" class="visual"/>
+              <geom mesh="RARM_LINK3_mesh_2" material="linkgray" class="visual"/>
+              <geom mesh="RARM_LINK3_mesh_3" material="black" class="visual"/>
+              <geom mesh="RARM_LINK3_mesh_4" material="black" class="visual"/>
+              <geom mesh="RARM_LINK3_mesh_5" material="yellow" class="visual"/>
+              <geom mesh="RARM_LINK3_mesh_6" material="yellow" class="visual"/>
+              <geom mesh="RARM_LINK3_mesh_7" material="black" class="visual"/>
+              <geom mesh="RARM_LINK3_mesh_8" material="black" class="visual"/>
+              <geom mesh="RARM_LINK3_mesh_9" material="geargray" class="visual"/>
+              <geom mesh="RARM_LINK3_mesh_10" material="black" class="visual"/>
+              <geom mesh="RARM_LINK3_mesh_11" material="linkgray" class="visual"/>
+              <geom mesh="RARM_LINK3_mesh_12" material="geargray" class="visual"/>
+              <geom mesh="RARM_LINK3_mesh_13" material="black" class="visual"/>
+              <geom mesh="RARM_LINK3_mesh_14" material="black" class="visual"/>
+              <geom mesh="RARM_LINK3_mesh_15" material="black" class="visual"/>
+              <geom mesh="RARM_LINK3_mesh_16" material="black" class="visual"/>
+              <geom class="collision_arm" mesh="col_arm_link3"/>
+
+              <body name="RARM_LINK4" pos="0.3 0 0" gravcomp="1">
+                <inertial pos="0.00761 0.01398 0.00204" quat="0.0234572 0.69813 0.123374 0.704871" mass="1.25859" diaginertia="0.0027819 0.0023399 0.0020622"/>
+                <joint name="RARM_JOINT4" pos="0 0 0" class="maxon_limited"/>
+                <geom mesh="RARM_LINK4_mesh_0" pos="0.3 0 0" material="black" class="visual"/>
+                <geom mesh="RARM_LINK4_mesh_1" pos="0.3 0 0" material="geargray" class="visual"/>
+                <geom mesh="RARM_LINK4_mesh_2" pos="0.3 0 0" material="black" class="visual"/>
+                <geom mesh="RARM_LINK4_mesh_3" pos="0.3 0 0" material="black" class="visual"/>
+                <geom mesh="RARM_LINK4_mesh_4" pos="0.3 0 0" material="black" class="visual"/>
+                <geom mesh="RARM_LINK4_mesh_5" pos="0.3 0 0" material="geargray" class="visual"/>
+                <geom mesh="RARM_LINK4_mesh_6" pos="0.3 0 0" material="linkgray" class="visual"/>
+                <geom mesh="RARM_LINK4_mesh_7" pos="0.3 0 0" material="black" class="visual"/>
+                <geom mesh="RARM_LINK4_mesh_8" pos="0.3 0 0" material="black" class="visual"/>
+                <geom mesh="RARM_LINK4_mesh_9" pos="0.3 0 0" material="black" class="visual"/>
+                <geom mesh="RARM_LINK4_mesh_10" pos="0.3 0 0" material="black" class="visual"/>
+                <geom mesh="RARM_LINK4_mesh_11" pos="0.3 0 0" material="black" class="visual"/>
+                <geom mesh="RARM_LINK4_mesh_12" pos="0.3 0 0" material="black" class="visual"/>
+                <geom mesh="RARM_LINK4_mesh_13" pos="0.3 0 0" material="black" class="visual"/>
+                <geom mesh="RARM_LINK4_mesh_14" pos="0.3 0 0" material="black" class="visual"/>
+                <geom class="collision_arm" pos="0.3 0 0" mesh="col_arm_link4"/>
+
+                <body name="RARM_LINK5" pos="0 0 0" gravcomp="1">
+                  <inertial pos="0.15593 4e-05 2e-05" quat="0.000363126 0.70714 0.000209369 0.707074" mass="2.83285" diaginertia="0.080014 0.078777 0.005208"/>
+                  <joint name="RARM_JOINT5" pos="0 0 0" class="maxon"/>
+                  <geom mesh="RARM_LINK5_mesh_0" material="red" class="visual"/>
+                  <geom mesh="RARM_LINK5_mesh_1" material="cream" class="visual"/>
+                  <geom mesh="RARM_LINK5_mesh_2" material="black" class="visual"/>
+                  <geom mesh="RARM_LINK5_mesh_3" material="linkgray" class="visual"/>
+                  <geom mesh="RARM_LINK5_mesh_5" material="black" class="visual"/>
+                  <geom mesh="RARM_LINK5_mesh_6" material="black" class="visual"/>
+                  <geom mesh="RARM_LINK5_mesh_7" material="black" class="visual"/>
+                  <geom mesh="RARM_LINK5_mesh_8" material="black" class="visual"/>
+                  <geom mesh="RARM_LINK5_mesh_12" material="black" class="visual"/>
+                  <geom mesh="RARM_LINK5_mesh_13" material="black" class="visual"/>
+                  <geom mesh="RARM_LINK5_mesh_14" material="black" class="visual"/>
+                  <geom mesh="RARM_LINK5_mesh_15" material="black" class="visual"/>
+                  <geom class="collision_arm" mesh="col_arm_link5"/>
+
+                  <site name="attachment_site" pos="0.224 0 0" quat="1 0 0 1"/>
+
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <position class="maxon_limited" name="a0b_j0" joint="RARM_JOINT0"/>
+    <position class="maxon"         name="a0b_j1" joint="RARM_JOINT1"/>
+    <position class="maxon_limited" name="a0b_j2" joint="RARM_JOINT2"/>
+    <position class="maxon"         name="a0b_j3" joint="RARM_JOINT3"/>
+    <position class="maxon_limited" name="a0b_j4" joint="RARM_JOINT4"/>
+    <position class="maxon"         name="a0b_j5" joint="RARM_JOINT5"/>
+  </actuator>
+
+</mujoco>
